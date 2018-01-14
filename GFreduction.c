@@ -93,6 +93,10 @@ int main(int argc, char* argv[]){
 		Prow[i] = i;
 	}
 
+	printf("G = \n");
+	printMatrix(G, M, N);
+	printf("J = \n");
+	printVector(J, M);
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
@@ -133,6 +137,9 @@ int main(int argc, char* argv[]){
 				long int temp = Pcol[pivot_col];
 				Pcol[pivot_col] = Pcol[k];
 				Pcol[k] = temp;
+
+				printf("after colum pivot...\n");
+				printMatrix(G, M, N);
 			}
 
 			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need t that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
@@ -143,7 +150,7 @@ int main(int argc, char* argv[]){
 
 			if(k != N-1 && sumk < 0 && J[k] == 1){
 
-				for(i = k; i < M; ++i)
+				for(i = k+1; i < M; ++i)
 					if(J[i] == -1) break;
 
 				// swap
@@ -157,11 +164,10 @@ int main(int argc, char* argv[]){
 				long int temp = Prow[i];
 				Prow[i] = Prow[k];
 				Prow[k] = temp;
-
 			}
 			else if(k != N-1 && sumk > 0 && J[k] == -1){
 
-				for(i = k; i < M; ++i)
+				for(i = k+1; i < M; ++i)
 					if(J[i] == 1) break;
 
 				// swap
@@ -177,6 +183,9 @@ int main(int argc, char* argv[]){
 				Prow[k] = temp;
 			}
 
+			printf("G after pivoting...\n");
+			printMatrix(G, M, N);
+
 			// ----------------------- compute reflector constant sigma -----------------------
 
 			double complex sigma = f[k] * J[k] * G[k+M*k];	// sigma = f*Jg
@@ -189,6 +198,8 @@ int main(int argc, char* argv[]){
 
 			int inc = 1;
 			zscal_(&len_of_f, &sigma, &f[k], &inc); // f(k:M) = sigma*f(k:M)
+
+			printMatrix(&f[k], len_of_f, 1);
 
 
 			// ----------------------- make the reflector -----------------------
@@ -217,6 +228,12 @@ int main(int argc, char* argv[]){
 
 			inc = 1;
 			for(j = 0; j < Nk; ++j) zcopy_(&len_of_f, &T[j*len_of_f], &inc, &G[k+M*(j+k)], &inc);	// G = T (copy blocks)
+
+			printf("HG = \n");
+			printMatrix(G, M, N);
+			printVector(Pcol, N);
+
+			printVector(J, M);
 		}
 	}
 
@@ -240,32 +257,6 @@ int main(int argc, char* argv[]){
 			fprintf(writeG, "%lf %lf ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}
-
-	// ------------------------ check ------------------------ 
-
-	char trans = 'C';
-	char non_trans = 'N';
-	double complex alpha = 1;
-	double complex beta = 0;
-	double complex *A = (double complex*)malloc(N*N*sizeof(double complex));
-
-	if(A == NULL){
-		printf("Cannot allocate memory.\n");
-		exit(-2);
-	}
-
-
-	double complex *JJ = (double complex*)malloc(M*M*sizeof(double complex));
-	for(i = 0; i < M; ++i){
-		for(j = 0; j < M; ++j){
-			if(i == j) JJ[i+M*j] = (double complex) J[i];
-			else JJ[i+M*j] = 0;
-		}
-	}
-
-	zgemm_(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
-	zgemm_(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
-
 
 	// ------------------------------- cleaning -------------------------------
 

@@ -41,6 +41,7 @@ int main(int argc, char* argv[]){
 	// allocate memory
 	double complex *AA = (double complex*) malloc(N*N*sizeof(double complex));
 	double complex *A = (double complex*) malloc(N*N*sizeof(double complex));
+	double complex *PA = (double complex*) malloc(N*N*sizeof(double complex));
 	double complex *G = (double complex*) malloc(M*N*sizeof(double complex));
 	double complex *T = (double complex*) malloc(M*N*sizeof(double complex));	// temporary matrix
 	long int *J = (long int*) malloc(M*sizeof(long int));
@@ -59,19 +60,23 @@ int main(int argc, char* argv[]){
 		exit(-2);
 	}
 
-	// read matrix G and P
-	double x, y;
 	int i, j;
+	// read vector J and P
+	for(i = 0; i < M; ++i){
+		fscanf(readJ, "%ld ", &J[i]);
+		fscanf(readP, "%ld ", &P[i]);
+	}
+
+	// read matrix G
+	double x, y;
 	for(j = 0; j < N; ++j){
-		fscanf(readP, "%ld ", &P[j]);
 		for( i = 0; i < M; ++i ){
 			fscanf(readG, "%lf %lf ", &x, &y);
-			G[i+M*j] = x + I*y;
+			G[i+M*P[j]] = x + I*y;
 		}
 	}
 
- 	// read vector J
-	for(i = 0; i < M; ++i) fscanf(readJ, "%ld ", &J[i]);
+	printVector(P, N);
 	
 	// read AA
 	for(j = 0; j < N; ++j){
@@ -81,7 +86,7 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	// ------------------ compute G*JG ------------------
+	// ------------------------------------ compute G*JG ------------------------------------
 
 	printf("computing G*JG...\n");
 
@@ -108,6 +113,7 @@ int main(int argc, char* argv[]){
 	zgemm_(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm_(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
 
+
 	// ------------------------------------------ residual ------------------------------------------
 
 	printf("A = \n");
@@ -120,10 +126,14 @@ int main(int argc, char* argv[]){
 	double max = 0;
 	for(i = 0; i < N; ++i){
 		for(j = 0; j < N; ++j){
+			printf("%.2lf + i%.2lf   -   %.2lf + i%.2lf   =   %.2lf + i%.2lf\n", creal(A[P[i]+N*P[j]]), cimag(A[P[i]+N*P[j]]), creal(AA[i+N*j]), cimag(AA[i+N*j]), creal(A[P[i]+N*P[j]] - AA[i+N*j]), cimag(A[P[i]+N*P[j]] - AA[i+N*j]));
 			if(cabs(A[P[i]+N*P[j]] - AA[i+N*j]) > max) max = cabs(A[P[i]+N*P[j]] - AA[i+N*j]);
 			norm += cabs(A[P[i]+N*P[j]] - AA[i+N*j]) * cabs(A[P[i]+N*P[j]] - AA[i+N*j]);
 		}
 	}
+
+	printf("P = \n");
+	printVector(P, N);
 
 	printf("maximum coordinate difference: %lf\n", max);
 	printf("norm(A-AA): %lf\n", sqrt(norm));
