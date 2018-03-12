@@ -20,8 +20,8 @@
 #include <math.h>
 #include <time.h>
 
-double eps = 10;
-double eps0 = 1.0e-3;
+double eps = 1.0;	// ovaj je za g*Jg >= eps
+double eps0 = 1.0e-6;	// ovo je nula
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -145,7 +145,6 @@ int main(int argc, char* argv[]){
 			if(pivot_col != k){
 
 				int inc = 1;
-				//zswap_(&len_of_f, &G[k+M*pivot_col], &inc, &G[k+M*k], &inc);	// G(k:M, k) <-> G(k:M, pivot_col)
 				zswap_(&M, &G[M*pivot_col], &inc, &G[M*k], &inc);	// G(1:M, k) <-> G(1:M, pivot_col)
 
 				long int temp = Pcol[pivot_col];
