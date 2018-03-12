@@ -138,8 +138,8 @@ int main(int argc, char* argv[]){
 				Pcol[pivot_col] = Pcol[k];
 				Pcol[k] = temp;
 
-				printf("after colum pivot...\n");
-				printMatrix(G, M, N);
+				//printf("after colum pivot...\n");
+				//printMatrix(G, M, N);
 			}
 
 			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need t that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
@@ -183,8 +183,8 @@ int main(int argc, char* argv[]){
 				Prow[k] = temp;
 			}
 
-			printf("G after pivoting...\n");
-			printMatrix(G, M, N);
+			//printf("G after pivoting...\n");
+			//printMatrix(G, M, N);
 
 			// ----------------------- compute reflector constant sigma -----------------------
 
@@ -199,7 +199,7 @@ int main(int argc, char* argv[]){
 			int inc = 1;
 			zscal_(&len_of_f, &sigma, &f[k], &inc); // f(k:M) = sigma*f(k:M)
 
-			printMatrix(&f[k], len_of_f, 1);
+			//printMatrix(&f[k], len_of_f, 1);
 
 
 			// ----------------------- make the reflector -----------------------
@@ -229,11 +229,15 @@ int main(int argc, char* argv[]){
 			inc = 1;
 			for(j = 0; j < Nk; ++j) zcopy_(&len_of_f, &T[j*len_of_f], &inc, &G[k+M*(j+k)], &inc);	// G = T (copy blocks)
 
-			printf("HG = \n");
-			printMatrix(G, M, N);
+			//printf("HG = \n");
+			//printMatrix(G, M, N);
+			printf("Pcol = \n");
 			printVector(Pcol, N);
-
+			printf("Prow = \n");
+			printVector(Prow, M);
+			printf("J = \n");
 			printVector(J, M);
+			printf("\n");
 		}
 	}
 

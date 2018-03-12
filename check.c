@@ -32,9 +32,10 @@ int main(int argc, char* argv[]){
 	FILE *readG = fopen(argv[1], "rb");
 	FILE *readJ = fopen(argv[2], "rb");
 	FILE *readA = fopen(argv[3], "rb");
-	FILE *readP = fopen(argv[4], "rb");
-	int M = atoi(argv[5]);
-	int N = atoi(argv[6]);
+	FILE *readProw = fopen(argv[4], "rb");
+	FILE *readPcol = fopen(argv[5], "rb");
+	int M = atoi(argv[6]);
+	int N = atoi(argv[7]);
 
 	printf("Reading data...\n");
 
@@ -45,38 +46,39 @@ int main(int argc, char* argv[]){
 	double complex *G = (double complex*) malloc(M*N*sizeof(double complex));
 	double complex *T = (double complex*) malloc(M*N*sizeof(double complex));	// temporary matrix
 	long int *J = (long int*) malloc(M*sizeof(long int));
-	long int *P = (long int*) malloc(N*sizeof(long int));	// for column permutation
+	long int *Pcol = (long int*) malloc(N*sizeof(long int));	// for column permutation
+	long int *Prow = (long int*) malloc(M*sizeof(long int));	// for row permutation
 
 
 	// check if files are opened
-	if(readG == NULL || readJ == NULL || readA == NULL || readP == NULL || AA == NULL){
+	if(readG == NULL || readJ == NULL || readA == NULL || readProw == NULL || readPcol == NULL){
 		printf("Cannot open file.\n");
 		exit(-1);
 	}
 
 	// check if memory is allocated
-	if(G == NULL || J == NULL || P == NULL || T == NULL || A == NULL){
+	if(G == NULL || J == NULL || Prow == NULL || T == NULL || A == NULL || AA == NULL || Pcol == NULL){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
 
 	int i, j;
-	// read vector J and P
+	// read vector J and Prow
 	for(i = 0; i < M; ++i){
 		fscanf(readJ, "%ld ", &J[i]);
-		fscanf(readP, "%ld ", &P[i]);
+		fscanf(readProw, "%ld ", &Prow[i]);
 	}
 
-	// read matrix G
+	// read matrix G and Pcol
 	double x, y;
 	for(j = 0; j < N; ++j){
+		fscanf(readPcol, "%ld ", &Pcol[j]);
 		for( i = 0; i < M; ++i ){
 			fscanf(readG, "%lf %lf ", &x, &y);
-			G[i+M*P[j]] = x + I*y;
+			G[i+M*Pcol[j]] = x + I*y;
 		}
 	}
 
-	printVector(P, N);
 	
 	// read AA
 	for(j = 0; j < N; ++j){
@@ -85,6 +87,11 @@ int main(int argc, char* argv[]){
 			AA[i+N*j] = x + I*y;
 		}
 	}
+
+	printf("Pcol = \n");
+	printVector(Pcol, N);
+	printf("Prow = \n");
+	printVector(Prow, M);
 
 	// ------------------------------------ compute G*JG ------------------------------------
 
@@ -126,26 +133,26 @@ int main(int argc, char* argv[]){
 	double max = 0;
 	for(i = 0; i < N; ++i){
 		for(j = 0; j < N; ++j){
-			printf("%.2lf + i%.2lf   -   %.2lf + i%.2lf   =   %.2lf + i%.2lf\n", creal(A[P[i]+N*P[j]]), cimag(A[P[i]+N*P[j]]), creal(AA[i+N*j]), cimag(AA[i+N*j]), creal(A[P[i]+N*P[j]] - AA[i+N*j]), cimag(A[P[i]+N*P[j]] - AA[i+N*j]));
-			if(cabs(A[P[i]+N*P[j]] - AA[i+N*j]) > max) max = cabs(A[P[i]+N*P[j]] - AA[i+N*j]);
-			norm += cabs(A[P[i]+N*P[j]] - AA[i+N*j]) * cabs(A[P[i]+N*P[j]] - AA[i+N*j]);
+			printf("%.2lf + i%.2lf   -   %.2lf + i%.2lf   =   %.2lf + i%.2lf\n", creal(A[Pcol[i]+N*Pcol[j]]), cimag(A[Pcol[i]+N*Pcol[j]]), creal(AA[i+N*j]), cimag(AA[i+N*j]), creal(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]), cimag(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]));
+			if(cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]) > max) max = cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]);
+			norm += cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]) * cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]);
 		}
 	}
 
-	printf("P = \n");
-	printVector(P, N);
 
 	printf("maximum coordinate difference: %lf\n", max);
 	printf("norm(A-AA): %lf\n", sqrt(norm));
-
+	
 	// ------------------------------- cleaning -------------------------------
 
 	fclose(readG);
 	fclose(readJ);
 	fclose(readA);
-	fclose(readP);
+	fclose(readProw);
+	fclose(readPcol);
 
-	free(P);
+	free(Prow);
+	free(Pcol);
 	free(A);	
 	free(G);
 	free(J);
