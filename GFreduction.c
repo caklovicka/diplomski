@@ -20,7 +20,7 @@
 #include <math.h>
 #include <time.h>
 
-double eps = 1.0e-2;
+double eps = 5;
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -97,6 +97,7 @@ int main(int argc, char* argv[]){
 	printMatrix(G, M, N);
 	printf("J = \n");
 	printVector(J, M);
+	
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]){
 		// if pivot_col = -1 after thene first for loop, then we need 2x2 pivot
 		printf("----------------------------- %d. iteration ----------------------\n", k);
 
-		int pivot_col = -1;	
+		int pivot_col = k;	// ZASADA neka je k, a poslije cemo ga puniti s -1 ako teba 2x2 transformacija
 		double sumk;
 
 		for(j = k; j < N; ++j){
@@ -132,6 +133,7 @@ int main(int argc, char* argv[]){
 
 		printf("sumk = %lf\n", sumk);
 		printf("pivot_col = %d\n", pivot_col);
+		
 
 		// ---------------------------------------------------------- 1x1 pivot ----------------------------------------------------------
 		if(pivot_col != -1){
@@ -150,6 +152,7 @@ int main(int argc, char* argv[]){
 
 				printf("after colum pivot...\n");
 				printMatrix(G, M, N);
+				
 			}
 
 			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need fk that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
@@ -177,6 +180,7 @@ int main(int argc, char* argv[]){
 
 				printf("pivoting rows...\n");
 				printMatrix(G, M, N);
+				
 			}
 			else if(k < M-1 && sumk > 0 && J[k] == -1){
 
@@ -197,6 +201,7 @@ int main(int argc, char* argv[]){
 
 				printf("pivoting rows...\n");
 				printMatrix(G, M, N);
+				
 			}
 
 			// ----------------------- compute reflector constant sigma -----------------------
@@ -214,7 +219,7 @@ int main(int argc, char* argv[]){
 
 			printf("f = \n");
 			printMatrix(&f[k], len_of_f, 1);
-
+			
 
 			// ----------------------- make the reflector -----------------------
 
@@ -252,6 +257,7 @@ int main(int argc, char* argv[]){
 			printf("J = \n");
 			printVector(J, M);
 			printf("\n");
+			
 		}
 	}
 
