@@ -16,7 +16,7 @@ check:
 	@echo $(M)
 	@echo $(N)
 	gcc check.c -o check.out -lm -lblas -llapack -w
-	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Prow.bin data/Pcol.bin $(M) $(N) -w
+	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N) -w
 
 all: 
 	rm -rf data

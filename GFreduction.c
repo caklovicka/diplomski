@@ -93,10 +93,10 @@ int main(int argc, char* argv[]){
 		Prow[i] = i;
 	}
 
-	printf("G = \n");
-	printMatrix(G, M, N);
-	printf("J = \n");
-	printVector(J, M);
+	//printf("G = \n");
+	//printMatrix(G, M, N);
+	//printf("J = \n");
+	//printVector(J, M);
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
@@ -231,13 +231,13 @@ int main(int argc, char* argv[]){
 
 			//printf("HG = \n");
 			//printMatrix(G, M, N);
-			printf("Pcol = \n");
-			printVector(Pcol, N);
-			printf("Prow = \n");
-			printVector(Prow, M);
-			printf("J = \n");
-			printVector(J, M);
-			printf("\n");
+			//printf("Pcol = \n");
+			//printVector(Pcol, N);
+			//printf("Prow = \n");
+			//printVector(Prow, M);
+			//printf("J = \n");
+			//printVector(J, M);
+			//printf("\n");
 		}
 	}
 
