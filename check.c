@@ -24,6 +24,24 @@ void printVector(long int *J, int M){
 	printf("\n");
 }
 
+void printMatrixP(double complex *G, int M, int N, long int* P){
+
+	int i, j;
+	for( i = 0; i < M; ++i ){
+
+		if(P[i] == i) 
+			for( j = 0; j < N; ++j ) printf("%7.2f + i%7.2f    ", creal(G[i+N*j]), cimag(G[i+N*j]) );
+
+		else{
+			for( j = 0; j < i; ++j ) printf("%7.2f + i%7.2f    ", creal(G[i+N*j]), cimag(G[i+N*j]) );
+			for( j = i; j < N; ++j ) printf("%7.2f + i%7.2f    ", creal(G[P[i]+N*P[j]]), cimag(G[P[i]+N*P[j]]) );
+		}
+
+		printf("\n");
+	}
+	printf("\n");
+}
+
 //----------------------------------------------------------------------------------------
 
 int main(int argc, char* argv[]){
@@ -66,16 +84,19 @@ int main(int argc, char* argv[]){
 		fscanf(readJ, "%ld ", &J[i]);
 	}
 
-	// read matrix G and Pcol
-	double x, y;
-	for(j = 0; j < N; ++j){
-		fscanf(readPcol, "%ld ", &Pcol[j]);
-		for( i = 0; i < M; ++i ){
-			fscanf(readG, "%lf %lf ", &x, &y);
-			G[i+M*Pcol[j]] = x + I*y;
-		}
+	// read Pcol
+	for(i = 0; i < N; ++i){
+		fscanf(readPcol, "%ld ", &Pcol[i]);
 	}
 
+	// read matrix G
+	double x, y;
+	for(j = 0; j < N; ++j){
+		for( i = 0; i < M; ++i ){
+			fscanf(readG, "%lf %lf ", &x, &y);
+			G[i+M*j] = x + I*y;
+		}
+	}
 	
 	// read AA
 	for(j = 0; j < N; ++j){
@@ -117,11 +138,31 @@ int main(int argc, char* argv[]){
 	zgemm_(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm_(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
 
+	// ------------------------------------------ apply permutation on A ----------------------------
+
+	// compute perm on the upper triangle, and use A*=A on the lower
+	int inc = 1;
+	int NN = N*N;
+	zcopy_(&NN, A, &inc, PA, &inc);	//PA = A
+
+	for( i = 0; i < M; ++i ){
+
+		if(Pcol[i] != i){
+			for( j = i; j < N; ++j ){
+				PA[i+N*j] = A[Pcol[i] + N*Pcol[j]];
+				PA[j+N*i] = conj(PA[i+N*j]);
+			}
+		}
+	}
+
 
 	// ------------------------------------------ residual ------------------------------------------
 
 	printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
+
+	printf("\nPA (permutirana, izracunata) = \n");
+	printMatrix(PA, N, N);
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);
@@ -130,16 +171,17 @@ int main(int argc, char* argv[]){
 	double max = 0;
 	for(i = 0; i < N; ++i){
 		for(j = 0; j < N; ++j){
-			//printf("%.2lf + i%.2lf   -   %.2lf + i%.2lf   =   %.2lf + i%.2lf\n", creal(A[Pcol[i]+N*Pcol[j]]), cimag(A[Pcol[i]+N*Pcol[j]]), creal(AA[i+N*j]), cimag(AA[i+N*j]), creal(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]), cimag(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]));
-			if(cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]) > max) max = cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]);
-			norm += cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]) * cabs(A[Pcol[i]+N*Pcol[j]] - AA[i+N*j]);
+
+			if(cabs(PA[i+N*j] - AA[i+N*j]) > max) max = cabs(PA[i+N*j] - AA[i+N*j]);
+			norm += cabs(PA[i+N*j] - AA[i+N*j]) * cabs(PA[i+N*j] - AA[i+N*j]);
 		}
 	}
 
 
+
 	printf("maximum coordinate difference: %lf\n", max);
-	printf("norm(A-AA): %lf\n", sqrt(norm));
-	
+	printf("norm(PA-AA): %lf\n", sqrt(norm));
+
 	// ------------------------------- cleaning -------------------------------
 
 	fclose(readG);

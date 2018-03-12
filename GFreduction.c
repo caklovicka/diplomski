@@ -93,10 +93,10 @@ int main(int argc, char* argv[]){
 		Prow[i] = i;
 	}
 
-	//printf("G = \n");
-	//printMatrix(G, M, N);
-	//printf("J = \n");
-	//printVector(J, M);
+	printf("G = \n");
+	printMatrix(G, M, N);
+	printf("J = \n");
+	printVector(J, M);
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
@@ -106,7 +106,8 @@ int main(int argc, char* argv[]){
 	for(k = 0; k < N; ++k){
 
 		// choosing one column as pivot. the first one that is gk* J gk != 0
-		// if pivot_col = -1 after the first for loop, then we need 2x2 pivot
+		// if pivot_col = -1 after thene first for loop, then we need 2x2 pivot
+		printf("----------------------------- %d. iteration ----------------------\n", k);
 
 		int pivot_col = -1;	
 		double sumk;
@@ -117,11 +118,20 @@ int main(int argc, char* argv[]){
 
 			sumk = 0;
 			for(i = k; i < M; ++i) sumk += creal(f[i]);		// sumk = g*Jg for that block
+
+			if(k == N-1){
+				pivot_col = N-1;
+				break;
+			}
+
 			if(abs(sumk) >= eps){
 				pivot_col = j;
 				break;
 			}
 		}
+
+		printf("sumk = %lf\n", sumk);
+		printf("pivot_col = %d\n", pivot_col);
 
 		// ---------------------------------------------------------- 1x1 pivot ----------------------------------------------------------
 		if(pivot_col != -1){
@@ -138,17 +148,17 @@ int main(int argc, char* argv[]){
 				Pcol[pivot_col] = Pcol[k];
 				Pcol[k] = temp;
 
-				//printf("after colum pivot...\n");
-				//printMatrix(G, M, N);
+				printf("after colum pivot...\n");
+				printMatrix(G, M, N);
 			}
 
-			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need t that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
+			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need fk that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
 			for(i = k+1; i < M; ++i) f[i] = 0;	
 
 
 			// ----------------------- row pivot -----------------------
 
-			if(k != N-1 && sumk < 0 && J[k] == 1){
+			if(k < M-1 && sumk < 0 && J[k] == 1){
 
 				for(i = k+1; i < M; ++i)
 					if(J[i] == -1) break;
@@ -164,8 +174,11 @@ int main(int argc, char* argv[]){
 				long int temp = Prow[i];
 				Prow[i] = Prow[k];
 				Prow[k] = temp;
+
+				printf("pivoting rows...\n");
+				printMatrix(G, M, N);
 			}
-			else if(k != N-1 && sumk > 0 && J[k] == -1){
+			else if(k < M-1 && sumk > 0 && J[k] == -1){
 
 				for(i = k+1; i < M; ++i)
 					if(J[i] == 1) break;
@@ -181,10 +194,10 @@ int main(int argc, char* argv[]){
 				long int temp = Prow[i];
 				Prow[i] = Prow[k];
 				Prow[k] = temp;
-			}
 
-			//printf("G after pivoting...\n");
-			//printMatrix(G, M, N);
+				printf("pivoting rows...\n");
+				printMatrix(G, M, N);
+			}
 
 			// ----------------------- compute reflector constant sigma -----------------------
 
@@ -199,7 +212,8 @@ int main(int argc, char* argv[]){
 			int inc = 1;
 			zscal_(&len_of_f, &sigma, &f[k], &inc); // f(k:M) = sigma*f(k:M)
 
-			//printMatrix(&f[k], len_of_f, 1);
+			printf("f = \n");
+			printMatrix(&f[k], len_of_f, 1);
 
 
 			// ----------------------- make the reflector -----------------------
@@ -229,15 +243,15 @@ int main(int argc, char* argv[]){
 			inc = 1;
 			for(j = 0; j < Nk; ++j) zcopy_(&len_of_f, &T[j*len_of_f], &inc, &G[k+M*(j+k)], &inc);	// G = T (copy blocks)
 
-			//printf("HG = \n");
-			//printMatrix(G, M, N);
-			//printf("Pcol = \n");
-			//printVector(Pcol, N);
-			//printf("Prow = \n");
-			//printVector(Prow, M);
-			//printf("J = \n");
-			//printVector(J, M);
-			//printf("\n");
+			printf("HG = \n");
+			printMatrix(G, M, N);
+			printf("Pcol = \n");
+			printVector(Pcol, N);
+			printf("Prow = \n");
+			printVector(Prow, M);
+			printf("J = \n");
+			printVector(J, M);
+			printf("\n");
 		}
 	}
 
