@@ -106,10 +106,11 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	printf("Pcol = \n");
+	/*printf("Pcol = \n");
 	printVector(Pcol, N);
 	printf("J' = \n");
 	printVector(J, M);
+	*/
 
 	// ------------------------------------ compute G*JG ------------------------------------
 
@@ -141,24 +142,17 @@ int main(int argc, char* argv[]){
 	// ------------------------------------------ apply permutation on A ----------------------------
 
 	// compute perm on the upper triangle, and use A*=A on the lower
-	int inc = 1;
-	int NN = N*N;
-	zcopy_(&NN, A, &inc, PA, &inc);	//PA = A
 
 	for( i = 0; i < M; ++i ){
-
-		if(Pcol[i] != i){
-			for( j = i; j < N; ++j ){
-				PA[i+N*j] = A[Pcol[i] + N*Pcol[j]];
-				PA[j+N*i] = conj(PA[i+N*j]);
-			}
+		for( j = i; j < N; ++j ){
+			PA[Pcol[i]+N*Pcol[j]] = A[i+N*j];
+			PA[Pcol[j]+N*Pcol[i]] = conj(A[i+N*j]);
 		}
 	}
-
-
+	
 	// ------------------------------------------ residual ------------------------------------------
 
-	printf("\nA (izracunata) = \n");
+	/*printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
 
 	printf("\nPA (permutirana, izracunata) = \n");
@@ -166,7 +160,7 @@ int main(int argc, char* argv[]){
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);
-
+	*/
 
 	double norm = 0; 
 	double max = 0;
@@ -177,7 +171,6 @@ int main(int argc, char* argv[]){
 			norm += cabs(PA[i+N*j] - AA[i+N*j]) * cabs(PA[i+N*j] - AA[i+N*j]);
 		}
 	}
-
 
 
 	printf("maximum coordinate difference: %lf\n", max);

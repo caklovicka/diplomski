@@ -93,8 +93,8 @@ int main(int argc, char* argv[]){
 	for(i = 0; i < M; ++i){
 		if(1.0*rand()/(RAND_MAX) < 0.5)	J[i+M*i] = -1;
 		else J[i+M*i] = 1;
-		//J[i+M*i] = 1;	
-		//scale blas
+		
+		//scale blas koristi, a ne sa matricom J mnoziti
 	}
 
 	

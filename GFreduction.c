@@ -20,7 +20,8 @@
 #include <math.h>
 #include <time.h>
 
-double eps = 5;
+double eps = 10;
+double eps0 = 1.0e-3;
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -93,11 +94,11 @@ int main(int argc, char* argv[]){
 		Prow[i] = i;
 	}
 
-	printf("G = \n");
+	/*printf("G = \n");
 	printMatrix(G, M, N);
 	printf("J = \n");
 	printVector(J, M);
-	
+	*/
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
@@ -108,7 +109,7 @@ int main(int argc, char* argv[]){
 
 		// choosing one column as pivot. the first one that is gk* J gk != 0
 		// if pivot_col = -1 after thene first for loop, then we need 2x2 pivot
-		printf("----------------------------- %d. iteration ----------------------\n", k);
+		//printf("------------------------------------- %d. iteration ----------------------------------\n", k);
 
 		int pivot_col = k;	// ZASADA neka je k, a poslije cemo ga puniti s -1 ako teba 2x2 transformacija
 		double sumk;
@@ -131,9 +132,9 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("sumk = %lf\n", sumk);
+		/*printf("sumk = %lf\n", sumk);
 		printf("pivot_col = %d\n", pivot_col);
-		
+		*/
 
 		// ---------------------------------------------------------- 1x1 pivot ----------------------------------------------------------
 		if(pivot_col != -1){
@@ -144,15 +145,16 @@ int main(int argc, char* argv[]){
 			if(pivot_col != k){
 
 				int inc = 1;
-				zswap_(&len_of_f, &G[k+M*pivot_col], &inc, &G[k+M*k], &inc);	// G(k:M, k) <-> G(k:M, pivot_col)
+				//zswap_(&len_of_f, &G[k+M*pivot_col], &inc, &G[k+M*k], &inc);	// G(k:M, k) <-> G(k:M, pivot_col)
+				zswap_(&M, &G[M*pivot_col], &inc, &G[M*k], &inc);	// G(1:M, k) <-> G(1:M, pivot_col)
 
 				long int temp = Pcol[pivot_col];
 				Pcol[pivot_col] = Pcol[k];
 				Pcol[k] = temp;
 
-				printf("after colum pivot...\n");
+				/*printf("after colum pivot...\n");
 				printMatrix(G, M, N);
-				
+				*/
 			}
 
 			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need fk that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
@@ -178,9 +180,9 @@ int main(int argc, char* argv[]){
 				Prow[i] = Prow[k];
 				Prow[k] = temp;
 
-				printf("pivoting rows...\n");
+				/*printf("pivoting rows...\n");
 				printMatrix(G, M, N);
-				
+				*/
 			}
 			else if(k < M-1 && sumk > 0 && J[k] == -1){
 
@@ -199,8 +201,9 @@ int main(int argc, char* argv[]){
 				Prow[i] = Prow[k];
 				Prow[k] = temp;
 
-				printf("pivoting rows...\n");
+				/*printf("pivoting rows...\n");
 				printMatrix(G, M, N);
+				*/
 				
 			}
 
@@ -208,7 +211,7 @@ int main(int argc, char* argv[]){
 
 			double complex sigma = f[k] * J[k] * G[k+M*k];	// sigma = f*Jg
 			if(sumk > 0) sigma = -sigma;
-			if(cabs(sigma) >= eps)	sigma = sigma/cabs(sigma);
+			if(cabs(sigma) >= eps0)	sigma = sigma/cabs(sigma);
 			else{
 				sigma = 1;
 				printf("sigma = 0 --> sigma = 1!\n");
@@ -217,8 +220,9 @@ int main(int argc, char* argv[]){
 			int inc = 1;
 			zscal_(&len_of_f, &sigma, &f[k], &inc); // f(k:M) = sigma*f(k:M)
 
-			printf("f = \n");
+			/*printf("f = \n");
 			printMatrix(&f[k], len_of_f, 1);
+			*/
 			
 
 			// ----------------------- make the reflector -----------------------
@@ -248,7 +252,7 @@ int main(int argc, char* argv[]){
 			inc = 1;
 			for(j = 0; j < Nk; ++j) zcopy_(&len_of_f, &T[j*len_of_f], &inc, &G[k+M*(j+k)], &inc);	// G = T (copy blocks)
 
-			printf("HG = \n");
+			/*printf("HG = \n");
 			printMatrix(G, M, N);
 			printf("Pcol = \n");
 			printVector(Pcol, N);
@@ -257,7 +261,7 @@ int main(int argc, char* argv[]){
 			printf("J = \n");
 			printVector(J, M);
 			printf("\n");
-			
+			*/
 		}
 	}
 
@@ -281,6 +285,15 @@ int main(int argc, char* argv[]){
 			fprintf(writeG, "%lf %lf ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}
+
+	// -------------------------------- printing ------------------------------
+
+	printf("Pcol = \n");
+	printVector(Pcol, N);
+	printf("Prow = \n");
+	printVector(Prow, M);
+	printf("J = \n");
+	printVector(J, M);
 
 	// ------------------------------- cleaning -------------------------------
 
