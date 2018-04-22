@@ -88,12 +88,13 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	printf("Pcol = \n");
+	/*printf("Pcol = \n");
 	printVector(Pcol, N);
 	printf("J' = \n");
 	printVector(J, M);
 	printf("\nG = \n");
 	printMatrix(G, M, N);
+	*/
 
 	// ------------------------------------ compute G*JG ------------------------------------
 
@@ -135,7 +136,7 @@ int main(int argc, char* argv[]){
 	
 	// ------------------------------------------ residual ------------------------------------------
 
-	printf("\nA (izracunata) = \n");
+	/*printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
 
 	printf("\nPA (permutirana, izracunata) = \n");
@@ -143,6 +144,7 @@ int main(int argc, char* argv[]){
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);
+	*/
 	
 
 	double norm = 0; 
@@ -156,8 +158,8 @@ int main(int argc, char* argv[]){
 	}
 
 
-	printf("maximum coordinate difference: %lf\n", max);
-	printf("norm(PA-AA): %lf\n", sqrt(norm));
+	printf("maximum coordinate difference: %.3e\n", max);
+	printf("norm(PA-AA): %.3e\n", sqrt(norm));
 
 	// ------------------------------- cleaning -------------------------------
 

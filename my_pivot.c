@@ -165,49 +165,73 @@ int main(int argc, char* argv[]){
 
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1:
-		// check the condition sign(Akk) = Jk
-		// if not, do row swap and diagonal swap in J
 
-		if( Akk > 0 && J[k] < 0){
+		// find gik so that |gik|/|Akk| closest to 1
+		// swap rows i <-> k
+		// but Ji should be sign(Akk)
 
-			int i;
-			for(i = k+1; i < M; ++i)
-				if(J[i] > 0) break;
+		if( Akk > 0 ){
 
-			J[k] = 1.0;
-			J[i] = -1.0;
+			int idx = k;
+			double min = -1;
 
-			// swap rows in G 
-			int inc = M;
-			int Nk = N - k;
-			zswap_(&Nk, &G[i+M*k], &inc, &G[k+M*k], &inc);
+			for(int i = k; i < M; ++i){
+				double temp = cabs(cabs(G[i+M*k])/cabs(Akk) - 1);
+				if(J[i] > 0 && (min > temp || min < 0)){
+					idx = i;
+					min = temp;
+				}
+			}
 
-			// update Prow
-			long int itemp = Prow[i];
-			Prow[i] = Prow[k];
-			Prow[k] = itemp;
+			if(idx != k){
+
+				double temp = J[k];
+				J[k] = J[idx];
+				J[idx] = temp;
+
+				// swap rows in G 
+				int inc = M;
+				int Nk = N - k;
+				zswap_(&Nk, &G[idx+M*k], &inc, &G[k+M*k], &inc);
+
+				// update Prow
+				long int itemp = Prow[idx];
+				Prow[idx] = Prow[k];
+				Prow[k] = itemp;
+			}
 		}
 
-		else if( Akk < 0 && J[k] > 0){
+		else if( Akk < 0 ){
 
-			int i;
-			for(i = k+1; i < M; ++i)
-				if(J[i] < 0) break;
+			int idx = k;
+			double min = -1;
 
-			J[k] = -1.0;
-			J[i] = 1.0;
+			for(int i = k; i < M; ++i){
+				double temp = cabs(cabs(G[i+M*k])/cabs(Akk) - 1);
+				if(J[i] < 0 && (min > temp || min < 0)){
+					idx = i;
+					min = temp;
+				}
+			}
 
-			// swap rows in G 
-			int inc = M;
-			int Nk = N - k;
-			zswap_(&Nk, &G[i+M*k], &inc, &G[k+M*k], &inc);
+			if(idx != k){
 
-			// update Prow
-			long int itemp = Prow[i];
-			Prow[i] = Prow[k];
-			Prow[k] = itemp;
+				double temp = J[k];
+				J[k] = J[idx];
+				J[idx] = temp;
+
+				// swap rows in G 
+				int inc = M;
+				int Nk = N - k;
+				zswap_(&Nk, &G[idx+M*k], &inc, &G[k+M*k], &inc);
+
+				// update Prow
+				long int itemp = Prow[idx];
+				Prow[idx] = Prow[k];
+				Prow[k] = itemp;
+			}
 		}
-		
+
 
 		// compute reflector constant H_sigma
 		// compute vector f, where g*Jg = f*Jf must hold
@@ -217,6 +241,7 @@ int main(int argc, char* argv[]){
 		if(cabs(G[k+M*k]) > eps0) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
 		f[k] = csqrt(cabs(Akk)) * H_sigma;
 		for(int i = k+1; i < M; ++i) f[i] = 0;
+
 
 		// make the reflector
 		// make the vector f(k:M)
@@ -228,7 +253,7 @@ int main(int argc, char* argv[]){
 
 
 		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
-
+	
 		for(int i = k; i < M; ++i)
 			for(int j = k; j < M; ++j)
 				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;

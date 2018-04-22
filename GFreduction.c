@@ -77,7 +77,7 @@ int main(int argc, char* argv[]){
 		exit(-2);
 	}
 
-	// read matrix G
+	// read matrix G and prepare Pcol
 	double x, y;
 	int i, j;
 	for( j = 0; j < N; ++j ){
@@ -94,11 +94,12 @@ int main(int argc, char* argv[]){
 		Prow[i] = i;
 	}
 
-	/*printf("G = \n");
+	printf("G (ucitana)= \n");
 	printMatrix(G, M, N);
-	printf("J = \n");
+	/*printf("J = \n");
 	printVector(J, M);
 	*/
+	
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
@@ -106,6 +107,10 @@ int main(int argc, char* argv[]){
 
 	int k;
 	for(k = 0; k < N; ++k){
+
+		printf("G = \n");
+		printMatrix(G, M, N);
+		printf("\n");
 
 		// choosing one column as pivot. the first one that is gk* J gk != 0
 		// if pivot_col = -1 after thene first for loop, then we need 2x2 pivot
@@ -205,15 +210,18 @@ int main(int argc, char* argv[]){
 			// ----------------------- compute reflector constant sigma and vector f -----------------------
 
 			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need fk that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
-			for(i = k+1; i < M; ++i) f[i] = 0;	
+			for(i = k+1; i < M; ++i) f[i] = 0;
+
+			printf("sumk = Akk = %.10f, J[k] = %ld\n", sumk, J[k]);	
 
 			double complex sigma = 1;
 			if(cabs(G[k+M*k]) > eps0)	sigma = -G[k+M*k] / cabs(G[k+M*k]);
 			f[k] = sigma * f[k];
 
-			/*printf("f = \n");
+			printf("sigma = %.5f + i %.5f\n", creal(sigma), cimag(sigma));
+
+			printf("f = \n");
 			printMatrix(&f[k], len_of_f, 1);
-			*/
 
 			// ----------------------- make the reflector -----------------------
 
@@ -223,6 +231,7 @@ int main(int argc, char* argv[]){
 
 			alpha = 0;
 			for(i = k; i < M; ++i) alpha += conj(f[i]) * J[i] * f[i];
+			printf("wJw = %.2f\n", creal(alpha));
 
 			for(i = k; i < M; ++i){
 				for(j = k; j < M; ++j){
@@ -279,12 +288,13 @@ int main(int argc, char* argv[]){
 
 	// -------------------------------- printing ------------------------------
 
-	printf("Pcol = \n");
+	/*printf("Pcol = \n");
 	printVector(Pcol, N);
 	printf("Prow = \n");
 	printVector(Prow, M);
 	printf("J = \n");
 	printVector(J, M);
+	*/
 
 	// ------------------------------- cleaning -------------------------------
 
