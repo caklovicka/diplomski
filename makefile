@@ -18,6 +18,13 @@ check:
 	gcc check.c -o check.out -lm -lblas -llapack -w
 	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N) -w
 
+runQR:
+	@echo $(M)
+	@echo $(N)
+	gcc QRreduction.c -o QRreduction.out -lm -lblas -llapack -std=gnu11 -w
+	./QRreduction.out data/G.bin data/J.bin $(M) $(N) -w
+
+
 all: 
 	rm -rf data
 	mkdir data
