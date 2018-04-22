@@ -132,7 +132,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		/*printf("sumk = %lf\n", sumk);
+		/*printf("g*Jg (sumk) = %lf\n", sumk);
 		printf("pivot_col = %d\n", pivot_col);
 		*/
 
@@ -155,10 +155,6 @@ int main(int argc, char* argv[]){
 				printMatrix(G, M, N);
 				*/
 			}
-
-			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need fk that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
-			for(i = k+1; i < M; ++i) f[i] = 0;	
-
 
 			// ----------------------- row pivot -----------------------
 
@@ -206,27 +202,23 @@ int main(int argc, char* argv[]){
 				
 			}
 
-			// ----------------------- compute reflector constant sigma -----------------------
+			// ----------------------- compute reflector constant sigma and vector f -----------------------
 
-			double complex sigma = f[k] * J[k] * G[k+M*k];	// sigma = f*Jg
-			if(sumk > 0) sigma = -sigma;
-			if(cabs(sigma) >= eps0)	sigma = sigma/cabs(sigma);
-			else{
-				sigma = 1;
-				printf("sigma = 0 --> sigma = 1!\n");
-			}
+			f[k] = csqrt(cabs(sumk));  // g*Jg = f*Jf must hold, that's why we need fk that looks like Hg = sigma*f = sigma*(sqrt(|sumk|), 0, ..., 0)
+			for(i = k+1; i < M; ++i) f[i] = 0;	
 
-			int inc = 1;
-			zscal_(&len_of_f, &sigma, &f[k], &inc); // f(k:M) = sigma*f(k:M)
+			double complex sigma = 1;
+			if(cabs(G[k+M*k]) > eps0)	sigma = -G[k+M*k] / cabs(G[k+M*k]);
+			f[k] = sigma * f[k];
 
 			/*printf("f = \n");
 			printMatrix(&f[k], len_of_f, 1);
 			*/
-			
 
 			// ----------------------- make the reflector -----------------------
 
 			double complex alpha = -1;
+			int inc = 1;
 			zaxpy_(&len_of_f, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
 
 			alpha = 0;

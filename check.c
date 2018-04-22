@@ -24,24 +24,6 @@ void printVector(long int *J, int M){
 	printf("\n");
 }
 
-void printMatrixP(double complex *G, int M, int N, long int* P){
-
-	int i, j;
-	for( i = 0; i < M; ++i ){
-
-		if(P[i] == i) 
-			for( j = 0; j < N; ++j ) printf("%7.2f + i%7.2f    ", creal(G[i+N*j]), cimag(G[i+N*j]) );
-
-		else{
-			for( j = 0; j < i; ++j ) printf("%7.2f + i%7.2f    ", creal(G[i+N*j]), cimag(G[i+N*j]) );
-			for( j = i; j < N; ++j ) printf("%7.2f + i%7.2f    ", creal(G[P[i]+N*P[j]]), cimag(G[P[i]+N*P[j]]) );
-		}
-
-		printf("\n");
-	}
-	printf("\n");
-}
-
 //----------------------------------------------------------------------------------------
 
 int main(int argc, char* argv[]){
@@ -110,6 +92,8 @@ int main(int argc, char* argv[]){
 	printVector(Pcol, N);
 	printf("J' = \n");
 	printVector(J, M);
+	printf("\nG = \n");
+	printMatrix(G, M, N);
 
 	// ------------------------------------ compute G*JG ------------------------------------
 
