@@ -25,20 +25,20 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%7.2f + i%7.2f    ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%9.2e + i%9.2e  ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
+}
+
+void printJ(double *J, int M){
+
+	int i;
+	for( i = 0; i < M; ++i ) printf("%3d  ", (int)J[i]);
 	printf("\n");
 }
 
-void printVector(long int *J, int M){
-	int i;
-	for(i = 0; i < M; ++i){
-		printf("%ld ", J[i]);
-	}
-	printf("\n");
-}
+
 
 //----------------------------------------------------------------------------------------
 
@@ -108,7 +108,9 @@ int main(int argc, char* argv[]){
 		double Akk = 0;	// Akk = gk* J gk, on a working submatrix G[k:M, k:N]
 		double pivot_lambda = 0;
 		double pivot_sigma = 0;
-		int pivot_r = k + 1; // 2nd column for partial pivoting
+		int pivot_r = k + 1;	// 2nd column for partial pivoting
+								// if pivot_r != k+1, check condition pivot_r < N
+								// and include a column swap k+1 <-> pivot_r when PIVOT_2 begins
 		
 		// compute Akk for the working submatrix G[k:M, k:N]
 		for(int i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
@@ -155,13 +157,83 @@ int main(int argc, char* argv[]){
 
 
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
-		// column swapping k+1 <-> pivot_r
-		// then do givens
+		// column swapping not needed, k+1 = pivot_r
+		// making the kth column real...
 
-		printf("\nNEED PIVOT 2, but doing pivot 1 for now... k = %d\n\n", k);
+		printf("PIVOT_2, k = %d\n", k);
+		printMatrix(G, M, N);
+		printf("\n");
+
+		int first_non_zero_idx = -1;
+
+		for(int i = k; i < M; ++i){
+
+			if(cabs(G[i+M*k]) < eps0) continue;
+			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
+
+			G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
+
+			double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
+			int Nk = N-k-1;
+			zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);
+		}
+
+
+		// do row swap if needed
+
+		if(first_non_zero_idx != k){ 
+
+			long int itemp = Prow[first_non_zero_idx];
+			Prow[first_non_zero_idx] = Prow[k];
+			Prow[k] = itemp;
+
+			double dtemp = J[first_non_zero_idx];
+			J[first_non_zero_idx] = J[k];
+			J[k] = dtemp;
+
+			int Nk = N - k;
+			int inc = 1;
+			zswap_(&Nk, &G[k+M*k], &inc, &G[first_non_zero_idx + M*k], &inc);
+		}
+		
+
+		// do plane rotations with Gkk
+
+		for(int i = k+1; i < M; ++i){
+			
+			if(J[k] != J[i]) continue;
+
+			// generate plane rotation
+			double c, s;
+			double eliminator = creal(G[k+M*k]);
+			double eliminated = creal(G[i+M*k]);
+			drotg_(&eliminator, &eliminated, &c, &s);
+
+			// apply the rotation
+			// caution: drot_ changes arrays
+			// first we need to copy the first row into T
+
+			G[i+M*k] = 0;
+			int Nk = N-k-1;
+			int inc = 1;
+			zcopy_(&Nk, &G[k+M*(k+1)], &M, T, &inc);
+			drot_(&Nk, T, &inc, &G[i+M*(k+1)], &M, &c, &s);
+		}
+
+		printf("Nakon givensa u Jk elementima...\n");
+		printMatrix(G, M, N);
+		printJ(J, M);
+
+		// TO DO: do plane rotation on -Jk
+		// TO DO: do the same thing on a second column
+		// TO DO: proper forms
+		// TO DO: tidy up proper forms
+
+		break;
+
 
 		// k = k+1; (skip one)
-		//goto LOOP_END;	// end of PIVOT_2, skipping PIVOT_1
+		// goto LOOP_END;	// end of PIVOT_2, skipping PIVOT_1
 
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1:
@@ -178,9 +250,8 @@ int main(int argc, char* argv[]){
 			J[i] = -1.0;
 
 			// swap rows in G 
-			int inc = M;
 			int Nk = N - k;
-			zswap_(&Nk, &G[i+M*k], &inc, &G[k+M*k], &inc);
+			zswap_(&Nk, &G[i+M*k], &M, &G[k+M*k], &M);
 
 			// update Prow
 			long int itemp = Prow[i];
@@ -198,9 +269,8 @@ int main(int argc, char* argv[]){
 			J[i] = 1.0;
 
 			// swap rows in G 
-			int inc = M;
 			int Nk = N - k;
-			zswap_(&Nk, &G[i+M*k], &inc, &G[k+M*k], &inc);
+			zswap_(&Nk, &G[i+M*k], &M, &G[k+M*k], &M);
 
 			// update Prow
 			long int itemp = Prow[i];
@@ -237,6 +307,7 @@ int main(int argc, char* argv[]){
 
 
 		// apply the reflector on a submatrix
+		// TO DO: put explicitly zeros in the kth column
 
 		char non_trans = 'N';
 		alpha = 1;
