@@ -61,6 +61,7 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) malloc(M*sizeof(long int));	// for row permutation
 	long int *Pcol = (long int*) malloc(N*sizeof(long int));	// for column permutation
 	double complex *f = (double complex*) malloc(M*sizeof(double complex));	// vector f
+	double complex *tempf = (double complex*) malloc(M*sizeof(double complex));	// vector tempf, fisrt column after Householder transform
 
 
 	// check if files are opened
@@ -161,9 +162,7 @@ int main(int argc, char* argv[]){
 		// column swapping not needed, k+1 = pivot_r
 		// making the kth column real...
 
-		printf("PIVOT_2, k = %d, G = \n", k);
-		printMatrix(G, M, N);
-		printf("\n");
+		printf("PIVOT_2, k = %d\n", k);
 
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
@@ -177,11 +176,6 @@ int main(int argc, char* argv[]){
 			int Nk = N-k-1;
 			zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);
 		}
-
-		printf("PHI1 * G = \n");
-		printMatrix(G, M, N);
-		printf("\n");
-
 
 		// do row swap if needed, so thath Gkk != 0
 
@@ -220,14 +214,8 @@ int main(int argc, char* argv[]){
 				int Nk = N-k;
 				zrot_(&Nk, &G[k+M*k], &M, &G[i+M*k], &M, &c, &s);
 				G[i+M*k] = 0;
-
-				printf("Nakon givensa u Jk elementima...\n");
-				printMatrix(G, M, N);
 			}
 		}
-
-		printJ(J, M);
-
 
 		// find the first i so that Ji = -Jk and G(i, k) != 0
 		// then swap rows k+1 <-> i
@@ -275,9 +263,6 @@ int main(int argc, char* argv[]){
 				int Nk = N-k;
 				zrot_(&Nk, &G[k+1+M*k], &M, &G[i+M*k], &M, &c, &s);
 				G[i+M*k] = 0;
-
-				printf("Nakon givensa u Jk elementima...\n");
-				printMatrix(G, M, N);
 			}
 		}
 
@@ -306,10 +291,7 @@ int main(int argc, char* argv[]){
 			zscal_(&Nk, &scal, &G[i+M*(k+2)], &M);
 		}
 
-		printf("PHI2 * G = \n");
-		printMatrix(G, M, N);
-		printf("\n");
-
+	
 		int kkth_nonzeros = 0;	// number of nonzero elements in the (k+1)st column, but those below kth_nonzeros
 		
 		// if first_non_zero_idx != -1 at this point, then we >=1 elements != 0 in column (k+1) below (k+kth_nonzeros) 
@@ -354,9 +336,6 @@ int main(int argc, char* argv[]){
 				int Nk = N-k-1;
 				zrot_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
 				G[i+M*(k+1)] = 0;
-
-				printf("Nakon givensa u J(k + kth_nonzeros) elementima...\n");
-				printMatrix(G, M, N);
 			}
 		}
 
@@ -411,14 +390,61 @@ int main(int argc, char* argv[]){
 				zrot_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
 				G[i+M*(k+1)] = 0;
 
-				printf("Nakon givensa u J(k+kth_nonzeros+1) elementima...\n");
-				printMatrix(G, M, N);
+				//printf("Nakon givensa u J(k+kth_nonzeros+1) elementima...\n");
+				//printMatrix(G, M, N);
 			}
 		}
 
-		printJ(J, M);
-		printf("kth_nonzeros = %d\n", kth_nonzeros);
-		printf("kkth_nonzeros = %d\n", kkth_nonzeros);
+		// if we are in (A3) or (B2) forms, then the 2x2 reduction is finished
+		// in that case continue the main loop
+
+		// condition (A3)
+		if(kth_nonzeros == 2 && kkth_nonzeros == 0) goto LOOP_END;
+
+		// condition (B2)
+		if(kth_nonzeros == 1 && kkth_nonzeros == 1) goto LOOP_END;
+
+
+		// handle the (A1) form
+
+		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
+
+			// check if its a proper form
+			// if not, fix it
+			// treba li na drugi nacin izracunat determinanticu??
+
+			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < eps0){
+
+				// swap columns k <-> k+1
+
+				long int itemp = Pcol[k];
+				Pcol[k] = Pcol[k+1];
+				Pcol[k+1] = itemp;
+
+				int n = k + 4;
+				int inc = 1;
+				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
+
+				// make the kth rows k, k+1, k+2, k+3 real
+
+				for(int i = k; i < k+4; ++i){
+
+					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
+					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
+					int Nk = N - k - 1;
+					zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);	
+				}
+
+				// do plane rotations
+
+				int idx = k+2; 	// idx it the row that will be eliminated with the kth row
+				if(J[k] == J[k+3]) idx = k+3;
+
+				// contune HERE
+			}
+
+			// now do the final reduction
+		}
 
 
 
@@ -484,12 +510,16 @@ int main(int argc, char* argv[]){
 		f[k] = csqrt(cabs(Akk)) * H_sigma;
 		for(int i = k+1; i < M; ++i) f[i] = 0;
 
+
 		// make the reflector
 		// make the vector f(k:M)
 
 		double complex alpha = -1;
 		int inc = 1;
 		int Mk = M - k;
+
+		// ?????????????????? ako tu stavim kopiranje f direktno u G, prije zgemm, onda ne mnozi dobro... nego tek ako poslije kopiram stupac...
+		zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf
 		zaxpy_(&Mk, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
 
 
@@ -503,16 +533,17 @@ int main(int argc, char* argv[]){
 
 
 		// apply the reflector on a submatrix
-		// TO DO: put explicitly zeros in the kth column
 
 		char non_trans = 'N';
 		alpha = 1;
 		double complex beta = 0;
-		int Nk = N - k;
-		zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*k], &M, &beta, T, &Mk);	// T = HG
+
+		int Nk = N - k - 1;
+		zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k:N)
 
 		inc = 1;
-		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k+M*(j+k)], &inc);	// G = T (copy blocks)
+		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
+		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	// G = T (copy blocks)
 
 		LOOP_END: continue;
 	}
