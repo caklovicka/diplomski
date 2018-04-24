@@ -9,6 +9,7 @@
 //   -2 ....... Cannot allocate memory.
 //----------------------------------------------------------------------------------------
 
+// TO DO: find a way to compute g*Jg more efficiently
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -160,28 +161,31 @@ int main(int argc, char* argv[]){
 		// column swapping not needed, k+1 = pivot_r
 		// making the kth column real...
 
-		printf("PIVOT_2, k = %d\n", k);
+		printf("PIVOT_2, k = %d, G = \n", k);
 		printMatrix(G, M, N);
 		printf("\n");
 
-		int first_non_zero_idx = -1;
+		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
 		for(int i = k; i < M; ++i){
 
 			if(cabs(G[i+M*k]) < eps0) continue;
 			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
 
-			G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
-
 			double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
+			G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
 			int Nk = N-k-1;
 			zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);
 		}
 
+		printf("PHI1 * G = \n");
+		printMatrix(G, M, N);
+		printf("\n");
 
-		// do row swap if needed
 
-		if(first_non_zero_idx != k){ 
+		// do row swap if needed, so thath Gkk != 0
+
+		if(first_non_zero_idx != k && first_non_zero_idx != -1){ 
 
 			long int itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k];
@@ -192,40 +196,232 @@ int main(int argc, char* argv[]){
 			J[k] = dtemp;
 
 			int Nk = N - k;
-			int inc = 1;
-			zswap_(&Nk, &G[k+M*k], &inc, &G[first_non_zero_idx + M*k], &inc);
+			zswap_(&Nk, &G[k+M*k], &M, &G[first_non_zero_idx + M*k], &M);
 		}
-		
 
-		// do plane rotations with Gkk
 
-		for(int i = k+1; i < M; ++i){
+		// do plane rotations with Gkk on all Jk 
+		// (if they are not 0 already), if they are, do nothing
+
+		if(first_non_zero_idx != -1){
+
+			for(int i = k+1; i < M; ++i){
 			
-			if(J[k] != J[i]) continue;
+				if(J[k] != J[i]) continue;
 
-			// generate plane rotation
-			double c, s;
-			double eliminator = creal(G[k+M*k]);
-			double eliminated = creal(G[i+M*k]);
-			drotg_(&eliminator, &eliminated, &c, &s);
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[k+M*k];
+				double complex eliminated = G[i+M*k];
+				zrotg_(&eliminator, &eliminated, &c, &s);
 
-			// apply the rotation
-			// caution: drot_ changes arrays
-			// first we need to copy the first row into T
+				// apply the rotation
+				int Nk = N-k;
+				zrot_(&Nk, &G[k+M*k], &M, &G[i+M*k], &M, &c, &s);
+				G[i+M*k] = 0;
 
-			G[i+M*k] = 0;
-			int Nk = N-k-1;
-			int inc = 1;
-			zcopy_(&Nk, &G[k+M*(k+1)], &M, T, &inc);
-			drot_(&Nk, T, &inc, &G[i+M*(k+1)], &M, &c, &s);
+				printf("Nakon givensa u Jk elementima...\n");
+				printMatrix(G, M, N);
+			}
 		}
 
-		printf("Nakon givensa u Jk elementima...\n");
-		printMatrix(G, M, N);
 		printJ(J, M);
 
-		// TO DO: do plane rotation on -Jk
-		// TO DO: do the same thing on a second column
+
+		// find the first i so that Ji = -Jk and G(i, k) != 0
+		// then swap rows k+1 <-> i
+
+		first_non_zero_idx = -1;	// first non zero element in the -Jk class
+		for(int i = k+1; i < M; ++i){
+
+			if(J[k] == J[i] || cabs(G[i+M*k]) < eps0 ) continue;
+
+			first_non_zero_idx = i;
+			if(i == k+1) break; 	// no swapping needed, everythinig already in the right position
+
+			// else, swap rows i <-> k+1
+			long int itemp = Prow[i];
+			Prow[i] = Prow[k+1];
+			Prow[k+1] = itemp;
+
+			double dtemp = J[i];
+			J[i] = J[k+1];
+			J[k+1] = dtemp;
+
+			int Nk = N-k;
+			zswap_(&Nk, &G[k+1+M*k], &M, &G[i+M*k], &M);
+			break;
+		}
+
+
+		// do plane rotations on G(k+1, k+1), if they are not 0 already
+		// if they are all 0 in the -Jk class, then first_non_zero_idx = -1;
+
+		if(first_non_zero_idx != -1){
+
+			for(int i = k+2; i < M; ++i){
+			
+				if(J[k+1] != J[i]) continue;
+
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[k+1+M*k];
+				double complex eliminated = G[i+M*k];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				int Nk = N-k;
+				zrot_(&Nk, &G[k+1+M*k], &M, &G[i+M*k], &M, &c, &s);
+				G[i+M*k] = 0;
+
+				printf("Nakon givensa u Jk elementima...\n");
+				printMatrix(G, M, N);
+			}
+		}
+
+
+		// do the same thing on a second column
+		// wee need to know if the kth column has 1 or 2 nonzeros elements
+		// that determines in which case we are... (A1), (A2), (A3), (B1) or (B2)
+
+		int kth_nonzeros = 2;
+		if(first_non_zero_idx == -1) kth_nonzeros = 1;
+
+
+		// making the (k+1)th column real
+
+		first_non_zero_idx = -1;	// index of the first non zero element in column k+1
+									// will be filled with the first nonzero index, or stay -1
+
+		for(int i = k + kth_nonzeros; i < M; ++i){
+
+			if(cabs(G[i+M*(k+1)]) < eps0) continue;
+			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
+
+			double complex scal = conj(G[i+M*(k+1)]) / cabs(G[i+M*(k+1)]);
+			G[i+M*(k+1)] = cabs(G[i+M*(k+1)]);	// to be exact, so that the Img part is really = 0
+			int Nk = N - k - 2;
+			zscal_(&Nk, &scal, &G[i+M*(k+2)], &M);
+		}
+
+		printf("PHI2 * G = \n");
+		printMatrix(G, M, N);
+		printf("\n");
+
+		int kkth_nonzeros = 0;	// number of nonzero elements in the (k+1)st column, but those below kth_nonzeros
+		
+		// if first_non_zero_idx != -1 at this point, then we >=1 elements != 0 in column (k+1) below (k+kth_nonzeros) 
+		if(first_non_zero_idx != -1) kkth_nonzeros += 1; 
+ 
+
+		// do row swap if needed, so thath G(k+kth_nonzeros, k+1) != 0
+		// if first_non_zero_idx == k + kth_nonzeros, then thats fine, nothing to swap
+
+		if(first_non_zero_idx != k + kth_nonzeros && first_non_zero_idx != -1){ 
+
+			long int itemp = Prow[first_non_zero_idx];
+			Prow[first_non_zero_idx] = Prow[k + kth_nonzeros];
+			Prow[k + kth_nonzeros] = itemp;
+
+			double dtemp = J[first_non_zero_idx];
+			J[first_non_zero_idx] = J[k + kth_nonzeros];
+			J[k + kth_nonzeros] = dtemp;
+
+			int Nk = N - k - 1;
+			zswap_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
+		}
+
+
+		// do plane rotations with G(k + kth_nonzeros, k+1) on all J(k+kth_nonzeros) 
+		// (if they are not 0 already), if they are, do nothing
+
+		if(first_non_zero_idx != -1){
+
+			for(int i = k + kth_nonzeros + 1; i < M; ++i){
+			
+				if(J[k + kth_nonzeros] != J[i]) continue;
+
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[k + kth_nonzeros + M*(k+1)];
+				double complex eliminated = G[i+M*(k+1)];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				int Nk = N-k-1;
+				zrot_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
+				G[i+M*(k+1)] = 0;
+
+				printf("Nakon givensa u J(k + kth_nonzeros) elementima...\n");
+				printMatrix(G, M, N);
+			}
+		}
+
+		// find the first i so that Ji = -J(k + kth_nonzeros) and G(i, k + kth_nonzeros + 1) != 0
+		// then swap rows k + kth_nonzeros + 1 <-> i
+
+		first_non_zero_idx = -1;	// first non zero element in the -J(k + kth_nonzeros) class
+		for(int i = k + kth_nonzeros + 1; i < M; ++i){
+
+			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < eps0 ) continue;
+
+			first_non_zero_idx = i;
+			if(i == k + kth_nonzeros + 1) break; 	// no swapping needed, everythinig already in the right position
+
+			// else, swap rows i <-> k + kth_nonzeros + 1
+			long int itemp = Prow[i];
+			Prow[i] = Prow[k + kth_nonzeros + 1];
+			Prow[k + kth_nonzeros + 1] = itemp;
+
+			double dtemp = J[i];
+			J[i] = J[k + kth_nonzeros + 1];
+			J[k + kth_nonzeros + 1] = dtemp;
+
+			int Nk = N-k-1;
+			zswap_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M);
+			break;
+		}
+
+
+		// if first_non_zero_idx != -1 at this point, then we 2 elements != 0 in column (k+1) below (k+kth_nonzeros) 
+		if(first_non_zero_idx != -1) kkth_nonzeros += 1; 
+
+
+		// do plane rotations with G(k + kth_nonzeros + 1, k+1), if they are not 0 already
+		// if they are all 0 in the -J(k + kth_nonzeros) class, then first_non_zero_idx = -1;
+
+		if(first_non_zero_idx != -1){
+
+			for(int i = k + kth_nonzeros + 2; i < M; ++i){
+			
+				if(J[k + kth_nonzeros + 1] != J[i]) continue;
+
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[k + kth_nonzeros + 1 + M*(k+1)];
+				double complex eliminated = G[i + M*(k+1)];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				int Nk = N-k-1;
+				zrot_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
+				G[i+M*(k+1)] = 0;
+
+				printf("Nakon givensa u J(k+kth_nonzeros+1) elementima...\n");
+				printMatrix(G, M, N);
+			}
+		}
+
+		printJ(J, M);
+		printf("kth_nonzeros = %d\n", kth_nonzeros);
+		printf("kkth_nonzeros = %d\n", kkth_nonzeros);
+
+
+
 		// TO DO: proper forms
 		// TO DO: tidy up proper forms
 
