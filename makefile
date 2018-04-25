@@ -21,7 +21,7 @@ check:
 runQR:
 	@echo $(M)
 	@echo $(N)
-	gcc QRreduction.c -o QRreduction.out -lm -lblas -llapack -std=gnu11 -w
+	gcc QRreduction.c -o QRreduction.out -lblas -llapack -lm -w
 	./QRreduction.out data/G.bin data/J.bin $(M) $(N) -w
 
 myPivot:

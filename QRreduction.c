@@ -26,7 +26,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%9.2e + i%9.2e  ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%13.5e + i%13.5e  ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -118,6 +118,7 @@ int main(int argc, char* argv[]){
 		// compute Akk for the working submatrix G[k:M, k:N]
 		for(int i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
 
+		printf("Akk = %.5f\n", Akk);
 		if(k == N-1) goto PIVOT_1;
 
 		// find pivot_lambda
@@ -130,7 +131,7 @@ int main(int argc, char* argv[]){
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 		// find pivot_sigma
-		for(int i = k; i < M; ++i){
+		for(int i = k; i < N; ++i){
 			if(i == pivot_r) continue;
 			double complex Air = 0;  //Air = gi* J gr, but on a submatrix G[k:M, k:N]
 			for(int j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
@@ -472,7 +473,7 @@ int main(int argc, char* argv[]){
 				// apply the rotation
 				Nk = N-k;
 				zrot_(&Nk, &G[k+1+M*k], &M, &G[idx+M*k], &M, &c, &s);
-				G[idx+M*k] = 0;			
+				G[idx+M*k] = 0;	
 			}
 
 
@@ -549,7 +550,10 @@ int main(int argc, char* argv[]){
 			G[k+3+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
 			G[k+3+M*(k+1)] = 0;
-			
+
+			printf("UG = \n");		
+			printMatrix(G, M, N);
+
 			k = k+1;
 			goto LOOP_END;
 		}
@@ -754,12 +758,13 @@ int main(int argc, char* argv[]){
 		alpha = 1;
 		double complex beta = 0;
 
-		int Nk = N - k - 1;
-		zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k:N)
+		int Nk = N - k;
+		zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*k], &M, &beta, T, &Mk);	// T = HG(k:M, k:N)
 
 		inc = 1;
 		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
-		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	// G = T (copy blocks)
+		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k)], &inc);	// G = T (copy blocks)
+		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
 
 		LOOP_END: continue;
 	}

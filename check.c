@@ -9,7 +9,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%7.2f + i%7.2f    ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%15.10f + i%15.10f    ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -136,7 +136,7 @@ int main(int argc, char* argv[]){
 	
 	// ------------------------------------------ residual ------------------------------------------
 
-	/*printf("\nA (izracunata) = \n");
+	printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
 	
 	printf("\nPA (permutirana, izracunata) = \n");
@@ -144,7 +144,6 @@ int main(int argc, char* argv[]){
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);
-	*/
 
 	double norm = 0; 
 	double max = 0;
