@@ -3,6 +3,8 @@
 #include <complex.h>
 #include <math.h>
 
+double dnrm2_(int* N, double* X, int* inc);
+
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -155,9 +157,15 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+	int NN = N*N;
+	int inc = 1;
+	double norm2 = dnrm2_(&N, AA, &inc);
 
-	printf("maximum coordinate difference: %.3e\n", max);
-	printf("norm(PA-AA): %.3e\n", sqrt(norm));
+
+	printf("maximum coordinate difference: %.5e\n", max);
+	printf("norm(PA-AA): %.5e\n", csqrt(norm));
+	printf("norm(PA-AA)/norm(AA) = %.5e\n", csqrt(norm)/norm2);
+	printf("dnrm2_(AA) = %.5e\n", norm2);
 
 	// ------------------------------- cleaning -------------------------------
 

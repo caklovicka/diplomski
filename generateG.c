@@ -15,7 +15,7 @@
 #include <complex.h>
 #include <time.h>
 
-double eps = 1.0e-6;
+double eps = 1.0e-30;
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -91,9 +91,8 @@ int main(int argc, char* argv[]){
 		}
 	}
 	for(i = 0; i < M; ++i){
-		//if(1.0*rand()/(RAND_MAX) < 0.5)	J[i+M*i] = -1;
-		//else J[i+M*i] = 1;
-		J[i+M*i] = 1;
+		if(1.0*rand()/(RAND_MAX) < 0.5)	J[i+M*i] = -1;
+		else J[i+M*i] = 1;
 		
 		//scale blas koristi, a ne sa matricom J mnoziti
 	}

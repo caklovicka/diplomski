@@ -119,6 +119,8 @@ int main(int argc, char* argv[]){
 		for(int i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
 
 		printf("Akk = %.5f\n", Akk);
+		printf("sqrt(abs(Akk)) = %.5f\n", sqrt(abs(Akk)));
+		printf("csqrt(cabs(Akk)) = %.5f\n", csqrt(cabs(Akk)));
 		if(k == N-1) goto PIVOT_1;
 
 		// find pivot_lambda
@@ -537,8 +539,8 @@ int main(int argc, char* argv[]){
 			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
 
 			complex double q = (-J[k] * J[k+2] * conj(z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
-			printf("g12' = %.2f + i %.2f\n", creal(g12 + g21 * q), cimag(g12 + g21*q));
-			printf("g22' = %.2f + i %.2f\n", creal(g22 + g11 * q), cimag(g22 + g11*q));
+			printf("g12' = %.5f + i %.5f\n", creal(g12 + g21 * q), cimag(g12 + g21*q));
+			printf("g22' = %.5f + i %.5f\n", creal(g22 + g11 * q), cimag(g22 + g11*q));
 
 			printf("U = \n");
 			printMatrix(U, 4, 4);
@@ -546,10 +548,10 @@ int main(int argc, char* argv[]){
 			printf("\n detG1 = %.2e + i %.2e\n", creal(g11*g22 - g12*g21), cimag(g11*g22 - g12*g21));
 
 			// put zeros explicitly in the right places
-			G[k+2+M*k] = 0;
-			G[k+3+M*k] = 0;
-			G[k+2+M*(k+1)] = 0;
-			G[k+3+M*(k+1)] = 0;
+			//G[k+2+M*k] = 0;
+			//G[k+3+M*k] = 0;
+			//G[k+2+M*(k+1)] = 0;
+			//G[k+3+M*(k+1)] = 0;
 
 			printf("UG = \n");		
 			printMatrix(G, M, N);
@@ -764,7 +766,7 @@ int main(int argc, char* argv[]){
 		inc = 1;
 		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
 		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k)], &inc);	// G = T (copy blocks)
-		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
+		//zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
 
 		LOOP_END: continue;
 	}
