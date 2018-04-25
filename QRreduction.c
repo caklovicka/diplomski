@@ -435,13 +435,42 @@ int main(int argc, char* argv[]){
 					zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);	
 				}
 
-				// do plane rotations
+				// do plane rotations with kth row
 
 				int idx = k+2; 	// idx it the row that will be eliminated with the kth row
 				if(J[k] == J[k+3]) idx = k+3;
 
-				// contune HERE
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[k+M*k];
+				double complex eliminated = G[idx+M*k];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				int Nk = N-k;
+				zrot_(&Nk, &G[k+M*k], &M, &G[idx+M*k], &M, &c, &s);
+				G[idx+M*k] = 0;
+
+				// do plane rotations with (k+1)st row
+
+				idx = k+2; 	// idx it the row that will be eliminated with the kth row
+				if(J[k+1] == J[k+3]) idx = k+3;
+
+				// generate plane rotation
+				eliminator = G[k+1+M*k];
+				eliminated = G[idx+M*k];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				Nk = N-k;
+				zrot_(&Nk, &G[k+1+M*k], &M, &G[idx+M*k], &M, &c, &s);
+				G[idx+M*k] = 0;				
 			}
+
+			printf("in case A(1): \n");
+			printMatrix(G, M, N);
+			printJ(J, M);
 
 			// now do the final reduction
 		}
