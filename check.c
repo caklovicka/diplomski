@@ -138,14 +138,13 @@ int main(int argc, char* argv[]){
 
 	/*printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
-
+	
 	printf("\nPA (permutirana, izracunata) = \n");
 	printMatrix(PA, N, N);
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);
 	*/
-	
 
 	double norm = 0; 
 	double max = 0;

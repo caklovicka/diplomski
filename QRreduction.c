@@ -7,6 +7,7 @@
 // exits:
 //   -1 ....... Cannot open file.
 //   -2 ....... Cannot allocate memory.
+//	 -4 ....... Algorithm broke down.
 //----------------------------------------------------------------------------------------
 
 // TO DO: find a way to compute g*Jg more efficiently
@@ -17,8 +18,7 @@
 #include <math.h>
 #include <time.h>
 
-double eps = 1.0;	// ovaj je za g*Jg >= eps
-double eps0 = 1.0e-12;	// ovo je nula
+double eps0 = 1.0e-15;	// ovo je nula
 double ALPHA = (1 + csqrt(17))/8; //Bunch-Parlett alpha
 
 void printMatrix(double complex *G, int M, int N){
@@ -57,6 +57,7 @@ int main(int argc, char* argv[]){
 	double complex *G = (double complex*) malloc(M*N*sizeof(double complex));
 	double complex *H = (double complex*) malloc(M*M*sizeof(double complex));	// reflector
 	double complex *T = (double complex*) malloc(M*N*sizeof(double complex));	// temporary matrix
+	double complex *U = (double complex*) malloc(16*sizeof(double complex));	// matrix of rotatoins
 	double *J = (double*) malloc(M*sizeof(double));
 	long int *Prow = (long int*) malloc(M*sizeof(long int));	// for row permutation
 	long int *Pcol = (long int*) malloc(N*sizeof(long int));	// for column permutation
@@ -120,13 +121,13 @@ int main(int argc, char* argv[]){
 		if(k == N-1) goto PIVOT_1;
 
 		// find pivot_lambda
-		for(int i = k+1; i < M; ++i){
+		for(int i = k+1; i < N; ++i){
 			double complex Aik = 0;	//Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 			for(int j = k; j < M; ++j)	Aik += conj(G[j+M*i]) * J[j] * G[j+M*k];
 			if(pivot_lambda < cabs(Aik)) pivot_lambda = cabs(Aik);
 		}
 
-		if(cabs(Akk) >= ALPHA * pivot_lambda)	goto PIVOT_1;
+		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 		// find pivot_sigma
 		for(int i = k; i < M; ++i){
@@ -136,7 +137,7 @@ int main(int argc, char* argv[]){
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
 
-		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda)	goto PIVOT_1;
+		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
 		double Arr = 0; // on a working submatrix G[k:M, k:N]
 		for(int i = k; i < M; ++i) Arr += conj(G[i+M*pivot_r]) * J[i] * G[i+M*pivot_r];
@@ -395,6 +396,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+
 		// if we are in (A3) or (B2) forms, then the 2x2 reduction is finished
 		// in that case continue the main loop
 
@@ -408,6 +410,9 @@ int main(int argc, char* argv[]){
 		// handle the (A1) form
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
+
+			printf("Piovt (A1)...\n");
+			printJ(J, M);
 
 			// check if its a proper form
 			// if not, fix it
@@ -425,9 +430,11 @@ int main(int argc, char* argv[]){
 				int inc = 1;
 				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
 
-				// make the kth rows k, k+1, k+2, k+3 real
+				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
 
-				for(int i = k; i < k+4; ++i){
+				for(int i = k; i < k+2; ++i){
+
+					if( cabs(cimag(G[i+M*k])) < eps0 ) continue; //the element is already real
 
 					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
@@ -437,7 +444,7 @@ int main(int argc, char* argv[]){
 
 				// do plane rotations with kth row
 
-				int idx = k+2; 	// idx it the row that will be eliminated with the kth row
+				int idx = k+2; 	// idx is the row that will be eliminated with the kth row
 				if(J[k] == J[k+3]) idx = k+3;
 
 				// generate plane rotation
@@ -465,26 +472,206 @@ int main(int argc, char* argv[]){
 				// apply the rotation
 				Nk = N-k;
 				zrot_(&Nk, &G[k+1+M*k], &M, &G[idx+M*k], &M, &c, &s);
-				G[idx+M*k] = 0;				
+				G[idx+M*k] = 0;			
 			}
 
-			printf("in case A(1): \n");
-			printMatrix(G, M, N);
-			printJ(J, M);
 
 			// now do the final reduction
+
+			double complex g11 = G[k+M*k];
+			double complex g21 = G[k+1+M*k];
+			double complex g12 = G[k+M*(k+1)];
+			double complex g22 = G[k+1+M*(k+1)];
+			double complex g32 = G[k+2+M*(k+1)];
+			double complex g42 = G[k+3+M*(k+1)];
+
+			double complex z = 1 / (g11 * g22 - g21 * g12);	// z = 1/detG1
+			double complex a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * (g32*g32 - g42*g42);
+			double complex r = 1/csqrt(1+a);
+			double complex y = J[k] * J[k+2] * r * conj(z);
+
+			printf("z = %.2e + i %.2e\n", creal(z), cimag(z));
+			printf("a = %.2f + i %.2f\n", creal(a), cimag(a));
+			printf("r = %.2f + i %.2f\n", creal(r), cimag(r));
+
+			double complex i_xy = (J[k] * J[k+2] * r * cabs(z*z) * (g21*g21 - g11*g11)) / (1 + csqrt(1+a));
+			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
+
+			// making the matrix U dimensions 4x4
+			// first column
+			U[0] = 1 - i_yx * g21 * g21;
+			U[1] = -i_yx * g11 * g21;
+			U[2] = r * z * g21 * g32;
+			U[3] = r * z * g21 * g42;
+			// second column
+			U[4] = i_yx * g11 * g21;
+			U[5] = 1 + i_yx * g11 * g11;
+			U[6] = -r * z * g11 * g32;
+			U[7] = -r * z * g11 * g42;
+			// third column
+			U[8] = -y * g21 * g32;
+			U[9] = -y * g11 * g32;
+			U[10] = 1 - i_xy * g32 * g32;
+			U[11] = -i_xy * g32 * g42;
+			// fourth column
+			U[12] = y * g21 * g42;
+			U[13] = y * g11 * g42;
+			U[14] = i_xy * g32 * g42;
+			U[15] = 1 + i_xy * g42 * g42;
+
+			// apply the reduction
+
+			int n = 4;
+			int Nk = N - k;
+			char non_trans = 'N';
+			double complex alpha = 1;
+			double complex beta = 0;
+			zgemm_(&non_trans, &non_trans, &n, &Nk, &n, &alpha, U, &n, &G[k+M*k], &M, &beta, T, &n);
+
+
+			printf("\nG = \n");
+			printMatrix(G, M, N);
+
+			// copy rows of T back into G
+			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
+
+			complex double q = (-J[k] * J[k+2] * conj(z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
+			printf("g12' = %.2f + i %.2f\n", creal(g12 + g21 * q), cimag(g12 + g21*q));
+			printf("g22' = %.2f + i %.2f\n", creal(g22 + g11 * q), cimag(g22 + g11*q));
+
+			printf("U = \n");
+			printMatrix(U, 4, 4);
+
+			printf("\n detG1 = %.2e + i %.2e\n", creal(g11*g22 - g12*g21), cimag(g11*g22 - g12*g21));
+
+			// put zeros explicitly in the right places
+			G[k+2+M*k] = 0;
+			G[k+3+M*k] = 0;
+			G[k+2+M*(k+1)] = 0;
+			G[k+3+M*(k+1)] = 0;
+			
+			k = k+1;
+			goto LOOP_END;
 		}
 
 
+		// handle forms (A2) and (B1)
 
-		// TO DO: proper forms
-		// TO DO: tidy up proper forms
+		else if(kth_nonzeros == 2 && kkth_nonzeros == 1 || kth_nonzeros == 1 && kkth_nonzeros == 2){
 
-		break;
+			// check if its a proper form
+			// if not, fix it
+			// treba li na drugi nacin izracunat determinanticu??
+
+			printf("A2 ili B1...\n");
+			printMatrix(G, M, N);
+			printf("\n\n");
+
+			// (B1) is already in proper form, so fix just form (A2) if needed
+
+			if( kth_nonzeros == 2 && cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < eps0 ){
+
+				// swap columns k <-> k+1
+
+				long int itemp = Pcol[k];
+				Pcol[k] = Pcol[k+1];
+				Pcol[k+1] = itemp;
+
+				int n = k + 3;
+				int inc = 1;
+				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
+
+				// make the kth rows k, k+1 real (k+2 is already real)
+
+				for(int i = k; i < k+2; ++i){
+
+					if( cabs(cimag(G[i+M*k])) < eps0 ) continue; //the element is already real
+
+					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
+					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
+					int Nk = N - k - 1;
+					zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);	
+				}
+
+				// do a plane rotation, eliminate row k+2 with row idx
+
+				int idx = k; 	// idx is the row that will eliminate row k+2
+				if(J[idx] != J[k+2]) idx = k+1;
+
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[idx+M*k];
+				double complex eliminated = G[k+2+M*k];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				int Nk = N-k;
+				zrot_(&Nk, &G[idx+M*k], &M, &G[k+2+M*k], &M, &c, &s);
+				G[k+2+M*k] = 0;
+			}
+
+			printf("G nakon svodjenja u proper formu\n");
+			printMatrix(G, M, N);
+
+			// now do the final reduction
+
+			double complex g11 = G[k+M*k];
+			double complex g21 = G[k+1+M*k];
+			double complex g12 = G[k+M*(k+1)];
+			double complex g22 = G[k+1+M*(k+1)];
+			double complex g32 = G[k+2+M*(k+1)];
+
+			double complex z = 1 / (g11 * g22 - g21 * g12);	// z = 1/detG1
+			double complex a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * g32*g32;
+			double complex r = 1/csqrt(1+a);
+			double complex y = J[k] * J[k+2] * r * conj(z);
+
+			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * g32*g32) / (1 + csqrt(1+a));
+
+			// making the matrix U dimensions 3x3
+			// first column
+			U[0] = 1 - i_yx * g21 * g21;
+			U[1] = -i_yx * g11 * g21;
+			U[2] = r * z * g21 * g32;
+			// second column
+			U[3] = i_yx * g11 * g21;
+			U[4] = 1 + i_yx * g11 * g11;
+			U[5] = -r * z * g11 * g32;
+			// third column
+			U[6] = -y * g21 * g32;
+			U[7] = -y * g11 * g32;
+			U[8] = r;
+
+			// apply the reduction
+			// g11 and g21 remain unchanged
+
+			int n = 3;
+			int Nk = N - k - 1;
+			char non_trans = 'N';
+			double complex alpha = 1;
+			double complex beta = 0;
+			zgemm_(&non_trans, &non_trans, &n, &Nk, &n, &alpha, U, &n, &G[k+M*(k+1)], &M, &beta, T, &n);
 
 
-		// k = k+1; (skip one)
-		// goto LOOP_END;	// end of PIVOT_2, skipping PIVOT_1
+			// copy rows of T back into G
+
+			for(int i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*(k+1)], &M);
+
+			// put zeros explicitly in the right places
+			G[k+2+M*k] = 0;
+			G[k+2+M*(k+1)] = 0;
+
+			printf("UG = \n");
+			printMatrix(G, M, N);
+			break;
+			k = k+1;
+			goto LOOP_END;
+		}
+
+		// if here, something broke down
+		printf("\n\nUPS, SOMETHING WENT WRONG... STOPPING...\n\n");
+		exit(-4);
 
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1:
@@ -576,6 +763,12 @@ int main(int argc, char* argv[]){
 
 		LOOP_END: continue;
 	}
+
+	// -------------------------------- printing ----------------------------------
+
+	printf("\nFINAL RESULT: \n");
+	printMatrix(G, M, N);
+	printJ(J, M);
 
 
 	// -------------------------------- writing -------------------------------- 	

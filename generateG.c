@@ -78,8 +78,8 @@ int main(int argc, char* argv[]){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			x = 10.0*rand()/(RAND_MAX) - 5;
-			y = 10.0*rand()/(RAND_MAX) - 5;
+			x = 100.0*rand()/(RAND_MAX) - 5;
+			y = 100.0*rand()/(RAND_MAX) - 5;
 			G[i+M*j] = x + I*y;
 		}
 	}
