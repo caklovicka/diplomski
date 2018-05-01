@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include <complex.h>
 #include <math.h>
+#include <float.h>
+
 
 double dnrm2_(int* N, double* X, int* inc);
-
 
 void printMatrix(double complex *G, int M, int N){
 
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%15.10f + i%15.10f    ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%.*g + i%.*g    ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -77,7 +78,7 @@ int main(int argc, char* argv[]){
 	double x, y;
 	for(j = 0; j < N; ++j){
 		for( i = 0; i < M; ++i ){
-			fscanf(readG, "%lf %lf ", &x, &y);
+			fscanf(readG, "%lg %lg ", &x, &y);
 			G[i+M*j] = x + I*y;
 		}
 	}
@@ -85,7 +86,7 @@ int main(int argc, char* argv[]){
 	// read AA
 	for(j = 0; j < N; ++j){
 		for( i = 0; i < N; ++i){
-			fscanf(readA, "%lf %lf ", &x, &y);
+			fscanf(readA, "%lg %lg ", &x, &y);
 			AA[i+N*j] = x + I*y;
 		}
 	}
@@ -165,7 +166,7 @@ int main(int argc, char* argv[]){
 	printf("maximum coordinate difference: %.5e\n", max);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
 	printf("norm(PA-AA)/norm(AA) = %.5e\n", csqrt(norm)/norm2);
-	printf("dnrm2_(AA) = %.5e\n", norm2);
+	//printf("dnrm2_(AA) = %.5e\n", norm2);
 
 	// ------------------------------- cleaning -------------------------------
 

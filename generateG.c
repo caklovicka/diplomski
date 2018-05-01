@@ -14,15 +14,15 @@
 #include <stdio.h>
 #include <complex.h>
 #include <time.h>
+#include <float.h>
 
-double eps = 1.0e-30;
 
 void printMatrix(double complex *G, int M, int N){
 
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%7.2f + i%7.2f    ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%.*g + i%.*g    ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -32,7 +32,7 @@ void printMatrix(double complex *G, int M, int N){
 void printSingular(double *s, int N){
 
 	int i;
-	for(i = 0; i < N; ++i) printf("%f\n", s[i+N*i]);
+	for(i = 0; i < N; ++i) printf("%.*g\n", DBL_DIG, s[i+N*i]);
 	printf("\n");
 }
 void printVector(double complex *J, int M){
@@ -78,8 +78,8 @@ int main(int argc, char* argv[]){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			x = 100.0*rand()/(RAND_MAX) - 5;
-			y = 100.0*rand()/(RAND_MAX) - 5;
+			x = 50.0*rand()/(RAND_MAX) - 5;
+			y = 50.0*rand()/(RAND_MAX) - 5;
 			G[i+M*j] = x + I*y;
 		}
 	}
@@ -128,9 +128,12 @@ int main(int argc, char* argv[]){
 
 	FILE *writeA = fopen("data/A.bin", "wb");
 
+	printf("G(generirana, friško) = \n");
+	printMatrix(G, M, N);
+
 	for(j = 0; j < N; ++j)
 		for(i = 0; i < N; ++i)	
-			fprintf(writeA, "%lf %lf ", creal(A[i+N*j]), cimag(A[i+N*j]));
+			fprintf(writeA, "%.*g %.*g ", DBL_DIG, DBL_DIG, creal(A[i+N*j]), cimag(A[i+N*j]));
 
 
 	// ---------------------------------------------------- SVD ----------------------------------------------------
@@ -151,18 +154,18 @@ int main(int argc, char* argv[]){
 	zgesdd_(&jobz, &N, &N, A, &N, s, NULL, &N, NULL, &N, work, &lwork, rwork, iwork, &info);
 
 
-	if(s[N-1] < eps){
+	if(s[N-1] < DBL_EPSILON){
 		printf("A = G*JG is singular.\n");
 		exit(-3);
 	}
-	else printf("Smallest singular value: %lf\n", s[N-1]);
+	else printf("Smallest singular value: %.*g\n", DBL_DIG, s[N-1]);
 
 
 	// -------------------------- write G and J in files -------------------------- 
 
 	for(j = 0; j < N; ++j){
 		for(i = 0; i < M; ++i){
-			fprintf(writeG, "%lf %lf ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			fprintf(writeG, "%.*g %.*g ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}
 
