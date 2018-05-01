@@ -16,13 +16,19 @@
 #include <time.h>
 #include <float.h>
 
+// should we use the IEEE standard from <float.h>?
+//#define EPSILON 5.42101086242752217003726400434970855712890625E-20 	// wolfram alpha's 2^(-64)
+//#define DIGITS 19	// number of significant digits
+#define EPSILON DBL_EPSILON
+#define DIGITS DBL_DIG
+
 
 void printMatrix(double complex *G, int M, int N){
 
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%.*g + i%.*g    ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%.*g + i%.*g    ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -32,7 +38,7 @@ void printMatrix(double complex *G, int M, int N){
 void printSingular(double *s, int N){
 
 	int i;
-	for(i = 0; i < N; ++i) printf("%.*g\n", DBL_DIG, s[i+N*i]);
+	for(i = 0; i < N; ++i) printf("%.*g\n", DIGITS, s[i+N*i]);
 	printf("\n");
 }
 void printVector(double complex *J, int M){
@@ -133,7 +139,7 @@ int main(int argc, char* argv[]){
 
 	for(j = 0; j < N; ++j)
 		for(i = 0; i < N; ++i)	
-			fprintf(writeA, "%.*g %.*g ", DBL_DIG, DBL_DIG, creal(A[i+N*j]), cimag(A[i+N*j]));
+			fprintf(writeA, "%.*g %.*g ", DIGITS, DIGITS, creal(A[i+N*j]), cimag(A[i+N*j]));
 
 
 	// ---------------------------------------------------- SVD ----------------------------------------------------
@@ -154,18 +160,18 @@ int main(int argc, char* argv[]){
 	zgesdd_(&jobz, &N, &N, A, &N, s, NULL, &N, NULL, &N, work, &lwork, rwork, iwork, &info);
 
 
-	if(s[N-1] < DBL_EPSILON){
+	if(s[N-1] < EPSILON){
 		printf("A = G*JG is singular.\n");
 		exit(-3);
 	}
-	else printf("Smallest singular value: %.*g\n", DBL_DIG, s[N-1]);
+	else printf("Smallest singular value: %.*g\n", DIGITS, s[N-1]);
 
 
 	// -------------------------- write G and J in files -------------------------- 
 
 	for(j = 0; j < N; ++j){
 		for(i = 0; i < M; ++i){
-			fprintf(writeG, "%.*g %.*g ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
+			fprintf(writeG, "%.*g %.*g ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}
 

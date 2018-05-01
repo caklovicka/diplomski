@@ -17,16 +17,21 @@
 #include <complex.h>
 #include <math.h>
 #include <time.h>
+#include <unistd.h>
 #include <float.h>
 
-double ALPHA = (1 + csqrt(17))/8; //Bunch-Parlett alpha
+//#define EPSILON 5.42101086242752217003726400434970855712890625E-20 	// wolfram alpha's 2^(-64)
+//#define DIGITS 19	// number of significant digits
+#define EPSILON DBL_EPSILON
+#define DIGITS DBL_DIG
+double ALPHA = (1.0 + csqrt(17))/8; //Bunch-Parlett alpha
 
 void printMatrix(double complex *G, int M, int N){
 
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%.*g + i%.*g  ",DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%10.5g + i%10.5g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -172,7 +177,7 @@ int main(int argc, char* argv[]){
 
 		for(int i = k; i < M; ++i){
 
-			if(cabs(G[i+M*k]) < DBL_EPSILON) continue;
+			if(cabs(G[i+M*k]) < EPSILON) continue;
 			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
 
 			double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
@@ -227,7 +232,7 @@ int main(int argc, char* argv[]){
 		first_non_zero_idx = -1;	// first non zero element in the -Jk class
 		for(int i = k+1; i < M; ++i){
 
-			if(J[k] == J[i] || cabs(G[i+M*k]) < DBL_EPSILON ) continue;
+			if(J[k] == J[i] || cabs(G[i+M*k]) < EPSILON ) continue;
 
 			first_non_zero_idx = i;
 			if(i == k+1) break; 	// no swapping needed, everythinig already in the right position
@@ -286,7 +291,7 @@ int main(int argc, char* argv[]){
 
 		for(int i = k + kth_nonzeros; i < M; ++i){
 
-			if(cabs(G[i+M*(k+1)]) < DBL_EPSILON) continue;
+			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
 			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
 
 			double complex scal = conj(G[i+M*(k+1)]) / cabs(G[i+M*(k+1)]);
@@ -349,7 +354,7 @@ int main(int argc, char* argv[]){
 		first_non_zero_idx = -1;	// first non zero element in the -J(k + kth_nonzeros) class
 		for(int i = k + kth_nonzeros + 1; i < M; ++i){
 
-			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < DBL_EPSILON ) continue;
+			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < EPSILON ) continue;
 
 			first_non_zero_idx = i;
 			if(i == k + kth_nonzeros + 1) break; 	// no swapping needed, everythinig already in the right position
@@ -421,7 +426,8 @@ int main(int argc, char* argv[]){
 			// if not, fix it
 			// treba li na drugi nacin izracunat determinanticu??
 
-			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < DBL_EPSILON){
+			printf("|det(G1)| = %lg\n", cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]));
+			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON){
 
 				// swap columns k <-> k+1
 
@@ -437,7 +443,7 @@ int main(int argc, char* argv[]){
 
 				for(int i = k; i < k+2; ++i){
 
-					if( cabs(cimag(G[i+M*k])) < DBL_EPSILON ) continue; //the element is already real
+					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
 					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
@@ -488,10 +494,12 @@ int main(int argc, char* argv[]){
 			double complex g32 = G[k+2+M*(k+1)];
 			double complex g42 = G[k+3+M*(k+1)];
 
-			double complex z = 1 / (g11 * g22 - g21 * g12);	// z = 1/detG1
+			double complex z = 1.0 / (g11 * g22 - g21 * g12);	// z = 1/detG1
 			double complex a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * (g32*g32 - g42*g42);
-			double complex r = 1/csqrt(1+a);
+			double complex r = 1.0 / csqrt(1+a);
 			double complex y = J[k] * J[k+2] * r * conj(z);
+
+			printf("det(A2) = %lg\n", creal(-a/cabs(z*z)-cabs(g11*g22 - g21*g12)*cabs(g11*g22 - g21*g12)));
 
 			printf("z = %.2e + i %.2e\n", creal(z), cimag(z));
 			printf("a = %.2f + i %.2f\n", creal(a), cimag(a));
@@ -535,6 +543,8 @@ int main(int argc, char* argv[]){
 			printf("\nG = \n");
 			printMatrix(G, M, N);
 
+			printJ(J, M);
+
 			// copy rows of T back into G
 			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
 
@@ -556,6 +566,7 @@ int main(int argc, char* argv[]){
 			printf("UG = \n");		
 			printMatrix(G, M, N);
 
+			break;
 			k = k+1;
 			goto LOOP_END;
 		}
@@ -575,7 +586,7 @@ int main(int argc, char* argv[]){
 
 			// (B1) is already in proper form, so fix just form (A2) if needed
 
-			if( kth_nonzeros == 2 && cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < DBL_EPSILON ){
+			if( kth_nonzeros == 2 && cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON ){
 
 				// swap columns k <-> k+1
 
@@ -591,7 +602,7 @@ int main(int argc, char* argv[]){
 
 				for(int i = k; i < k+2; ++i){
 
-					if( cabs(cimag(G[i+M*k])) < DBL_EPSILON ) continue; //the element is already real
+					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
 					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
@@ -684,9 +695,7 @@ int main(int argc, char* argv[]){
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
 
-		printf("PIVOT_1\n");
-		printf("G(uciratan za QR) = \n");
-		printMatrix(G, M, N);
+		printf("PIVOT_1, k = %d\n", k);
 
 		if( Akk > 0 && J[k] < 0){
 
@@ -732,12 +741,9 @@ int main(int argc, char* argv[]){
 		// that's why we need fk that looks like Hg = H_sigma*f = H_sigma*(sqrt(|sumk|), 0, ..., 0)
 
 		double complex H_sigma = 1;
-		if(cabs(G[k+M*k]) >= DBL_EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
+		if(cabs(G[k+M*k]) >= EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
 		f[k] = csqrt(cabs(Akk)) * H_sigma;
 		for(int i = k+1; i < M; ++i) f[i] = 0;
-
-		printf("f = \n");
-		printMatrix(&f[k], M, 1);
 
 
 		// make the reflector
@@ -747,8 +753,7 @@ int main(int argc, char* argv[]){
 		int inc = 1;
 		int Mk = M - k;
 
-		// ?????????????????? ako tu stavim kopiranje f direktno u G, prije zgemm, onda ne mnozi dobro... nego tek ako poslije kopiram stupac...
-		//zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf
+		zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf, so we dont need tu multyply the first column of G with H
 		zaxpy_(&Mk, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
 
 
@@ -764,25 +769,24 @@ int main(int argc, char* argv[]){
 		// apply the reflector on a submatrix
 
 		char non_trans = 'N';
-		alpha = 1;
+		alpha = 1.0;
 		double complex beta = 0;
 
-		int Nk = N - k;
-		//zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*k], &M, &beta, T, &Mk);	// T = HG(k:M, k:N)
+		int Nk = N - k - 1;
+		zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k+1:N)
 
 		inc = 1;
-		//zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
-		//for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k)], &inc);	// G = T (copy blocks)
-		//zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
+		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
+		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	// G = T (copy blocks)
 
 		LOOP_END: continue;
 	}
 
 	// -------------------------------- printing ----------------------------------
 
-	printf("\nFINAL RESULT: \n");
-	printMatrix(G, M, N);
-	printJ(J, M);
+	//printf("\nFINAL RESULT: \n");
+	//printMatrix(G, M, N);
+	//printJ(J, M);
 
 
 	// -------------------------------- writing -------------------------------- 	
@@ -802,7 +806,7 @@ int main(int argc, char* argv[]){
 	for(int j = 0; j < N; ++j){
 		fprintf(writeCol, "%ld ", Pcol[j]);
 		for(int i = 0; i < M; ++i){
-			fprintf(writeG, "%.*g %.*g ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
+			fprintf(writeG, "%.*g %.*g ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}
 

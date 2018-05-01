@@ -4,6 +4,10 @@
 #include <math.h>
 #include <float.h>
 
+//#define EPSILON 5.42101086242752217003726400434970855712890625E-20 	// wolfram alpha's 2^(-64)
+//#define DIGITS 19	// number of significant digits
+#define EPSILON DBL_EPSILON
+#define DIGITS DBL_DIG
 
 double dnrm2_(int* N, double* X, int* inc);
 
@@ -12,7 +16,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%.*g + i%.*g    ", DBL_DIG, DBL_DIG, creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%23.*g + i%23.*g    ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -139,7 +143,7 @@ int main(int argc, char* argv[]){
 	
 	// ------------------------------------------ residual ------------------------------------------
 
-	printf("\nA (izracunata) = \n");
+	/*printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
 	
 	printf("\nPA (permutirana, izracunata) = \n");
@@ -147,13 +151,19 @@ int main(int argc, char* argv[]){
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);
+	*/
 
 	double norm = 0; 
 	double max = 0;
+	int ii = -1, jj = -1;
 	for(i = 0; i < N; ++i){
 		for(j = 0; j < N; ++j){
 
-			if(cabs(PA[i+N*j] - AA[i+N*j]) > max) max = cabs(PA[i+N*j] - AA[i+N*j]);
+			if(cabs(PA[i+N*j] - AA[i+N*j]) > max){
+				max = cabs(PA[i+N*j] - AA[i+N*j]);
+				ii = i;
+				jj = j;
+			} 
 			norm += cabs(PA[i+N*j] - AA[i+N*j]) * cabs(PA[i+N*j] - AA[i+N*j]);
 		}
 	}
@@ -163,7 +173,7 @@ int main(int argc, char* argv[]){
 	double norm2 = dnrm2_(&N, AA, &inc);
 
 
-	printf("maximum coordinate difference: %.5e\n", max);
+	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
 	printf("norm(PA-AA)/norm(AA) = %.5e\n", csqrt(norm)/norm2);
 	//printf("dnrm2_(AA) = %.5e\n", norm2);
