@@ -20,11 +20,10 @@
 #include <unistd.h>
 #include <float.h>
 
-//#define EPSILON 5.42101086242752217003726400434970855712890625E-20 	// wolfram alpha's 2^(-64)
-//#define DIGITS 19	// number of significant digits
+
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-double ALPHA = (1.0 + csqrt(17))/8; //Bunch-Parlett alpha
+double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -35,6 +34,7 @@ void printMatrix(double complex *G, int M, int N){
 		}
 		printf("\n");
 	}
+	printf("\n");
 }
 
 void printJ(double *J, int M){
@@ -56,7 +56,8 @@ int main(int argc, char* argv[]){
 	FILE *readG = fopen(argv[1], "rb");
 	FILE *readJ = fopen(argv[2], "rb");
 
-	printf("\nReading data...\n");
+	//printf("\n\n--------------------------------- ALGORITHM ------------------------------------\n");
+	//printf("\nReading data...\n");
 
 	// allocate memory
 	double complex *G = (double complex*) malloc(M*N*sizeof(double complex));
@@ -107,7 +108,9 @@ int main(int argc, char* argv[]){
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
-	printf("Pivoting QR...\n");
+	//printf("Pivoting QR...\n\n");
+
+	clock_t start = clock();
 
 	for(int k = 0; k < N; ++k){
 
@@ -119,9 +122,8 @@ int main(int argc, char* argv[]){
 		double Akk = 0;	// Akk = gk* J gk, on a working submatrix G[k:M, k:N]
 		double pivot_lambda = 0;
 		double pivot_sigma = 0;
-		int pivot_r = k + 1;	// 2nd column for partial pivoting
-								// if pivot_r != k+1, check condition pivot_r < N
-								// and include a column swap k+1 <-> pivot_r when PIVOT_2 begins
+		int pivot_r = -1;	// 2nd column for partial pivoting
+							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 		
 		// compute Akk for the working submatrix G[k:M, k:N]
 		for(int i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
@@ -132,7 +134,10 @@ int main(int argc, char* argv[]){
 		for(int i = k+1; i < N; ++i){
 			double complex Aik = 0;	//Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 			for(int j = k; j < M; ++j)	Aik += conj(G[j+M*i]) * J[j] * G[j+M*k];
-			if(pivot_lambda < cabs(Aik)) pivot_lambda = cabs(Aik);
+			if(pivot_lambda < cabs(Aik)){
+				pivot_lambda = cabs(Aik);
+				pivot_r = i;
+			}
 		}
 
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
@@ -168,23 +173,35 @@ int main(int argc, char* argv[]){
 
 
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
-		// column swapping not needed, k+1 = pivot_r
-		// making the kth column real...
 
-		printf("PIVOT_2, k = %d\n", k);
+		// do a column swap pivot_r <-> k+1 if needed
+
+		if(pivot_r != k+1){
+
+			long int itemp = Pcol[pivot_r];
+			Pcol[pivot_r] = Pcol[k+1];
+			Pcol[k+1] = itemp;
+
+			int inc = 1;
+			zswap_(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
+		}
+
+
+		// making the kth column real...
 
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
 		for(int i = k; i < M; ++i){
 
 			if(cabs(G[i+M*k]) < EPSILON) continue;
-			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
+			if(first_non_zero_idx == -1) first_non_zero_idx = i;
 
 			double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 			G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
 			int Nk = N-k-1;
 			zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);
 		}
+
 
 		// do row swap if needed, so thath Gkk != 0
 
@@ -203,7 +220,7 @@ int main(int argc, char* argv[]){
 		}
 
 
-		// do plane rotations with Gkk on all Jk 
+		// do plane rotations with Gkk on all elements with signum Jk 
 		// (if they are not 0 already), if they are, do nothing
 
 		if(first_non_zero_idx != -1){
@@ -226,6 +243,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+
 		// find the first i so that Ji = -Jk and G(i, k) != 0
 		// then swap rows k+1 <-> i
 
@@ -237,7 +255,9 @@ int main(int argc, char* argv[]){
 			first_non_zero_idx = i;
 			if(i == k+1) break; 	// no swapping needed, everythinig already in the right position
 
+
 			// else, swap rows i <-> k+1
+
 			long int itemp = Prow[i];
 			Prow[i] = Prow[k+1];
 			Prow[k+1] = itemp;
@@ -292,7 +312,7 @@ int main(int argc, char* argv[]){
 		for(int i = k + kth_nonzeros; i < M; ++i){
 
 			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
-			else if(first_non_zero_idx == -1) first_non_zero_idx = i;
+			if(first_non_zero_idx == -1) first_non_zero_idx = i;
 
 			double complex scal = conj(G[i+M*(k+1)]) / cabs(G[i+M*(k+1)]);
 			G[i+M*(k+1)] = cabs(G[i+M*(k+1)]);	// to be exact, so that the Img part is really = 0
@@ -325,7 +345,7 @@ int main(int argc, char* argv[]){
 		}
 
 
-		// do plane rotations with G(k + kth_nonzeros, k+1) on all J(k+kth_nonzeros) 
+		// do plane rotations with G(k + kth_nonzeros, k+1) on all elements with sign J(k+kth_nonzeros) 
 		// (if they are not 0 already), if they are, do nothing
 
 		if(first_non_zero_idx != -1){
@@ -359,7 +379,9 @@ int main(int argc, char* argv[]){
 			first_non_zero_idx = i;
 			if(i == k + kth_nonzeros + 1) break; 	// no swapping needed, everythinig already in the right position
 
+
 			// else, swap rows i <-> k + kth_nonzeros + 1
+
 			long int itemp = Prow[i];
 			Prow[i] = Prow[k + kth_nonzeros + 1];
 			Prow[k + kth_nonzeros + 1] = itemp;
@@ -376,7 +398,6 @@ int main(int argc, char* argv[]){
 
 		// if first_non_zero_idx != -1 at this point, then we 2 elements != 0 in column (k+1) below (k+kth_nonzeros) 
 		if(first_non_zero_idx != -1) kkth_nonzeros += 1; 
-
 
 		// do plane rotations with G(k + kth_nonzeros + 1, k+1), if they are not 0 already
 		// if they are all 0 in the -J(k + kth_nonzeros) class, then first_non_zero_idx = -1;
@@ -398,12 +419,8 @@ int main(int argc, char* argv[]){
 				int Nk = N-k-1;
 				zrot_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
 				G[i+M*(k+1)] = 0;
-
-				//printf("Nakon givensa u J(k+kth_nonzeros+1) elementima...\n");
-				//printMatrix(G, M, N);
 			}
 		}
-
 
 		// if we are in (A3) or (B2) forms, then the 2x2 reduction is finished
 		// in that case continue the main loop
@@ -419,14 +436,11 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			printf("Piovt (A1)...\n");
-			printJ(J, M);
+			//printf("\tPIVOT (A1)\n");
 
 			// check if its a proper form
 			// if not, fix it
-			// treba li na drugi nacin izracunat determinanticu??
 
-			printf("|det(G1)| = %lg\n", cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]));
 			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON){
 
 				// swap columns k <-> k+1
@@ -499,12 +513,6 @@ int main(int argc, char* argv[]){
 			double complex r = 1.0 / csqrt(1+a);
 			double complex y = J[k] * J[k+2] * r * conj(z);
 
-			printf("det(A2) = %lg\n", creal(-a/cabs(z*z)-cabs(g11*g22 - g21*g12)*cabs(g11*g22 - g21*g12)));
-
-			printf("z = %.2e + i %.2e\n", creal(z), cimag(z));
-			printf("a = %.2f + i %.2f\n", creal(a), cimag(a));
-			printf("r = %.2f + i %.2f\n", creal(r), cimag(r));
-
 			double complex i_xy = (J[k] * J[k+2] * r * cabs(z*z) * (g21*g21 - g11*g11)) / (1 + csqrt(1+a));
 			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
 
@@ -540,33 +548,15 @@ int main(int argc, char* argv[]){
 			zgemm_(&non_trans, &non_trans, &n, &Nk, &n, &alpha, U, &n, &G[k+M*k], &M, &beta, T, &n);
 
 
-			printf("\nG = \n");
-			printMatrix(G, M, N);
-
-			printJ(J, M);
-
 			// copy rows of T back into G
 			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
 
-			complex double q = (-J[k] * J[k+2] * conj(z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
-			printf("g12' = %.5f + i %.5f\n", creal(g12 + g21 * q), cimag(g12 + g21*q));
-			printf("g22' = %.5f + i %.5f\n", creal(g22 + g11 * q), cimag(g22 + g11*q));
-
-			printf("U = \n");
-			printMatrix(U, 4, 4);
-
-			printf("\n detG1 = %.2e + i %.2e\n", creal(g11*g22 - g12*g21), cimag(g11*g22 - g12*g21));
-
 			// put zeros explicitly in the right places
-			//G[k+2+M*k] = 0;
-			//G[k+3+M*k] = 0;
-			//G[k+2+M*(k+1)] = 0;
-			//G[k+3+M*(k+1)] = 0;
+			G[k+2+M*k] = 0;
+			G[k+3+M*k] = 0;
+			G[k+2+M*(k+1)] = 0;
+			G[k+3+M*(k+1)] = 0;
 
-			printf("UG = \n");		
-			printMatrix(G, M, N);
-
-			break;
 			k = k+1;
 			goto LOOP_END;
 		}
@@ -580,9 +570,7 @@ int main(int argc, char* argv[]){
 			// if not, fix it
 			// treba li na drugi nacin izracunat determinanticu??
 
-			printf("A2 ili B1...\n");
-			printMatrix(G, M, N);
-			printf("\n\n");
+			//printf("\tPIVOT (A2) or (B1)\n");
 
 			// (B1) is already in proper form, so fix just form (A2) if needed
 
@@ -628,8 +616,6 @@ int main(int argc, char* argv[]){
 				G[k+2+M*k] = 0;
 			}
 
-			printf("G nakon svodjenja u proper formu\n");
-			printMatrix(G, M, N);
 
 			// now do the final reduction
 
@@ -679,15 +665,12 @@ int main(int argc, char* argv[]){
 			G[k+2+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
 
-			printf("UG = \n");
-			printMatrix(G, M, N);
-			break;
 			k = k+1;
 			goto LOOP_END;
 		}
 
 		// if here, something broke down
-		printf("\n\nUPS, SOMETHING WENT WRONG... STOPPING...\n\n");
+		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...\n\n\n");
 		exit(-4);
 
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
@@ -695,7 +678,7 @@ int main(int argc, char* argv[]){
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
 
-		printf("PIVOT_1, k = %d\n", k);
+		//printf("PIVOT_1, k = %d\n", k);
 
 		if( Akk > 0 && J[k] < 0){
 
@@ -782,12 +765,16 @@ int main(int argc, char* argv[]){
 		LOOP_END: continue;
 	}
 
+	clock_t end = clock();
+
 	// -------------------------------- printing ----------------------------------
 
 	//printf("\nFINAL RESULT: \n");
 	//printMatrix(G, M, N);
 	//printJ(J, M);
 
+	float seconds = (float)(end - start) / CLOCKS_PER_SEC;
+	printf("time = %e s\n", seconds);
 
 	// -------------------------------- writing -------------------------------- 	
 
@@ -827,8 +814,11 @@ int main(int argc, char* argv[]){
 	free(T);
 	free(H);
 	free(f);
+	free(tempf);
+	free(U);
 
 
-	printf("Finished.\n");
+	//printf("\nFinished.\n");
+	//printf("\n-------------------------------------------------------------------------------\n\n");
 	return(0);
 }

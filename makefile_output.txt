@@ -1,0 +1,53 @@
+5
+4
+Smallest singular value of A: 291.452019283098
+time = 3.100000e-05 s
+maximum coordinate difference in (1, 1): 8.86757e-12
+norm(PA-AA): 1.61137e-11
+norm(PA-AA)/norm(AA) = 1.10793e-14
+-------------------------------------------------------------------------------
+
+5
+4
+Smallest singular value of A: 447.292355541195
+time = 2.400000e-05 s
+maximum coordinate difference in (2, 2): 1.40972e-11
+norm(PA-AA): 2.40925e-11
+norm(PA-AA)/norm(AA) = 2.15394e-14
+-------------------------------------------------------------------------------
+
+5
+4
+Smallest singular value of A: 791.064489142041
+time = 2.500000e-05 s
+maximum coordinate difference in (0, 2): 8.64673e-12
+norm(PA-AA): 2.04673e-11
+norm(PA-AA)/norm(AA) = 2.90994e-15
+-------------------------------------------------------------------------------
+
+5
+4
+Smallest singular value of A: 88.0123411074102
+time = 2.500000e-05 s
+maximum coordinate difference in (0, 1): 1.53877e-11
+norm(PA-AA): 2.98191e-11
+norm(PA-AA)/norm(AA) = 3.85974e-15
+-------------------------------------------------------------------------------
+
+5
+4
+Smallest singular value of A: 88.0123411074102
+time = 2.600000e-05 s
+maximum coordinate difference in (0, 1): 1.53877e-11
+norm(PA-AA): 2.98191e-11
+norm(PA-AA)/norm(AA) = 3.85974e-15
+-------------------------------------------------------------------------------
+
+makefile:24: recipe for target 'all' failed
+Smallest singular value of A: 959.625441309481
+time = 3.300000e-05 s
+maximum coordinate difference in (0, 2): 1.11227e-11
+norm(PA-AA): 2.27525e-11
+norm(PA-AA)/norm(AA) = 1.60846e-14
+-------------------------------------------------------------------------------
+

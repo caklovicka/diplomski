@@ -4,8 +4,7 @@
 #include <math.h>
 #include <float.h>
 
-//#define EPSILON 5.42101086242752217003726400434970855712890625E-20 	// wolfram alpha's 2^(-64)
-//#define DIGITS 19	// number of significant digits
+
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 
@@ -43,7 +42,9 @@ int main(int argc, char* argv[]){
 	int M = atoi(argv[5]);
 	int N = atoi(argv[6]);
 
-	printf("Reading data...\n");
+
+	//printf("\n\n------------------------------------ CHECK ------------------------------------\n\n");
+	//printf("Reading data...\n");
 
 	// allocate memory
 	double complex *AA = (double complex*) malloc(N*N*sizeof(double complex));
@@ -105,7 +106,7 @@ int main(int argc, char* argv[]){
 
 	// ------------------------------------ compute G*JG ------------------------------------
 
-	printf("computing G*JG...\n");
+	//printf("computing G*JG...\n");
 
 	char trans = 'C';
 	char non_trans = 'N';
@@ -124,6 +125,14 @@ int main(int argc, char* argv[]){
 		for(j = 0; j < M; ++j){
 			if(i == j) JJ[i+M*j] = (double complex)J[i];
 			else JJ[i+M*j] = 0;
+		}
+	}
+
+	for(i = N; i < M; ++i){
+
+		if( cabs(G[i+M*(N-1)]) >= EPSILON ){
+			printf("\nERR: G not triangular!!! (checked last column)\n\n");
+			break;
 		}
 	}
 
@@ -172,7 +181,6 @@ int main(int argc, char* argv[]){
 	int inc = 1;
 	double norm2 = dnrm2_(&N, AA, &inc);
 
-
 	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
 	printf("norm(PA-AA)/norm(AA) = %.5e\n", csqrt(norm)/norm2);
@@ -192,6 +200,7 @@ int main(int argc, char* argv[]){
 	free(T);
 
 
-	printf("Finished.\n");
+	//printf("Finished.\n");
+	printf("-------------------------------------------------------------------------------\n\n");
 	return(0);
 }

@@ -16,9 +16,7 @@
 #include <time.h>
 #include <float.h>
 
-// should we use the IEEE standard from <float.h>?
-//#define EPSILON 5.42101086242752217003726400434970855712890625E-20 	// wolfram alpha's 2^(-64)
-//#define DIGITS 19	// number of significant digits
+
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 
@@ -59,7 +57,8 @@ int main(int argc, char* argv[]){
 	FILE *writeG = fopen(argv[1], "wb");
 	FILE *writeJ = fopen(argv[2], "wb");
 
-	printf("Generating...\n");
+	//printf("\n\n-------------------------------- GENERATING -----------------------------------\n\n");
+	//printf("Generating...\n");
 
 	// allocate memory
 	double complex *G = (double complex*) malloc(M*N*sizeof(double complex));
@@ -106,7 +105,7 @@ int main(int argc, char* argv[]){
 	
 	// ----------------------------------- computing A -----------------------------------
 
-	printf("Checking that A is nonslingular...\n");
+	//printf("Checking that A is nonslingular...\n");
 
 	char trans = 'C';
 	char non_trans = 'N';
@@ -133,9 +132,6 @@ int main(int argc, char* argv[]){
 	// ------------------------------------ write A into file ------------------------------------
 
 	FILE *writeA = fopen("data/A.bin", "wb");
-
-	printf("G(generirana, friško) = \n");
-	printMatrix(G, M, N);
 
 	for(j = 0; j < N; ++j)
 		for(i = 0; i < N; ++i)	
@@ -164,7 +160,7 @@ int main(int argc, char* argv[]){
 		printf("A = G*JG is singular.\n");
 		exit(-3);
 	}
-	else printf("Smallest singular value: %.*g\n", DIGITS, s[N-1]);
+	else printf("Smallest singular value of A: %.*g\n", DIGITS, s[N-1]);
 
 
 	// -------------------------- write G and J in files -------------------------- 
@@ -179,8 +175,6 @@ int main(int argc, char* argv[]){
 
 	// -------------------------------------------- cleaning --------------------------------------------
 
-	printVector(J, M);
-
 	fclose(writeJ);
 	fclose(writeG);
 	fclose(writeA);
@@ -193,7 +187,9 @@ int main(int argc, char* argv[]){
 	free(work);
 	free(rwork);
 	free(iwork);
-	printf("Finished.\n");
+
+	//printf("Finished.\n");
+	//printf("\n-------------------------------------------------------------------------------\n\n");
 
 return(0);
 }
