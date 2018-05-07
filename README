@@ -1,1 +1,5 @@
-ne spremaj nista u direktorij data, makefile brise content. 
+NOTES:
+ne spremaj nista u direktorij data, makefile brise content.
+
+POKRETANJE U TERMINALU vise puta + ispis u datoteku:
+$ for i in {1..100}; do make all M=20 N=8 >> makefile_output.txt; done

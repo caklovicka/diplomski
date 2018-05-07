@@ -51,3 +51,1091 @@ norm(PA-AA): 2.27525e-11
 norm(PA-AA)/norm(AA) = 1.60846e-14
 -------------------------------------------------------------------------------
 
+5 4
+Smallest singular value of A: 322.424311138693
+time = 3.800000e-05 s
+maximum coordinate difference in (0, 1): 6.60950e-12
+norm(PA-AA): 1.75672e-11
+norm(PA-AA)/norm(AA) = 1.09220e-14
+-------------------------------------------------------------------------------
+
+20 10
+Smallest singular value of A: 1259.81221031521
+time = 2.300000e-04 s
+maximum coordinate difference in (9, 9): 4.36557e-11
+norm(PA-AA): 1.42528e-10
+norm(PA-AA)/norm(AA) = 8.61682e-15
+-------------------------------------------------------------------------------
+
+20 10
+Smallest singular value of A: 1259.81221031521
+time = 2.380000e-04 s
+maximum coordinate difference in (9, 9): 4.36557e-11
+norm(PA-AA): 1.42528e-10
+norm(PA-AA)/norm(AA) = 8.61682e-15
+-------------------------------------------------------------------------------
+
+20 10
+Smallest singular value of A: 1259.81221031521
+time = 2.300000e-04 s
+maximum coordinate difference in (9, 9): 4.36557e-11
+norm(PA-AA): 1.42528e-10
+norm(PA-AA)/norm(AA) = 8.61682e-15
+-------------------------------------------------------------------------------
+
+20 10
+Smallest singular value of A: 929.840644324709
+time = 2.350000e-04 s
+maximum coordinate difference in (2, 8): 6.00374e-11
+norm(PA-AA): 2.06229e-10
+norm(PA-AA)/norm(AA) = 1.11397e-14
+-------------------------------------------------------------------------------
+
+20 10
+Smallest singular value of A: 929.840644324709
+time = 2.520000e-04 s
+maximum coordinate difference in (2, 8): 6.00374e-11
+norm(PA-AA): 2.06229e-10
+norm(PA-AA)/norm(AA) = 1.11397e-14
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 85.1932877576869
+time = 1.279990e-01 s
+maximum coordinate difference in (35, 35): 2.57751e-09
+norm(PA-AA): 2.44228e-08
+norm(PA-AA)/norm(AA) = 2.93617e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 85.1932877576869
+time = 1.268660e-01 s
+maximum coordinate difference in (35, 35): 2.57751e-09
+norm(PA-AA): 2.44228e-08
+norm(PA-AA)/norm(AA) = 2.93617e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1006.37266980042
+time = 8.482600e-02 s
+maximum coordinate difference in (48, 48): 3.04044e-09
+norm(PA-AA): 2.29986e-08
+norm(PA-AA)/norm(AA) = 3.12859e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1006.37266980042
+time = 8.575300e-02 s
+maximum coordinate difference in (48, 48): 3.04044e-09
+norm(PA-AA): 2.29986e-08
+norm(PA-AA)/norm(AA) = 3.12859e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1006.37266980042
+time = 8.522800e-02 s
+maximum coordinate difference in (48, 48): 3.04044e-09
+norm(PA-AA): 2.29986e-08
+norm(PA-AA)/norm(AA) = 3.12859e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1514.3569733999
+time = 1.406560e-01 s
+maximum coordinate difference in (38, 38): 2.59752e-09
+norm(PA-AA): 2.09309e-08
+norm(PA-AA)/norm(AA) = 1.33636e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1514.3569733999
+time = 1.446080e-01 s
+maximum coordinate difference in (38, 38): 2.59752e-09
+norm(PA-AA): 2.09309e-08
+norm(PA-AA)/norm(AA) = 1.33636e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 119.483796523878
+time = 1.505840e-01 s
+maximum coordinate difference in (48, 48): 2.94085e-09
+norm(PA-AA): 1.94978e-08
+norm(PA-AA)/norm(AA) = 1.96664e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 119.483796523878
+time = 1.533410e-01 s
+maximum coordinate difference in (48, 48): 2.94085e-09
+norm(PA-AA): 1.94978e-08
+norm(PA-AA)/norm(AA) = 1.96664e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 624.947324158624
+time = 6.432000e-02 s
+maximum coordinate difference in (20, 23): 2.19234e-09
+norm(PA-AA): 2.32043e-08
+norm(PA-AA)/norm(AA) = 2.94153e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 624.947324158624
+time = 6.153500e-02 s
+maximum coordinate difference in (20, 23): 2.19234e-09
+norm(PA-AA): 2.32043e-08
+norm(PA-AA)/norm(AA) = 2.94153e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 624.947324158624
+time = 6.168100e-02 s
+maximum coordinate difference in (20, 23): 2.19234e-09
+norm(PA-AA): 2.32043e-08
+norm(PA-AA)/norm(AA) = 2.94153e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 313.707119223298
+time = 1.619880e-01 s
+maximum coordinate difference in (28, 28): 1.98270e-09
+norm(PA-AA): 1.65560e-08
+norm(PA-AA)/norm(AA) = 1.37411e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 313.707119223298
+time = 1.630770e-01 s
+maximum coordinate difference in (28, 28): 1.98270e-09
+norm(PA-AA): 1.65560e-08
+norm(PA-AA)/norm(AA) = 1.37411e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 975.935926686291
+time = 1.915940e-01 s
+maximum coordinate difference in (27, 27): 5.41331e-09
+norm(PA-AA): 2.69681e-08
+norm(PA-AA)/norm(AA) = 2.59068e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 975.935926686291
+time = 1.891680e-01 s
+maximum coordinate difference in (27, 27): 5.41331e-09
+norm(PA-AA): 2.69681e-08
+norm(PA-AA)/norm(AA) = 2.59068e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1175.72890594311
+time = 1.121110e-01 s
+maximum coordinate difference in (43, 43): 2.80852e-09
+norm(PA-AA): 1.76128e-08
+norm(PA-AA)/norm(AA) = 1.41444e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 1175.72890594311
+time = 1.121490e-01 s
+maximum coordinate difference in (43, 43): 2.80852e-09
+norm(PA-AA): 1.76128e-08
+norm(PA-AA)/norm(AA) = 1.41444e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 922.657259548048
+time = 1.057560e-01 s
+maximum coordinate difference in (43, 43): 2.67755e-09
+norm(PA-AA): 1.65280e-08
+norm(PA-AA)/norm(AA) = 2.74893e-13
+-------------------------------------------------------------------------------
+
+200 50
+Smallest singular value of A: 922.657259548048
+time = 1.083390e-01 s
+maximum coordinate difference in (43, 43): 2.67755e-09
+norm(PA-AA): 1.65280e-08
+norm(PA-AA)/norm(AA) = 2.74893e-13
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 573.993533301398
+time = 1.990000e-04 s
+maximum coordinate difference in (0, 0): 2.27374e-11
+norm(PA-AA): 8.13456e-11
+norm(PA-AA)/norm(AA) = 1.40988e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 598.012789882284
+time = 1.620000e-04 s
+maximum coordinate difference in (6, 6): 5.75113e-11
+norm(PA-AA): 1.31619e-10
+norm(PA-AA)/norm(AA) = 1.30538e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 598.012789882284
+time = 1.800000e-04 s
+maximum coordinate difference in (6, 6): 5.75113e-11
+norm(PA-AA): 1.31619e-10
+norm(PA-AA)/norm(AA) = 1.30538e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 598.012789882284
+time = 1.610000e-04 s
+maximum coordinate difference in (6, 6): 5.75113e-11
+norm(PA-AA): 1.31619e-10
+norm(PA-AA)/norm(AA) = 1.30538e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 598.012789882284
+time = 1.600000e-04 s
+maximum coordinate difference in (6, 6): 5.75113e-11
+norm(PA-AA): 1.31619e-10
+norm(PA-AA)/norm(AA) = 1.30538e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 75.8113723244577
+time = 1.780000e-04 s
+maximum coordinate difference in (4, 4): 8.00355e-11
+norm(PA-AA): 1.79476e-10
+norm(PA-AA)/norm(AA) = 1.01412e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 75.8113723244577
+time = 1.690000e-04 s
+maximum coordinate difference in (4, 4): 8.00355e-11
+norm(PA-AA): 1.79476e-10
+norm(PA-AA)/norm(AA) = 1.01412e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 75.8113723244577
+time = 1.760000e-04 s
+maximum coordinate difference in (4, 4): 8.00355e-11
+norm(PA-AA): 1.79476e-10
+norm(PA-AA)/norm(AA) = 1.01412e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 75.8113723244577
+time = 1.610000e-04 s
+maximum coordinate difference in (4, 4): 8.00355e-11
+norm(PA-AA): 1.79476e-10
+norm(PA-AA)/norm(AA) = 1.01412e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 611.657579520784
+time = 1.850000e-04 s
+maximum coordinate difference in (3, 3): 4.41105e-11
+norm(PA-AA): 1.00124e-10
+norm(PA-AA)/norm(AA) = 1.18674e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 611.657579520784
+time = 1.900000e-04 s
+maximum coordinate difference in (3, 3): 4.41105e-11
+norm(PA-AA): 1.00124e-10
+norm(PA-AA)/norm(AA) = 1.18674e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 611.657579520784
+time = 1.910000e-04 s
+maximum coordinate difference in (3, 3): 4.41105e-11
+norm(PA-AA): 1.00124e-10
+norm(PA-AA)/norm(AA) = 1.18674e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 611.657579520784
+time = 1.910000e-04 s
+maximum coordinate difference in (3, 3): 4.41105e-11
+norm(PA-AA): 1.00124e-10
+norm(PA-AA)/norm(AA) = 1.18674e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 531.688115750944
+time = 1.470000e-04 s
+maximum coordinate difference in (3, 3): 1.09821e-10
+norm(PA-AA): 1.41199e-10
+norm(PA-AA)/norm(AA) = 2.15201e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 531.688115750944
+time = 1.610000e-04 s
+maximum coordinate difference in (3, 3): 1.09821e-10
+norm(PA-AA): 1.41199e-10
+norm(PA-AA)/norm(AA) = 2.15201e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 531.688115750944
+time = 1.460000e-04 s
+maximum coordinate difference in (3, 3): 1.09821e-10
+norm(PA-AA): 1.41199e-10
+norm(PA-AA)/norm(AA) = 2.15201e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 565.166767676347
+time = 1.560000e-04 s
+maximum coordinate difference in (2, 2): 4.82032e-11
+norm(PA-AA): 1.07379e-10
+norm(PA-AA)/norm(AA) = 7.27790e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 565.166767676347
+time = 1.580000e-04 s
+maximum coordinate difference in (2, 2): 4.82032e-11
+norm(PA-AA): 1.07379e-10
+norm(PA-AA)/norm(AA) = 7.27790e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 565.166767676347
+time = 1.500000e-04 s
+maximum coordinate difference in (2, 2): 4.82032e-11
+norm(PA-AA): 1.07379e-10
+norm(PA-AA)/norm(AA) = 7.27790e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 565.166767676347
+time = 1.540000e-04 s
+maximum coordinate difference in (2, 2): 4.82032e-11
+norm(PA-AA): 1.07379e-10
+norm(PA-AA)/norm(AA) = 7.27790e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1191.05349288551
+time = 1.980000e-04 s
+maximum coordinate difference in (3, 3): 8.73115e-11
+norm(PA-AA): 1.33939e-10
+norm(PA-AA)/norm(AA) = 1.37325e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1191.05349288551
+time = 1.710000e-04 s
+maximum coordinate difference in (3, 3): 8.73115e-11
+norm(PA-AA): 1.33939e-10
+norm(PA-AA)/norm(AA) = 1.37325e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1191.05349288551
+time = 1.790000e-04 s
+maximum coordinate difference in (3, 3): 8.73115e-11
+norm(PA-AA): 1.33939e-10
+norm(PA-AA)/norm(AA) = 1.37325e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1191.05349288551
+time = 1.720000e-04 s
+maximum coordinate difference in (3, 3): 8.73115e-11
+norm(PA-AA): 1.33939e-10
+norm(PA-AA)/norm(AA) = 1.37325e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1002.13009779531
+time = 1.480000e-04 s
+maximum coordinate difference in (3, 5): 2.10219e-11
+norm(PA-AA): 8.09074e-11
+norm(PA-AA)/norm(AA) = 7.47597e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1002.13009779531
+time = 1.450000e-04 s
+maximum coordinate difference in (3, 5): 2.10219e-11
+norm(PA-AA): 8.09074e-11
+norm(PA-AA)/norm(AA) = 7.47597e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1002.13009779531
+time = 1.440000e-04 s
+maximum coordinate difference in (3, 5): 2.10219e-11
+norm(PA-AA): 8.09074e-11
+norm(PA-AA)/norm(AA) = 7.47597e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1002.13009779531
+time = 1.570000e-04 s
+maximum coordinate difference in (3, 5): 2.10219e-11
+norm(PA-AA): 8.09074e-11
+norm(PA-AA)/norm(AA) = 7.47597e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 92.3208583409709
+time = 1.510000e-04 s
+maximum coordinate difference in (3, 3): 5.27507e-11
+norm(PA-AA): 1.42936e-10
+norm(PA-AA)/norm(AA) = 8.76735e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 92.3208583409709
+time = 1.640000e-04 s
+maximum coordinate difference in (3, 3): 5.27507e-11
+norm(PA-AA): 1.42936e-10
+norm(PA-AA)/norm(AA) = 8.76735e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 92.3208583409709
+time = 1.580000e-04 s
+maximum coordinate difference in (3, 3): 5.27507e-11
+norm(PA-AA): 1.42936e-10
+norm(PA-AA)/norm(AA) = 8.76735e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 581.679379432535
+time = 1.950000e-04 s
+maximum coordinate difference in (1, 1): 4.18368e-11
+norm(PA-AA): 1.20877e-10
+norm(PA-AA)/norm(AA) = 1.18345e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 581.679379432535
+time = 1.900000e-04 s
+maximum coordinate difference in (1, 1): 4.18368e-11
+norm(PA-AA): 1.20877e-10
+norm(PA-AA)/norm(AA) = 1.18345e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 581.679379432535
+time = 1.840000e-04 s
+maximum coordinate difference in (1, 1): 4.18368e-11
+norm(PA-AA): 1.20877e-10
+norm(PA-AA)/norm(AA) = 1.18345e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 581.679379432535
+time = 1.780000e-04 s
+maximum coordinate difference in (1, 1): 4.18368e-11
+norm(PA-AA): 1.20877e-10
+norm(PA-AA)/norm(AA) = 1.18345e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 112.710561139221
+time = 1.340000e-04 s
+maximum coordinate difference in (6, 6): 1.64619e-10
+norm(PA-AA): 4.27978e-10
+norm(PA-AA)/norm(AA) = 4.76597e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 112.710561139221
+time = 1.320000e-04 s
+maximum coordinate difference in (6, 6): 1.64619e-10
+norm(PA-AA): 4.27978e-10
+norm(PA-AA)/norm(AA) = 4.76597e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 112.710561139221
+time = 1.290000e-04 s
+maximum coordinate difference in (6, 6): 1.64619e-10
+norm(PA-AA): 4.27978e-10
+norm(PA-AA)/norm(AA) = 4.76597e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 112.710561139221
+time = 1.260000e-04 s
+maximum coordinate difference in (6, 6): 1.64619e-10
+norm(PA-AA): 4.27978e-10
+norm(PA-AA)/norm(AA) = 4.76597e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 383.195768704185
+time = 1.720000e-04 s
+maximum coordinate difference in (6, 7): 2.46614e-11
+norm(PA-AA): 8.65589e-11
+norm(PA-AA)/norm(AA) = 1.15919e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 383.195768704185
+time = 1.690000e-04 s
+maximum coordinate difference in (6, 7): 2.46614e-11
+norm(PA-AA): 8.65589e-11
+norm(PA-AA)/norm(AA) = 1.15919e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 383.195768704185
+time = 1.610000e-04 s
+maximum coordinate difference in (6, 7): 2.46614e-11
+norm(PA-AA): 8.65589e-11
+norm(PA-AA)/norm(AA) = 1.15919e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 383.195768704185
+time = 1.670000e-04 s
+maximum coordinate difference in (6, 7): 2.46614e-11
+norm(PA-AA): 8.65589e-11
+norm(PA-AA)/norm(AA) = 1.15919e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 461.109881357754
+time = 1.880000e-04 s
+maximum coordinate difference in (5, 5): 1.50976e-10
+norm(PA-AA): 2.85067e-10
+norm(PA-AA)/norm(AA) = 6.49019e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 461.109881357754
+time = 1.900000e-04 s
+maximum coordinate difference in (5, 5): 1.50976e-10
+norm(PA-AA): 2.85067e-10
+norm(PA-AA)/norm(AA) = 6.49019e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 461.109881357754
+time = 1.880000e-04 s
+maximum coordinate difference in (5, 5): 1.50976e-10
+norm(PA-AA): 2.85067e-10
+norm(PA-AA)/norm(AA) = 6.49019e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 461.109881357754
+time = 2.000000e-04 s
+maximum coordinate difference in (5, 5): 1.50976e-10
+norm(PA-AA): 2.85067e-10
+norm(PA-AA)/norm(AA) = 6.49019e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1375.98209531477
+time = 1.420000e-04 s
+maximum coordinate difference in (5, 5): 1.07320e-10
+norm(PA-AA): 2.02104e-10
+norm(PA-AA)/norm(AA) = 1.31445e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1375.98209531477
+time = 1.460000e-04 s
+maximum coordinate difference in (5, 5): 1.07320e-10
+norm(PA-AA): 2.02104e-10
+norm(PA-AA)/norm(AA) = 1.31445e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 1375.98209531477
+time = 1.500000e-04 s
+maximum coordinate difference in (5, 5): 1.07320e-10
+norm(PA-AA): 2.02104e-10
+norm(PA-AA)/norm(AA) = 1.31445e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 144.447386723625
+time = 1.250000e-04 s
+maximum coordinate difference in (4, 4): 9.18590e-11
+norm(PA-AA): 1.56741e-10
+norm(PA-AA)/norm(AA) = 2.61842e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 144.447386723625
+time = 1.160000e-04 s
+maximum coordinate difference in (4, 4): 9.18590e-11
+norm(PA-AA): 1.56741e-10
+norm(PA-AA)/norm(AA) = 2.61842e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 144.447386723625
+time = 1.350000e-04 s
+maximum coordinate difference in (4, 4): 9.18590e-11
+norm(PA-AA): 1.56741e-10
+norm(PA-AA)/norm(AA) = 2.61842e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 144.447386723625
+time = 1.270000e-04 s
+maximum coordinate difference in (4, 4): 9.18590e-11
+norm(PA-AA): 1.56741e-10
+norm(PA-AA)/norm(AA) = 2.61842e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 226.999484365285
+time = 1.900000e-04 s
+maximum coordinate difference in (1, 6): 2.27783e-11
+norm(PA-AA): 8.52565e-11
+norm(PA-AA)/norm(AA) = 6.83361e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 226.999484365285
+time = 1.840000e-04 s
+maximum coordinate difference in (1, 6): 2.27783e-11
+norm(PA-AA): 8.52565e-11
+norm(PA-AA)/norm(AA) = 6.83361e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 226.999484365285
+time = 1.850000e-04 s
+maximum coordinate difference in (1, 6): 2.27783e-11
+norm(PA-AA): 8.52565e-11
+norm(PA-AA)/norm(AA) = 6.83361e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 226.999484365285
+time = 1.820000e-04 s
+maximum coordinate difference in (1, 6): 2.27783e-11
+norm(PA-AA): 8.52565e-11
+norm(PA-AA)/norm(AA) = 6.83361e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 35.7763992313443
+time = 1.790000e-04 s
+maximum coordinate difference in (3, 4): 3.82421e-11
+norm(PA-AA): 9.12997e-11
+norm(PA-AA)/norm(AA) = 1.17585e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 35.7763992313443
+time = 1.870000e-04 s
+maximum coordinate difference in (3, 4): 3.82421e-11
+norm(PA-AA): 9.12997e-11
+norm(PA-AA)/norm(AA) = 1.17585e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 35.7763992313443
+time = 1.840000e-04 s
+maximum coordinate difference in (3, 4): 3.82421e-11
+norm(PA-AA): 9.12997e-11
+norm(PA-AA)/norm(AA) = 1.17585e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 35.7763992313443
+time = 1.790000e-04 s
+maximum coordinate difference in (3, 4): 3.82421e-11
+norm(PA-AA): 9.12997e-11
+norm(PA-AA)/norm(AA) = 1.17585e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 768.99574385411
+time = 1.690000e-04 s
+maximum coordinate difference in (3, 3): 7.82165e-11
+norm(PA-AA): 1.45631e-10
+norm(PA-AA)/norm(AA) = 1.09050e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 768.99574385411
+time = 1.860000e-04 s
+maximum coordinate difference in (3, 3): 7.82165e-11
+norm(PA-AA): 1.45631e-10
+norm(PA-AA)/norm(AA) = 1.09050e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 768.99574385411
+time = 1.780000e-04 s
+maximum coordinate difference in (3, 3): 7.82165e-11
+norm(PA-AA): 1.45631e-10
+norm(PA-AA)/norm(AA) = 1.09050e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 768.99574385411
+time = 1.710000e-04 s
+maximum coordinate difference in (3, 3): 7.82165e-11
+norm(PA-AA): 1.45631e-10
+norm(PA-AA)/norm(AA) = 1.09050e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 907.82949953715
+time = 1.660000e-04 s
+maximum coordinate difference in (6, 6): 1.16188e-10
+norm(PA-AA): 3.17854e-10
+norm(PA-AA)/norm(AA) = 3.05910e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 907.82949953715
+time = 1.530000e-04 s
+maximum coordinate difference in (6, 6): 1.16188e-10
+norm(PA-AA): 3.17854e-10
+norm(PA-AA)/norm(AA) = 3.05910e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 907.82949953715
+time = 1.590000e-04 s
+maximum coordinate difference in (6, 6): 1.16188e-10
+norm(PA-AA): 3.17854e-10
+norm(PA-AA)/norm(AA) = 3.05910e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 265.815431587779
+time = 1.550000e-04 s
+maximum coordinate difference in (0, 7): 5.84700e-11
+norm(PA-AA): 1.23794e-10
+norm(PA-AA)/norm(AA) = 4.98573e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 265.815431587779
+time = 1.540000e-04 s
+maximum coordinate difference in (0, 7): 5.84700e-11
+norm(PA-AA): 1.23794e-10
+norm(PA-AA)/norm(AA) = 4.98573e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 265.815431587779
+time = 1.490000e-04 s
+maximum coordinate difference in (0, 7): 5.84700e-11
+norm(PA-AA): 1.23794e-10
+norm(PA-AA)/norm(AA) = 4.98573e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 265.815431587779
+time = 1.530000e-04 s
+maximum coordinate difference in (0, 7): 5.84700e-11
+norm(PA-AA): 1.23794e-10
+norm(PA-AA)/norm(AA) = 4.98573e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 319.065478464551
+time = 1.050000e-04 s
+maximum coordinate difference in (0, 0): 1.79625e-10
+norm(PA-AA): 4.36402e-10
+norm(PA-AA)/norm(AA) = 4.32324e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 319.065478464551
+time = 1.160000e-04 s
+maximum coordinate difference in (0, 0): 1.79625e-10
+norm(PA-AA): 4.36402e-10
+norm(PA-AA)/norm(AA) = 4.32324e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 319.065478464551
+time = 1.230000e-04 s
+maximum coordinate difference in (0, 0): 1.79625e-10
+norm(PA-AA): 4.36402e-10
+norm(PA-AA)/norm(AA) = 4.32324e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 319.065478464551
+time = 1.350000e-04 s
+maximum coordinate difference in (0, 0): 1.79625e-10
+norm(PA-AA): 4.36402e-10
+norm(PA-AA)/norm(AA) = 4.32324e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 589.880719320204
+time = 1.780000e-04 s
+maximum coordinate difference in (1, 1): 6.09361e-11
+norm(PA-AA): 1.16761e-10
+norm(PA-AA)/norm(AA) = 1.32025e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 589.880719320204
+time = 1.820000e-04 s
+maximum coordinate difference in (1, 1): 6.09361e-11
+norm(PA-AA): 1.16761e-10
+norm(PA-AA)/norm(AA) = 1.32025e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 589.880719320204
+time = 1.670000e-04 s
+maximum coordinate difference in (1, 1): 6.09361e-11
+norm(PA-AA): 1.16761e-10
+norm(PA-AA)/norm(AA) = 1.32025e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 589.880719320204
+time = 1.550000e-04 s
+maximum coordinate difference in (1, 1): 6.09361e-11
+norm(PA-AA): 1.16761e-10
+norm(PA-AA)/norm(AA) = 1.32025e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 803.210149456621
+time = 1.690000e-04 s
+maximum coordinate difference in (5, 5): 7.05995e-11
+norm(PA-AA): 2.01951e-10
+norm(PA-AA)/norm(AA) = 2.85549e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 803.210149456621
+time = 1.800000e-04 s
+maximum coordinate difference in (5, 5): 7.05995e-11
+norm(PA-AA): 2.01951e-10
+norm(PA-AA)/norm(AA) = 2.85549e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 803.210149456621
+time = 1.640000e-04 s
+maximum coordinate difference in (5, 5): 7.05995e-11
+norm(PA-AA): 2.01951e-10
+norm(PA-AA)/norm(AA) = 2.85549e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 803.210149456621
+time = 1.680000e-04 s
+maximum coordinate difference in (5, 5): 7.05995e-11
+norm(PA-AA): 2.01951e-10
+norm(PA-AA)/norm(AA) = 2.85549e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 360.323633165222
+time = 1.470000e-04 s
+maximum coordinate difference in (5, 5): 2.09184e-11
+norm(PA-AA): 7.91571e-11
+norm(PA-AA)/norm(AA) = 7.33045e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 360.323633165222
+time = 1.380000e-04 s
+maximum coordinate difference in (5, 5): 2.09184e-11
+norm(PA-AA): 7.91571e-11
+norm(PA-AA)/norm(AA) = 7.33045e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 360.323633165222
+time = 1.380000e-04 s
+maximum coordinate difference in (5, 5): 2.09184e-11
+norm(PA-AA): 7.91571e-11
+norm(PA-AA)/norm(AA) = 7.33045e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 114.853873630981
+time = 1.550000e-04 s
+maximum coordinate difference in (0, 0): 1.50976e-10
+norm(PA-AA): 2.78571e-10
+norm(PA-AA)/norm(AA) = 1.50630e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 114.853873630981
+time = 1.830000e-04 s
+maximum coordinate difference in (0, 0): 1.50976e-10
+norm(PA-AA): 2.78571e-10
+norm(PA-AA)/norm(AA) = 1.50630e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 114.853873630981
+time = 1.730000e-04 s
+maximum coordinate difference in (0, 0): 1.50976e-10
+norm(PA-AA): 2.78571e-10
+norm(PA-AA)/norm(AA) = 1.50630e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 114.853873630981
+time = 1.680000e-04 s
+maximum coordinate difference in (0, 0): 1.50976e-10
+norm(PA-AA): 2.78571e-10
+norm(PA-AA)/norm(AA) = 1.50630e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 219.183873413227
+time = 1.140000e-04 s
+maximum coordinate difference in (5, 7): 2.66164e-10
+norm(PA-AA): 6.64660e-10
+norm(PA-AA)/norm(AA) = 8.99123e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 219.183873413227
+time = 1.240000e-04 s
+maximum coordinate difference in (5, 7): 2.66164e-10
+norm(PA-AA): 6.64660e-10
+norm(PA-AA)/norm(AA) = 8.99123e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 219.183873413227
+time = 1.160000e-04 s
+maximum coordinate difference in (5, 7): 2.66164e-10
+norm(PA-AA): 6.64660e-10
+norm(PA-AA)/norm(AA) = 8.99123e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 219.183873413227
+time = 1.180000e-04 s
+maximum coordinate difference in (5, 7): 2.66164e-10
+norm(PA-AA): 6.64660e-10
+norm(PA-AA)/norm(AA) = 8.99123e-14
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 874.585099817053
+time = 1.820000e-04 s
+maximum coordinate difference in (6, 6): 7.13953e-11
+norm(PA-AA): 1.04908e-10
+norm(PA-AA)/norm(AA) = 9.60119e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 874.585099817053
+time = 1.840000e-04 s
+maximum coordinate difference in (6, 6): 7.13953e-11
+norm(PA-AA): 1.04908e-10
+norm(PA-AA)/norm(AA) = 9.60119e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 874.585099817053
+time = 1.820000e-04 s
+maximum coordinate difference in (6, 6): 7.13953e-11
+norm(PA-AA): 1.04908e-10
+norm(PA-AA)/norm(AA) = 9.60119e-15
+-------------------------------------------------------------------------------
+
+20 8
+Smallest singular value of A: 874.585099817053
+time = 1.930000e-04 s
+maximum coordinate difference in (6, 6): 7.13953e-11
+norm(PA-AA): 1.04908e-10
+norm(PA-AA)/norm(AA) = 9.60119e-15
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 176.813285133504
+time = 9.420468e+01 s
+maximum coordinate difference in (46, 46): 1.20734e-07
+norm(PA-AA): 5.31007e-06
+norm(PA-AA)/norm(AA) = 1.27399e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 5.67279360578143
+time = 7.913165e+01 s
+maximum coordinate difference in (367, 372): 1.21125e-07
+norm(PA-AA): 4.74784e-06
+norm(PA-AA)/norm(AA) = 1.16074e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 444.090375358009
+time = 9.940369e+01 s
+maximum coordinate difference in (174, 174): 2.65799e-07
+norm(PA-AA): 7.17284e-06
+norm(PA-AA)/norm(AA) = 1.63877e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 181.585495308865
+time = 7.572986e+01 s
+maximum coordinate difference in (194, 194): 1.11217e-07
+norm(PA-AA): 4.26404e-06
+norm(PA-AA)/norm(AA) = 1.20505e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 984.716680025396
+time = 1.015775e+02 s
+maximum coordinate difference in (333, 384): 2.53640e-07
+norm(PA-AA): 9.98492e-06
+norm(PA-AA)/norm(AA) = 2.97956e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 839.775557785035
+time = 7.067435e+01 s
+maximum coordinate difference in (362, 362): 1.46503e-07
+norm(PA-AA): 5.55724e-06
+norm(PA-AA)/norm(AA) = 1.46194e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 211.579650231174
+time = 8.726683e+01 s
+maximum coordinate difference in (156, 156): 2.72277e-07
+norm(PA-AA): 1.27855e-05
+norm(PA-AA)/norm(AA) = 3.32518e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 122.975454013523
+time = 6.814265e+01 s
+maximum coordinate difference in (90, 90): 2.13302e-07
+norm(PA-AA): 5.57890e-06
+norm(PA-AA)/norm(AA) = 8.36201e-12
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 456.690355899641
+time = 8.160606e+01 s
+maximum coordinate difference in (208, 290): 5.54650e-07
+norm(PA-AA): 2.77568e-05
+norm(PA-AA)/norm(AA) = 5.52775e-11
+-------------------------------------------------------------------------------
+
+1000 400
+Smallest singular value of A: 537.422301427813
+time = 8.431717e+01 s
+maximum coordinate difference in (388, 388): 1.44399e-07
+norm(PA-AA): 5.61673e-06
+norm(PA-AA)/norm(AA) = 1.17200e-11
+-------------------------------------------------------------------------------
+

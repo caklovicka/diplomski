@@ -670,7 +670,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// if here, something broke down
-		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...\n\n\n");
+		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...Is A maybe singular?\n\n\n");
 		exit(-4);
 
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
