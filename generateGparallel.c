@@ -16,6 +16,7 @@
 #include <time.h>
 #include <float.h>
 #include "omp.h"
+#include <unistd.h>
 
 
 #define EPSILON DBL_EPSILON
@@ -51,6 +52,7 @@ void printVector(double* J, int M){
 //----------------------------------------------------------------------------------------
 
 int main(int argc, char* argv[]){
+
 
 	// read variables from command line
 	int M = atoi(argv[3]);
@@ -142,7 +144,10 @@ int main(int argc, char* argv[]){
 	int m_last = N % p;
 	
 
-	#pragma omp parallel for private(i) num_threads(N)
+	int pp = N;
+	if(pp > 500) pp = 500;
+
+	#pragma omp parallel for private(i) num_threads(pp)
 	for(i = 0; i < N; ++i){
 		
 		if(m != 0){
@@ -158,7 +163,7 @@ int main(int argc, char* argv[]){
 
 	double end = omp_get_wtime();
 	double seconds = (double)(end - start);
-	printf("assembly time = %e s\n", seconds);
+	printf("assembly time = %lg s\n", seconds);
 
 
 	// ---------------------------------------------------- SVD ----------------------------------------------------
@@ -214,7 +219,7 @@ int main(int argc, char* argv[]){
 
 	end = omp_get_wtime();
 	seconds = (float)(end - start);
-	printf("writing time = %e s\n", seconds);
+	printf("writing time = %lg s\n", seconds);
 
 	// -------------------------------------------- cleaning --------------------------------------------
 

@@ -29,11 +29,16 @@ all_seq:
 	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N) -w
 
 generateG_par:
-	rm -rf data
-	mkdir data
 	@echo $(M) $(N)
+#	gcc generateGparallel.c -o generateGparallel.out -lblas -llapack -lm -fopenmp -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x803fff
 	gcc generateGparallel.c -o generateGparallel.out -lblas -llapack -fopenmp -w
 	./generateGparallel.out data/G.bin data/J.bin $(M) $(N) -w
+
+runQR_par:
+	@echo $(M) $(N)
+	gcc QRparallel.c -o QRparallel.out -lblas -llapack -lm -fopenmp -w
+	./QRparallel.out data/G.bin data/J.bin $(M) $(N) -w
+
 
 
 clean:
