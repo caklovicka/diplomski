@@ -29,6 +29,8 @@ all_seq:
 	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N) -w
 
 generateG_par:
+	rm -rf data
+	mkdir data
 	@echo $(M) $(N)
 #	gcc generateGparallel.c -o generateGparallel.out -lblas -llapack -lm -fopenmp -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x803fff
 	gcc generateGparallel.c -o generateGparallel.out -lblas -llapack -fopenmp -w
@@ -43,5 +45,5 @@ runQR_par:
 
 clean:
 	rm -rf data 
-	rm -f generateG.out GFreduction.out check.out QRreduction.out
+	rm -f generateG.out GFreduction.out check.out QRreduction.out generateGparallel.out QRparallel.out
 

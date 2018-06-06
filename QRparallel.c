@@ -7,6 +7,7 @@
 // exits:
 //   -1 ....... Cannot open file.
 //   -2 ....... Cannot allocate memory.
+//   -3 ....... Zero column in G
 //	 -4 ....... Algorithm broke down.
 //----------------------------------------------------------------------------------------
 
@@ -24,6 +25,10 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
+#define NTHREADS_FOR_COL_COPY 8
+#define SEQ_TRESHOLD_FOR_COL_COPY 25	// if M < NTHREADS_FOR_COL_COPY * SEQ_TRESHOLD_FOR_COL_COPY then col swap/copy is sequential
+
+
 double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 
 void printMatrix(double complex *G, int M, int N){
@@ -65,6 +70,8 @@ int main(int argc, char* argv[]){
 	double complex *H = (double complex*) malloc(M*M*sizeof(double complex));	// reflector
 	double complex *T = (double complex*) malloc(M*N*sizeof(double complex));	// temporary matrix
 	double complex *U = (double complex*) malloc(16*sizeof(double complex));	// matrix of rotatoins
+	int complex *ones = (int*) malloc(M*sizeof(int));	// for location of ones in J
+	int complex *_ones = (int*) malloc(M*sizeof(int));	// for location of - ones in J
 	double *J = (double*) malloc(M*sizeof(double));
 	long int *Prow = (long int*) malloc(M*sizeof(long int));	// for row permutation
 	long int *Pcol = (long int*) malloc(N*sizeof(long int));	// for column permutation
@@ -81,7 +88,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL){
+	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || ones == NULL || _ones == NULL){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -120,6 +127,8 @@ int main(int argc, char* argv[]){
 	//printf("Pivoting QR...\n\n");
 
 	start = omp_get_wtime();
+
+	// first count +-1 and store their locations
 
 	for(int k = 0; k < N; ++k){
 
@@ -193,24 +202,19 @@ int main(int argc, char* argv[]){
 			Pcol[k] = itemp;
 
 			int inc = 1;
-			int nthreads = 8;
-			int offset = M / nthreads;
-			int leftovers = M % offset;
+			int offset = M / NTHREADS_FOR_COL_COPY;
+			int leftovers;
 
 			// this means that if a single thread needs to copy less than 25 elements, 
 			// we shift it to a sequental way (this is the case when M < 25*8 = 200)
 			// M < 200 -> sequential
 			// M >= 200 -> parallel
-			if(offset < 25){	
-				offset = 0;
-				leftovers = M;
-			}
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = M;
+			else leftovers = M % offset;
 
-			printf("offset = %d, leftovers = %d\n", offset, leftovers);
-
-			if(offset > 0){
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
 				int i = 0;
-				#pragma omp parallel for num_threads(nthreads)
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
 				for(i = 0; i <= M - offset; i += offset){
 					zswap_(&offset, &G[i + M*pivot_r], &inc, &G[i + M*k], &inc);
 				}
@@ -223,7 +227,7 @@ int main(int argc, char* argv[]){
 			goto PIVOT_1;
 		}
 
-
+		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
 		// do a column swap pivot_r <-> k+1 if needed
@@ -235,18 +239,70 @@ int main(int argc, char* argv[]){
 			Pcol[k+1] = itemp;
 
 			int inc = 1;
-			zswap_(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
+			int offset = M / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when M < 25*8 = 200)
+			// M < 200 -> sequential
+			// M >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = M;
+			else leftovers = M % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int i = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(i = 0; i <= M - offset; i += offset){
+					zswap_(&offset, &G[i + M*pivot_r], &inc, &G[i + M*(k+1)], &inc);
+				}
+			}
+
+			zswap_(&leftovers, &G[M - leftovers + M*pivot_r], &inc, &G[M - leftovers + M*(k+1)], &inc);
+		}
+
+
+		int first_non_zero_idx = -1;	// index of the first non zero element in column k
+
+		// [SEQUENTIAL] find the first non zero element in the kth column
+		for(int i = k; i < M; ++i){
+
+			if(cabs(G[i+M*k]) < EPSILON) continue;
+			first_non_zero_idx = i;
+			break;
+		}
+
+		if(first_non_zero_idx == -1){
+			printf("Zero column\n");
+			exit(-3);
+		}
+
+		// count +-1 and store them in arrays
+		// needed for reduction with givens
+
+		int count = 0;
+		int _count = 0;
+
+		#pragma omp parallel for
+		for(int i = 0; i < M; ++i){
+
+			if(J[i] < 0){
+				#pragma omp critical
+				_ones[_count++] = i;
+			}
+
+			else{
+				#pragma omp critical
+				ones[count++] = i;
+			}
 		}
 
 
 		// making the kth column real...
-
-		int first_non_zero_idx = -1;	// index of the first non zero element in column k
-
-		for(int i = k; i < M; ++i){
+		// [REDUCTION NEEDED]
+		#pragma omp parallel for
+		for(int i = first_non_zero_idx; i < M; ++i){
 
 			if(cabs(G[i+M*k]) < EPSILON) continue;
-			if(first_non_zero_idx == -1) first_non_zero_idx = i;
 
 			double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 			G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
@@ -254,10 +310,11 @@ int main(int argc, char* argv[]){
 			zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);
 		}
 
+// DO TUDAAA -------------------------------------------------------------------------------------------------------
 
 		// do row swap if needed, so thath Gkk != 0
 
-		if(first_non_zero_idx != k && first_non_zero_idx != -1){ 
+		if(first_non_zero_idx != k){ 
 
 			long int itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k];
@@ -268,7 +325,25 @@ int main(int argc, char* argv[]){
 			J[k] = dtemp;
 
 			int Nk = N - k;
-			zswap_(&Nk, &G[k+M*k], &M, &G[first_non_zero_idx + M*k], &M);
+			int offset = Nk / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when Nk < 25*8 = 200)
+			// Nk < 200 -> sequential
+			// Nk >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Nk;
+			else leftovers = Nk % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int i = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(i = 0; i <= Nk - offset; i += offset){
+					zswap_(&offset, &G[k + M*(k + i)], &M, &G[first_non_zero_idx + M*(k + i)], &M);
+				}
+			}
+
+			zswap_(&leftovers, &G[k + M*(N - leftovers)], &M, &G[first_non_zero_idx + M*(N - leftovers)], &M);
 		}
 
 
@@ -292,6 +367,7 @@ int main(int argc, char* argv[]){
 				int Nk = N-k;
 				zrot_(&Nk, &G[k+M*k], &M, &G[i+M*k], &M, &c, &s);
 				G[i+M*k] = 0;
+				
 			}
 		}
 
@@ -724,7 +800,7 @@ int main(int argc, char* argv[]){
 		// if here, something broke down
 		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...Is A maybe singular?\n\n\n");
 		exit(-4);
-
+		*/
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1:
 		// check the condition sign(Akk) = Jk
