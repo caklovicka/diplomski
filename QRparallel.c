@@ -193,9 +193,31 @@ int main(int argc, char* argv[]){
 			Pcol[k] = itemp;
 
 			int inc = 1;
+			int nthreads = 8;
+			int offset = M / nthreads;
+			int leftovers = M % offset;
 
-			// PARALELIZIRAJ SWAP
-			zswap_(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when M < 25*8 = 200)
+			// M < 200 -> sequential
+			// M >= 200 -> parallel
+			if(offset < 25){	
+				offset = 0;
+				leftovers = M;
+			}
+
+			printf("offset = %d, leftovers = %d\n", offset, leftovers);
+
+			if(offset > 0){
+				int i = 0;
+				#pragma omp parallel for num_threads(nthreads)
+				for(i = 0; i <= M - offset; i += offset){
+					zswap_(&offset, &G[i + M*pivot_r], &inc, &G[i + M*k], &inc);
+				}
+			}
+
+			zswap_(&leftovers, &G[M - leftovers + M*pivot_r], &inc, &G[M - leftovers + M*k], &inc);
+
 			Akk = Arr;
 
 			goto PIVOT_1;
