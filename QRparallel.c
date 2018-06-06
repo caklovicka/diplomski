@@ -70,8 +70,7 @@ int main(int argc, char* argv[]){
 	double complex *H = (double complex*) malloc(M*M*sizeof(double complex));	// reflector
 	double complex *T = (double complex*) malloc(M*N*sizeof(double complex));	// temporary matrix
 	double complex *U = (double complex*) malloc(16*sizeof(double complex));	// matrix of rotatoins
-	int complex *ones = (int*) malloc(M*sizeof(int));	// for location of ones in J
-	int complex *_ones = (int*) malloc(M*sizeof(int));	// for location of - ones in J
+	int *red = (int*) malloc(M*sizeof(int));	// for location of +-1 in J for givens reduction
 	double *J = (double*) malloc(M*sizeof(double));
 	long int *Prow = (long int*) malloc(M*sizeof(long int));	// for row permutation
 	long int *Pcol = (long int*) malloc(N*sizeof(long int));	// for column permutation
@@ -88,7 +87,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || ones == NULL || _ones == NULL){
+	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || red == NULL){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -276,29 +275,8 @@ int main(int argc, char* argv[]){
 			exit(-3);
 		}
 
-		// count +-1 and store them in arrays
-		// needed for reduction with givens
-
-		int count = 0;
-		int _count = 0;
-
-		#pragma omp parallel for
-		for(int i = 0; i < M; ++i){
-
-			if(J[i] < 0){
-				#pragma omp critical
-				_ones[_count++] = i;
-			}
-
-			else{
-				#pragma omp critical
-				ones[count++] = i;
-			}
-		}
-
 
 		// making the kth column real...
-		// [REDUCTION NEEDED]
 		#pragma omp parallel for
 		for(int i = first_non_zero_idx; i < M; ++i){
 
@@ -310,7 +288,6 @@ int main(int argc, char* argv[]){
 			zscal_(&Nk, &scal, &G[i+M*(k+1)], &M);
 		}
 
-// DO TUDAAA -------------------------------------------------------------------------------------------------------
 
 		// do row swap if needed, so thath Gkk != 0
 
@@ -346,30 +323,42 @@ int main(int argc, char* argv[]){
 			zswap_(&leftovers, &G[k + M*(N - leftovers)], &M, &G[first_non_zero_idx + M*(N - leftovers)], &M);
 		}
 
+// DO TUDAAA -------------------------------------------------------------------------------------------------------
 
 		// do plane rotations with Gkk on all elements with signum Jk 
 		// (if they are not 0 already), if they are, do nothing
 
-		if(first_non_zero_idx != -1){
+		// count Jk signs so that Gik != 0 and store them in arrays
+		// needed for reduction with givens
 
-			for(int i = k+1; i < M; ++i){
+		int count = 1;
+		red[0] = k;
+
+		// [SEQUENTIAL]
+		for(int i = k+1; i < M; ++i)
+			if(J[k] == J[i]) red[count++] = i;
 			
-				if(J[k] != J[i]) continue;
+		// NAPRAVI REDUKCIJU OVDJE PO INDEKSIMa red[i], i = 0, ..., count
 
-				// generate plane rotation
-				double c;
-				double complex s;
-				double complex eliminator = G[k+M*k];
-				double complex eliminated = G[i+M*k];
-				zrotg_(&eliminator, &eliminated, &c, &s);
+		for(int i = k+1; i < M; ++i){
+			
+			if(J[k] != J[i]) continue;
 
-				// apply the rotation
-				int Nk = N-k;
-				zrot_(&Nk, &G[k+M*k], &M, &G[i+M*k], &M, &c, &s);
-				G[i+M*k] = 0;
+			// generate plane rotation
+			double c;
+			double complex s;
+			double complex eliminator = G[k+M*k];
+			double complex eliminated = G[i+M*k];
+			zrotg_(&eliminator, &eliminated, &c, &s);
+
+			// apply the rotation
+			int Nk = N-k;
+			zrot_(&Nk, &G[k+M*k], &M, &G[i+M*k], &M, &c, &s);
+			G[i+M*k] = 0;
 				
-			}
 		}
+
+// ----------------------------------------------------------------------------------------------------------------
 
 
 		// find the first i so that Ji = -Jk and G(i, k) != 0
@@ -800,7 +789,7 @@ int main(int argc, char* argv[]){
 		// if here, something broke down
 		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...Is A maybe singular?\n\n\n");
 		exit(-4);
-		*/
+	
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1:
 		// check the condition sign(Akk) = Jk
@@ -938,6 +927,7 @@ int main(int argc, char* argv[]){
 	free(f);
 	free(tempf);
 	free(U);
+	free(red);
 
 
 	//printf("\nFinished.\n");
