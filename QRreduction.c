@@ -774,7 +774,7 @@ int main(int argc, char* argv[]){
 	//printJ(J, M);
 
 	float seconds = (float)(end - start) / CLOCKS_PER_SEC;
-	printf("time = %e s\n", seconds);
+	printf("algortigm time = %f s\n", seconds);
 
 	// -------------------------------- writing -------------------------------- 	
 

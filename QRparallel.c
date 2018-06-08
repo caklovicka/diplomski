@@ -261,25 +261,6 @@ int main(int argc, char* argv[]){
 		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
 		// [SEQUENTIAL] find the first non zero element in the kth column
@@ -344,6 +325,7 @@ int main(int argc, char* argv[]){
 			zswap_(&leftovers, &G[k + M*(N - leftovers)], &M, &G[first_non_zero_idx + M*(N - leftovers)], &M);
 		}
 
+
 		int np = 0;	// number of 1 in J[k:M, k:M] 
 		int nn = 0;	// number of -1 in J[k:M, k:M]
 
@@ -357,6 +339,7 @@ int main(int argc, char* argv[]){
 
 		first_non_zero_idx = -1;	// first non zero element in the -Jk class
 
+		// [SEQUENTIAL]
 		for(int i = k+1; i < M; ++i){
 
 			if(J[k] == J[i] || cabs(G[i+M*k]) < EPSILON ) continue;
@@ -376,7 +359,25 @@ int main(int argc, char* argv[]){
 			J[k+1] = dtemp;
 
 			int Nk = N-k;
-			zswap_(&Nk, &G[k+1+M*k], &M, &G[i+M*k], &M);
+			int offset = Nk / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when Nk < 25*8 = 200)
+			// Nk < 200 -> sequential
+			// Nk >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Nk;
+			else leftovers = Nk % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int j = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(j = 0; j <= Nk - offset; j += offset){
+					zswap_(&offset, &G[k + 1 + M*(k + j)], &M, &G[i + M*(k + j)], &M);
+				}
+			}
+
+			zswap_(&leftovers, &G[k + 1 + M*(N - leftovers)], &M, &G[i + M*(N - leftovers)], &M);
 			break;
 		}
 
@@ -506,7 +507,7 @@ int main(int argc, char* argv[]){
 		// do row swap if needed, so thath G(k+kth_nonzeros, k+1) != 0
 		// if first_non_zero_idx == k + kth_nonzeros, then that's fine, nothing to swap
 
-		if(first_non_zero_idx != k + kth_nonzeros && first_non_zero_idx != -1){ 
+		if(first_non_zero_idx != k + kth_nonzeros){ 
 
 			long int itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k + kth_nonzeros];
@@ -517,9 +518,27 @@ int main(int argc, char* argv[]){
 			J[k + kth_nonzeros] = dtemp;
 
 			int Nk = N - k - 1;
-			zswap_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
+			int offset = Nk / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when Nk < 25*8 = 200)
+			// Nk < 200 -> sequential
+			// Nk >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Nk;
+			else leftovers = Nk % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int i = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(i = 0; i <= Nk - offset; i += offset){
+					zswap_(&offset, &G[k + kth_nonzeros + M*(k + 1 + i)], &M, &G[first_non_zero_idx + M*(k + 1 + i)], &M);
+				}
+			}
+
+			zswap_(&leftovers, &G[k + kth_nonzeros + M*(N - leftovers)], &M, &G[first_non_zero_idx + M*(N - leftovers)], &M);
 		}
-		// DO PARALLEL ZSWAP!!!!!!!!!
+
 
 		// update the signum arrays needed for reduction
 
@@ -533,6 +552,8 @@ int main(int argc, char* argv[]){
 		// find the first non zero element in the -J(k + kth_nonzeros) class
 
 		first_non_zero_idx = -1;
+
+		// [SEQUENTIAL]
 		for(int i = k + kth_nonzeros + 1; i < M; ++i){
 
 			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < EPSILON ) continue;
@@ -552,11 +573,32 @@ int main(int argc, char* argv[]){
 			J[k + kth_nonzeros + 1] = dtemp;
 
 			int Nk = N-k-1;
-			zswap_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M);
+			int offset = Nk / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when Nk < 25*8 = 200)
+			// Nk < 200 -> sequential
+			// Nk >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Nk;
+			else leftovers = Nk % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int j = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(j = 0; j <= Nk - offset; j += offset){
+					zswap_(&offset, &G[k + kth_nonzeros + 1 + M*(k + 1 + j)], &M, &G[i + M*(k + 1 + j)], &M);
+				}
+			}
+
+			zswap_(&leftovers, &G[k + kth_nonzeros + 1 + M*(N - leftovers)], &M, &G[i + M*(N - leftovers)], &M);
 			break;
 		}
 
-		if(first_non_zero_idx != -1) kkth_nonzeros += 1;
+
+		// update the kkth_nonzeros
+		if(first_non_zero_idx != -1) kkth_nonzeros = 2;
+
 
 		// update the signum arrays needed for reduction
 		if(J[k + kth_nonzeros + 1] < 0) n[nn++] = k + kth_nonzeros + 1;
@@ -565,9 +607,9 @@ int main(int argc, char* argv[]){
 
 		// fill and count the signums (not necessary to be ordered)
 		#pragma omp parallel for
-		for(int i = k + kth_nonzeros 2; i < M; ++i){
+		for(int i = k + kth_nonzeros + 2; i < M; ++i){
 
-			if(cabs(G[i+M*k]) < EPSILON) continue;
+			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
 
 			else if(J[i] < 0){
 				#pragma omp critical
@@ -581,82 +623,69 @@ int main(int argc, char* argv[]){
 		}
 
 
+		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
+		// do the sam thing with n array (at the same time)
 
+		#pragma omp parallel num_threads(2)
+		{
 
+			// first thread kills positives
+			if(omp_get_thread_num() == 0){
 
+				for(int offset = 1; offset < np; offset *= 2){
 
+					int nthreads = np/(2*offset);
+					if ( nthreads > omp_get_max_threads()) nthreads = omp_get_max_threads();
 
+					#pragma omp parallel for num_threads( nthreads )
+					for(int i = 0; i < np - offset; i += 2*offset){
 
+						// G[p[i], k+1] destroys G[p[i+offset], k+1]
 
-		// do plane rotations with G(k + kth_nonzeros, k+1) on all elements with sign J(k+kth_nonzeros) 
-		// (if they are not 0 already), if they are, do nothing
+						double c;
+						double complex s;
+						double complex eliminator = G[p[i] + M*(k+1)];
+						double complex eliminated = G[p[i + offset] + M*(k+1)];
+						zrotg_(&eliminator, &eliminated, &c, &s);
 
-		/*if(first_non_zero_idx != -1){
-
-			for(int i = k + kth_nonzeros + 1; i < M; ++i){
-			
-				if(J[k + kth_nonzeros] != J[i]) continue;
-
-				// generate plane rotation
-				double c;
-				double complex s;
-				double complex eliminator = G[k + kth_nonzeros + M*(k+1)];
-				double complex eliminated = G[i+M*(k+1)];
-				zrotg_(&eliminator, &eliminated, &c, &s);
-
-				// apply the rotation
-				int Nk = N-k-1;
-				zrot_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
-				G[i+M*(k+1)] = 0;
+						// apply the rotation
+						int Nk = N - k - 1;
+						zrot_(&Nk, &G[p[i] + M*(k+1)], &M, &G[p[i + offset] + M*(k+1)], &M, &c, &s);
+						G[p[i + offset] + M*(k+1)] = 0;
+					}
+				}
 			}
-		}*/
 
-		// find the first i so that Ji = -J(k + kth_nonzeros) and G(i, k + kth_nonzeros + 1) != 0
-		// then swap rows k + kth_nonzeros + 1 <-> i
+			// second thread kills negatives
+			else{
 
+				for(int offset = 1; offset < nn; offset *= 2){
 
-		// if first_non_zero_idx != -1 at this point, then we 2 elements != 0 in column (k+1) below (k+kth_nonzeros) 
-		if(first_non_zero_idx != -1) kkth_nonzeros += 1; 
+					int nthreads = nn/(2*offset);
+					if ( nthreads > omp_get_max_threads()) nthreads = omp_get_max_threads();
 
-		// do plane rotations with G(k + kth_nonzeros + 1, k+1), if they are not 0 already
-		// if they are all 0 in the -J(k + kth_nonzeros) class, then first_non_zero_idx = -1;
+					#pragma omp parallel for num_threads( nthreads )
+					for(int i = 0; i < nn - offset; i += 2*offset){
 
-		if(first_non_zero_idx != -1){
+						// G[n[i], k+1] destroys G[n[i+offset], k+1]
 
-			for(int i = k + kth_nonzeros + 2; i < M; ++i){
-			
-				if(J[k + kth_nonzeros + 1] != J[i]) continue;
+						double c;
+						double complex s;
+						double complex eliminator = G[n[i] + M*(k+1)];
+						double complex eliminated = G[n[i + offset] + M*(k+1)];
+						zrotg_(&eliminator, &eliminated, &c, &s);
 
-				// generate plane rotation
-				double c;
-				double complex s;
-				double complex eliminator = G[k + kth_nonzeros + 1 + M*(k+1)];
-				double complex eliminated = G[i + M*(k+1)];
-				zrotg_(&eliminator, &eliminated, &c, &s);
-
-				// apply the rotation
-				int Nk = N-k-1;
-				zrot_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
-				G[i+M*(k+1)] = 0;
+						// apply the rotation
+						int Nk = N - k - 1;
+						zrot_(&Nk, &G[n[i] + M*(k+1)], &M, &G[n[i + offset] + M*(k+1)], &M, &c, &s);
+						G[n[i + offset] + M*(k+1)] = 0;
+					}
+				}
 			}
 		}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+		// -------- check forms od 2x2 pivot ---------
 
 
 		// if we are in (A3) or (B2) forms, then the 2x2 reduction is finished
@@ -926,14 +955,32 @@ int main(int argc, char* argv[]){
 			J[k] = 1.0;
 			J[i] = -1.0;
 
-			// swap rows in G 
-			int Nk = N - k;
-			zswap_(&Nk, &G[i+M*k], &M, &G[k+M*k], &M);
-
 			// update Prow
 			long int itemp = Prow[i];
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			int offset = Nk / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when Nk < 25*8 = 200)
+			// Nk < 200 -> sequential
+			// Nk >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Nk;
+			else leftovers = Nk % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int j = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(j = 0; j <= Nk - offset; j += offset){
+					zswap_(&offset, &G[k + M*(k + j)], &M, &G[i + M*(k + j)], &M);
+				}
+			}
+
+			zswap_(&leftovers, &G[k + M*(N - leftovers)], &M, &G[i + M*(N - leftovers)], &M);
 		}
 
 		else if( Akk < 0 && J[k] > 0){
@@ -945,14 +992,33 @@ int main(int argc, char* argv[]){
 			J[k] = -1.0;
 			J[i] = 1.0;
 
-			// swap rows in G 
-			int Nk = N - k;
-			zswap_(&Nk, &G[i+M*k], &M, &G[k+M*k], &M);
 
 			// update Prow
 			long int itemp = Prow[i];
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			int offset = Nk / NTHREADS_FOR_COL_COPY;
+			int leftovers;
+
+			// this means that if a single thread needs to copy less than 25 elements, 
+			// we shift it to a sequental way (this is the case when Nk < 25*8 = 200)
+			// Nk < 200 -> sequential
+			// Nk >= 200 -> parallel
+			if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Nk;
+			else leftovers = Nk % offset;
+
+			if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+				int j = 0;
+				#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+				for(j = 0; j <= Nk - offset; j += offset){
+					zswap_(&offset, &G[k + M*(k + j)], &M, &G[i + M*(k + j)], &M);
+				}
+			}
+
+			zswap_(&leftovers, &G[k + M*(N - leftovers)], &M, &G[i + M*(N - leftovers)], &M);
 		}
 		
 
@@ -963,6 +1029,8 @@ int main(int argc, char* argv[]){
 		double complex H_sigma = 1;
 		if(cabs(G[k+M*k]) >= EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
 		f[k] = csqrt(cabs(Akk)) * H_sigma;
+
+		#pragma omp parallel for
 		for(int i = k+1; i < M; ++i) f[i] = 0;
 
 
@@ -973,8 +1041,17 @@ int main(int argc, char* argv[]){
 		int inc = 1;
 		int Mk = M - k;
 
+
+
+		// do it in parallel if necessary
 		zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf, so we dont need tu multyply the first column of G with H
 		zaxpy_(&Mk, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
+
+
+
+
+
+
 
 
 		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
@@ -1004,10 +1081,12 @@ int main(int argc, char* argv[]){
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
-	printf("algortihm time = %lg s\n", seconds);
+	printf("algorithm time = %lg s\n", seconds);
 
 
 	// -------------------------------- writing -------------------------------- 	
+
+	start = omp_get_wtime();
 
 	FILE *writeG = fopen("data/reducedG.bin", "wb");
 	FILE *writeJ = fopen("data/reducedJ.bin", "wb");
@@ -1027,6 +1106,10 @@ int main(int argc, char* argv[]){
 			fprintf(writeG, "%.*g %.*g ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}
+
+	end = omp_get_wtime();
+	seconds = (double)(end - start);
+	printf("writing time = %lg s\n", seconds);
 
 
 	// ------------------------------- cleaning -------------------------------
