@@ -70,7 +70,8 @@ int main(int argc, char* argv[]){
 	double complex *H = (double complex*) malloc(M*M*sizeof(double complex));	// reflector
 	double complex *T = (double complex*) malloc(M*N*sizeof(double complex));	// temporary matrix
 	double complex *U = (double complex*) malloc(16*sizeof(double complex));	// matrix of rotatoins
-	int *red = (int*) malloc(M*sizeof(int));	// for location of +-1 in J for givens reduction
+	int *p = (int*) malloc(M*sizeof(int));	// for location of +1 in J for givens reduction
+	int *n = (int*) malloc(M*sizeof(int));  // for location of -1 in J for givens reduction
 	double *J = (double*) malloc(M*sizeof(double));
 	long int *Prow = (long int*) malloc(M*sizeof(long int));	// for row permutation
 	long int *Pcol = (long int*) malloc(N*sizeof(long int));	// for column permutation
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || red == NULL){
+	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || p == NULL || n == NULL){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -260,6 +261,25 @@ int main(int argc, char* argv[]){
 		}
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
 		// [SEQUENTIAL] find the first non zero element in the kth column
@@ -276,7 +296,8 @@ int main(int argc, char* argv[]){
 		}
 
 
-		// making the kth column real...
+		// making the kth column real
+
 		#pragma omp parallel for
 		for(int i = first_non_zero_idx; i < M; ++i){
 
@@ -323,48 +344,19 @@ int main(int argc, char* argv[]){
 			zswap_(&leftovers, &G[k + M*(N - leftovers)], &M, &G[first_non_zero_idx + M*(N - leftovers)], &M);
 		}
 
-// DO TUDAAA -------------------------------------------------------------------------------------------------------
+		int np = 0;	// number of 1 in J[k:M, k:M] 
+		int nn = 0;	// number of -1 in J[k:M, k:M]
 
-		// do plane rotations with Gkk on all elements with signum Jk 
-		// (if they are not 0 already), if they are, do nothing
-
-		// count Jk signs so that Gik != 0 and store them in arrays
-		// needed for reduction with givens
-
-		int count = 1;
-		red[0] = k;
-
-		// [SEQUENTIAL]
-		for(int i = k+1; i < M; ++i)
-			if(J[k] == J[i]) red[count++] = i;
-			
-		// NAPRAVI REDUKCIJU OVDJE PO INDEKSIMa red[i], i = 0, ..., count
-
-		for(int i = k+1; i < M; ++i){
-			
-			if(J[k] != J[i]) continue;
-
-			// generate plane rotation
-			double c;
-			double complex s;
-			double complex eliminator = G[k+M*k];
-			double complex eliminated = G[i+M*k];
-			zrotg_(&eliminator, &eliminated, &c, &s);
-
-			// apply the rotation
-			int Nk = N-k;
-			zrot_(&Nk, &G[k+M*k], &M, &G[i+M*k], &M, &c, &s);
-			G[i+M*k] = 0;
-				
-		}
-
-// ----------------------------------------------------------------------------------------------------------------
+		// update the signum arrays
+		if( J[k] < 0) n[nn++] = k;
+		else p[np++] = k;
 
 
 		// find the first i so that Ji = -Jk and G(i, k) != 0
 		// then swap rows k+1 <-> i
 
 		first_non_zero_idx = -1;	// first non zero element in the -Jk class
+
 		for(int i = k+1; i < M; ++i){
 
 			if(J[k] == J[i] || cabs(G[i+M*k]) < EPSILON ) continue;
@@ -388,37 +380,100 @@ int main(int argc, char* argv[]){
 			break;
 		}
 
+		// update the signum arrays
+		if( J[k+1] < 0) n[nn++] = k+1;
+		else p[np++] = k+1;
 
-		// do plane rotations on G(k+1, k+1), if they are not 0 already
-		// if they are all 0 in the -Jk class, then first_non_zero_idx = -1;
+		// fill and count the signums (not necessary to be ordered)
+		#pragma omp parallel for
+		for(int i = k+2; i < M; ++i){
 
-		if(first_non_zero_idx != -1){
+			if(cabs(G[i+M*k]) < EPSILON) continue;
 
-			for(int i = k+2; i < M; ++i){
-			
-				if(J[k+1] != J[i]) continue;
+			else if(J[i] < 0){
+				#pragma omp critical
+				n[nn++] = i;
+			}
 
-				// generate plane rotation
-				double c;
-				double complex s;
-				double complex eliminator = G[k+1+M*k];
-				double complex eliminated = G[i+M*k];
-				zrotg_(&eliminator, &eliminated, &c, &s);
-
-				// apply the rotation
-				int Nk = N-k;
-				zrot_(&Nk, &G[k+1+M*k], &M, &G[i+M*k], &M, &c, &s);
-				G[i+M*k] = 0;
+			else{
+				#pragma omp critical
+				p[np++] = i;
 			}
 		}
 
 
-		// do the same thing on a second column
-		// wee need to know if the kth column has 1 or 2 nonzeros elements
-		// that determines in which case we are... (A1), (A2), (A3), (B1) or (B2)
+		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
+		// do the sam thing with n array (at the same time)
+
+		#pragma omp parallel num_threads(2)
+		{
+
+			// first thread kills positives
+			if(omp_get_thread_num() == 0){
+
+				for(int offset = 1; offset < np; offset *= 2){
+
+					int nthreads = np/(2*offset);
+					if ( nthreads > omp_get_max_threads()) nthreads = omp_get_max_threads();
+
+					#pragma omp parallel for num_threads( nthreads )
+					for(int i = 0; i < np - offset; i += 2*offset){
+
+						// G[p[i], k] destroys G[p[i+offset], k]
+
+						double c;
+						double complex s;
+						double complex eliminator = G[p[i] + M*k];
+						double complex eliminated = G[p[i + offset] + M*k];
+						zrotg_(&eliminator, &eliminated, &c, &s);
+
+						// apply the rotation
+						int Nk = N-k;
+						zrot_(&Nk, &G[p[i] + M*k], &M, &G[p[i + offset] + M*k], &M, &c, &s);
+						G[p[i + offset] + M*k] = 0;
+					}
+				}
+			}
+
+			// second thread kills negatives
+			else{
+
+				for(int offset = 1; offset < nn; offset *= 2){
+
+					int nthreads = nn/(2*offset);
+					if ( nthreads > omp_get_max_threads()) nthreads = omp_get_max_threads();
+
+					#pragma omp parallel for num_threads( nthreads )
+					for(int i = 0; i < nn - offset; i += 2*offset){
+
+						// G[p[i], k] destroys G[p[i+offset], k]
+
+						double c;
+						double complex s;
+						double complex eliminator = G[n[i] + M*k];
+						double complex eliminated = G[n[i + offset] + M*k];
+						zrotg_(&eliminator, &eliminated, &c, &s);
+
+						// apply the rotation
+						int Nk = N-k;
+						zrot_(&Nk, &G[n[i] + M*k], &M, &G[n[i + offset] + M*k], &M, &c, &s);
+						G[n[i + offset] + M*k] = 0;
+					}
+				}
+			}
+		}
+
 
 		int kth_nonzeros = 2;
-		if(first_non_zero_idx == -1) kth_nonzeros = 1;
+		if(np == 0 || nn == 0) kth_nonzeros = 1;	// just one of them is 0. at this point one od them is nonzero
+													// if not, the program would exit with -4 (before this point)
+													// then A is maybe singular?
+
+
+
+		// do the same thing on a SECOND COLUMN
+		// wee need to know if the kth column has 0 or 1 or 2 nonzeros elements
+		// that determines in which case we are... (A1), (A2), (A3), (B1) or (B2)
 
 
 		// making the (k+1)th column real
@@ -426,6 +481,7 @@ int main(int argc, char* argv[]){
 		first_non_zero_idx = -1;	// index of the first non zero element in column k+1
 									// will be filled with the first nonzero index, or stay -1
 
+		#pragma omp parallel for
 		for(int i = k + kth_nonzeros; i < M; ++i){
 
 			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
@@ -438,14 +494,17 @@ int main(int argc, char* argv[]){
 		}
 
 	
-		int kkth_nonzeros = 0;	// number of nonzero elements in the (k+1)st column, but those below kth_nonzeros
-		
-		// if first_non_zero_idx != -1 at this point, then we >=1 elements != 0 in column (k+1) below (k+kth_nonzeros) 
-		if(first_non_zero_idx != -1) kkth_nonzeros += 1; 
+		if(first_non_zero_idx == -1){	// we have the needed form alredy, continue to other columns
+			k = k + 1;
+			goto LOOP_END;
+		}
+
+		int kkth_nonzeros = 1;	// number of nonzero elements in the (k+1)st column, but those below kth_nonzeros
+								// at least one, because we didnt exit in the previous if
  
 
 		// do row swap if needed, so thath G(k+kth_nonzeros, k+1) != 0
-		// if first_non_zero_idx == k + kth_nonzeros, then thats fine, nothing to swap
+		// if first_non_zero_idx == k + kth_nonzeros, then that's fine, nothing to swap
 
 		if(first_non_zero_idx != k + kth_nonzeros && first_non_zero_idx != -1){ 
 
@@ -460,35 +519,20 @@ int main(int argc, char* argv[]){
 			int Nk = N - k - 1;
 			zswap_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
 		}
+		// DO PARALLEL ZSWAP!!!!!!!!!
+
+		// update the signum arrays needed for reduction
+
+		nn = 0;
+		np = 0;
+
+		if(J[k + kth_nonzeros] < 0) n[nn++] = k + kth_nonzeros;
+		else p[np++] = k + kth_nonzeros;
 
 
-		// do plane rotations with G(k + kth_nonzeros, k+1) on all elements with sign J(k+kth_nonzeros) 
-		// (if they are not 0 already), if they are, do nothing
+		// find the first non zero element in the -J(k + kth_nonzeros) class
 
-		if(first_non_zero_idx != -1){
-
-			for(int i = k + kth_nonzeros + 1; i < M; ++i){
-			
-				if(J[k + kth_nonzeros] != J[i]) continue;
-
-				// generate plane rotation
-				double c;
-				double complex s;
-				double complex eliminator = G[k + kth_nonzeros + M*(k+1)];
-				double complex eliminated = G[i+M*(k+1)];
-				zrotg_(&eliminator, &eliminated, &c, &s);
-
-				// apply the rotation
-				int Nk = N-k-1;
-				zrot_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
-				G[i+M*(k+1)] = 0;
-			}
-		}
-
-		// find the first i so that Ji = -J(k + kth_nonzeros) and G(i, k + kth_nonzeros + 1) != 0
-		// then swap rows k + kth_nonzeros + 1 <-> i
-
-		first_non_zero_idx = -1;	// first non zero element in the -J(k + kth_nonzeros) class
+		first_non_zero_idx = -1;
 		for(int i = k + kth_nonzeros + 1; i < M; ++i){
 
 			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < EPSILON ) continue;
@@ -511,6 +555,64 @@ int main(int argc, char* argv[]){
 			zswap_(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i+M*(k+1)], &M);
 			break;
 		}
+
+		if(first_non_zero_idx != -1) kkth_nonzeros += 1;
+
+		// update the signum arrays needed for reduction
+		if(J[k + kth_nonzeros + 1] < 0) n[nn++] = k + kth_nonzeros + 1;
+		else p[np++] = k + kth_nonzeros + 1;
+
+
+		// fill and count the signums (not necessary to be ordered)
+		#pragma omp parallel for
+		for(int i = k + kth_nonzeros 2; i < M; ++i){
+
+			if(cabs(G[i+M*k]) < EPSILON) continue;
+
+			else if(J[i] < 0){
+				#pragma omp critical
+				n[nn++] = i;
+			}
+
+			else{
+				#pragma omp critical
+				p[np++] = i;
+			}
+		}
+
+
+
+
+
+
+
+
+
+		// do plane rotations with G(k + kth_nonzeros, k+1) on all elements with sign J(k+kth_nonzeros) 
+		// (if they are not 0 already), if they are, do nothing
+
+		/*if(first_non_zero_idx != -1){
+
+			for(int i = k + kth_nonzeros + 1; i < M; ++i){
+			
+				if(J[k + kth_nonzeros] != J[i]) continue;
+
+				// generate plane rotation
+				double c;
+				double complex s;
+				double complex eliminator = G[k + kth_nonzeros + M*(k+1)];
+				double complex eliminated = G[i+M*(k+1)];
+				zrotg_(&eliminator, &eliminated, &c, &s);
+
+				// apply the rotation
+				int Nk = N-k-1;
+				zrot_(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[i+M*(k+1)], &M, &c, &s);
+				G[i+M*(k+1)] = 0;
+			}
+		}*/
+
+		// find the first i so that Ji = -J(k + kth_nonzeros) and G(i, k + kth_nonzeros + 1) != 0
+		// then swap rows k + kth_nonzeros + 1 <-> i
 
 
 		// if first_non_zero_idx != -1 at this point, then we 2 elements != 0 in column (k+1) below (k+kth_nonzeros) 
@@ -538,6 +640,24 @@ int main(int argc, char* argv[]){
 				G[i+M*(k+1)] = 0;
 			}
 		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 		// if we are in (A3) or (B2) forms, then the 2x2 reduction is finished
 		// in that case continue the main loop
@@ -927,7 +1047,8 @@ int main(int argc, char* argv[]){
 	free(f);
 	free(tempf);
 	free(U);
-	free(red);
+	free(p);
+	free(n);
 
 
 	//printf("\nFinished.\n");

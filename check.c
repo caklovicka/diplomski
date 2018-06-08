@@ -128,13 +128,13 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	for(i = N; i < M; ++i){
+	/*for(i = N; i < M; ++i){
 
 		if( cabs(G[i+M*(N-1)]) >= EPSILON ){
 			printf("\nERR: G not triangular!!! (checked last column)\n\n");
 			break;
 		}
-	}
+	}*/
 
 	zgemm_(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm_(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
