@@ -3,6 +3,7 @@
 #include <complex.h>
 #include <math.h>
 #include <float.h>
+#include "omp.h"
 
 
 #define EPSILON DBL_EPSILON
@@ -121,6 +122,7 @@ int main(int argc, char* argv[]){
 		exit(-2);
 	}
 
+	#pragma omp parallel for collapse(2)
 	for(i = 0; i < M; ++i){
 		for(j = 0; j < M; ++j){
 			if(i == j) JJ[i+M*j] = (double complex)J[i];
@@ -143,6 +145,7 @@ int main(int argc, char* argv[]){
 
 	// compute perm on the upper triangle, and use A*=A on the lower
 
+	#pragma omp parallel for collapse(2)
 	for( i = 0; i < M; ++i ){
 		for( j = i; j < N; ++j ){
 			PA[Pcol[i]+N*Pcol[j]] = A[i+N*j];
@@ -165,15 +168,20 @@ int main(int argc, char* argv[]){
 	double norm = 0; 
 	double max = 0;
 	int ii = -1, jj = -1;
+
+	#pragma omp parallel for collapse(2)
 	for(i = 0; i < N; ++i){
 		for(j = 0; j < N; ++j){
 
+		#pragma omp critical
+		{
 			if(cabs(PA[i+N*j] - AA[i+N*j]) > max){
 				max = cabs(PA[i+N*j] - AA[i+N*j]);
 				ii = i;
 				jj = j;
 			} 
 			norm += cabs(PA[i+N*j] - AA[i+N*j]) * cabs(PA[i+N*j] - AA[i+N*j]);
+		}
 		}
 	}
 

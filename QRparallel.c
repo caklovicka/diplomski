@@ -126,6 +126,10 @@ int main(int argc, char* argv[]){
 
 	//printf("Pivoting QR...\n\n");
 
+	double pivot2time = 0;
+	double pivot1time = 0;
+	int pivot_1_count = 0;
+	int pivot_2_count = 0;
 	start = omp_get_wtime();
 
 	// first count +-1 and store their locations
@@ -229,6 +233,9 @@ int main(int argc, char* argv[]){
 
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
+
+		pivot_2_count += 1;
+		double start2 = omp_get_wtime();
 
 		// do a column swap pivot_r <-> k+1 if needed
 
@@ -824,6 +831,10 @@ int main(int argc, char* argv[]){
 			G[k+3+M*(k+1)] = 0;
 
 			k = k+1;
+
+			double end2 = omp_get_wtime();
+			pivot2time += (double) (end2 - start2);
+
 			goto LOOP_END;
 		}
 
@@ -932,6 +943,10 @@ int main(int argc, char* argv[]){
 			G[k+2+M*(k+1)] = 0;
 
 			k = k+1;
+
+			double end2 = omp_get_wtime();
+			pivot2time += (double) (end2 - start2);
+
 			goto LOOP_END;
 		}
 
@@ -940,7 +955,11 @@ int main(int argc, char* argv[]){
 		exit(-4);
 	
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
-		PIVOT_1:
+		PIVOT_1: 
+
+		pivot_1_count += 1;
+		double start1 = omp_get_wtime();
+
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
 
@@ -1034,32 +1053,42 @@ int main(int argc, char* argv[]){
 		for(int i = k+1; i < M; ++i) f[i] = 0;
 
 
-		// make the reflector
 		// make the vector f(k:M)
+		// copy f into tempf, so we dont need tu multyply the first column of G with H
+		// and do f(k:M) = f(k:M) - g(k:M)
 
 		double complex alpha = -1;
 		int inc = 1;
 		int Mk = M - k;
+		int offset = Mk / NTHREADS_FOR_COL_COPY;
+		int leftovers;
+		if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Mk;
+		else leftovers = Mk % offset;
+
+		if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+			int j = 0;
+			#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+			for(j = 0; j <= Mk - offset; j += offset){
+				zcopy_(&offset, &f[k + j], &inc, &tempf[k + j], &inc);	// copy f into tempf
+				zaxpy_(&offset, &alpha, &G[k + j + M*k], &inc, &f[k + j], &inc);	// f(k:M) = f(k:M) - g(k:M)
+			}
+		}
+		zcopy_(&leftovers, &f[M - leftovers], &inc, &tempf[M - leftovers], &inc);
+		zaxpy_(&leftovers, &alpha, &G[M - leftovers + M*k], &inc, &f[M - leftovers], &inc);
 
 
-
-		// do it in parallel if necessary
-		zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf, so we dont need tu multyply the first column of G with H
-		zaxpy_(&Mk, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
-
-
-
-
-
-
-
-
+		// constant needed to make the reflector H
 		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
+
+		// make the reflector
+
+		#pragma omp parallel for collapse(2)
 		for(int i = k; i < M; ++i)
 			for(int j = k; j < M; ++j)
 				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;
 			
+		#pragma omp parallel for
 		for(int i = k; i < M; ++i) H[i+M*i] += 1;
 
 
@@ -1068,13 +1097,58 @@ int main(int argc, char* argv[]){
 		char non_trans = 'N';
 		alpha = 1.0;
 		double complex beta = 0;
-
 		int Nk = N - k - 1;
-		zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k+1:N)
+
+		offset = Mk / NTHREADS_FOR_COL_COPY;
+		if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Mk;
+		else leftovers = Mk % offset;
+
+		if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+
+			#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+			for(int i = 0; i <= Mk - offset; i += offset){
+
+				#pragma omp parallel for
+				for(int j = 0; j < Nk; ++j){
+					zgemv_(&non_trans, &offset, &Mk, &alpha, &H[k + i + M*k], &M, &G[k + M*(k+j+1)], &inc, &beta, &T[i+j*Mk], &inc);
+				}
+			}
+		}
+
+	
+		#pragma omp parallel for
+		for(int j = 0; j < Nk; ++j){
+			zgemv_(&non_trans, &leftovers, &Mk, &alpha, &H[k + Mk - leftovers + M*k], &M, &G[k + M*(k+j+1)], &inc, &beta, &T[Mk - leftovers + j*Mk], &inc);
+		}
+
+
+		//zgemm_(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k+1:N)
+
+
+		// copy back things from T to G
 
 		inc = 1;
-		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
-		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	// G = T (copy blocks)
+		Mk = M - k;
+		offset = Mk / NTHREADS_FOR_COL_COPY;
+		if(offset < SEQ_TRESHOLD_FOR_COL_COPY) leftovers = Mk;
+		else leftovers = Mk % offset;
+
+		if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
+			int j = 0;
+			#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
+			for(j = 0; j <= Mk - offset; j += offset){
+				zcopy_(&offset, &tempf[k + j], &inc, &G[k + j + M*k], &inc);
+			}
+		}
+		zcopy_(&leftovers, &tempf[M - leftovers], &inc, &G[M - leftovers + M*k], &inc);
+
+
+		// G = T (copy columns)
+		#pragma omp parallel for
+		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	
+
+		double end1 = omp_get_wtime();
+		pivot1time += (double)(end1 - start1);
 
 		LOOP_END: continue;
 	}
@@ -1082,6 +1156,8 @@ int main(int argc, char* argv[]){
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
 	printf("algorithm time = %lg s\n", seconds);
+	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
+	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
 
 
 	// -------------------------------- writing -------------------------------- 	
