@@ -1,5 +1,3 @@
-$(VERBOSE).SILENT:
-
 generate:
 	rm -rf data
 	mkdir data
@@ -40,6 +38,24 @@ runQR_par:
 	@echo $(M) $(N)
 	gcc QRparallel.c -o QRparallel.out -lblas -llapack -lm -fopenmp -w
 	./QRparallel.out data/G.bin data/J.bin $(M) $(N) -w
+
+
+generate_xion:
+	rm -rf data
+	mkdir data
+	@echo $(M) $(N)
+	icc -mkl generateG.c -o generateG.out
+	./generateG.out data/G.bin data/J.bin $(M) $(N)
+
+runQR_xion:
+	@echo $(M) $(N)
+	icc -mkl QRreduction.c -o QRreduction.out
+	./QRreduction.out data/G.bin data/J.bin $(M) $(N)
+
+check_xion:
+	@echo $(M) $(N)
+	icc -mkl check.c -o check.out
+	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N)
 
 
 
