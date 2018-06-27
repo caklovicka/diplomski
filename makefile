@@ -54,7 +54,7 @@ runQR_xion:
 
 check_xion:
 	@echo $(M) $(N)
-	icc -mkl check.c -o check.out
+	icc -mkl check.c -o check.out -fopenmp
 	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N)
 
 

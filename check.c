@@ -9,7 +9,7 @@
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 
-double dnrm2_(int* N, double* X, int* inc);
+double dznrm2_(int* N, double complex* X, int* inc);
 
 void printMatrix(double complex *G, int M, int N){
 
@@ -130,13 +130,13 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	/*for(i = N; i < M; ++i){
+	for(i = N; i < M; ++i){
 
 		if( cabs(G[i+M*(N-1)]) >= EPSILON ){
 			printf("\nERR: G not triangular!!! (checked last column)\n\n");
 			break;
 		}
-	}*/
+	}
 
 	zgemm_(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm_(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
@@ -145,8 +145,8 @@ int main(int argc, char* argv[]){
 
 	// compute perm on the upper triangle, and use A*=A on the lower
 
-	#pragma omp parallel for collapse(2)
-	for( i = 0; i < M; ++i ){
+	#pragma omp parallel for
+	for( i = 0; i < N; ++i ){
 		for( j = i; j < N; ++j ){
 			PA[Pcol[i]+N*Pcol[j]] = A[i+N*j];
 			PA[Pcol[j]+N*Pcol[i]] = conj(A[i+N*j]);
@@ -187,7 +187,7 @@ int main(int argc, char* argv[]){
 
 	int NN = N*N;
 	int inc = 1;
-	double norm2 = dnrm2_(&N, AA, &inc);
+	double norm2 = dznrm2_(&NN, AA, &inc);
 
 	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
