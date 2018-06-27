@@ -23,11 +23,10 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 
 void printMatrix(double complex *G, int M, int N){
 
-	int i, j;
+	i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
 			printf("%10.5g + i%10.5g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
@@ -39,7 +38,7 @@ void printMatrix(double complex *G, int M, int N){
 
 void printJ(double *J, int M){
 
-	int i;
+	i;
 	for( i = 0; i < M; ++i ) printf("%3d  ", (int)J[i]);
 	printf("\n");
 }
@@ -49,6 +48,8 @@ void printJ(double *J, int M){
 //----------------------------------------------------------------------------------------
 
 int main(int argc, char* argv[]){
+
+	double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 
 	// read variables from command line
 	int M = atoi(argv[3]);
@@ -85,24 +86,42 @@ int main(int argc, char* argv[]){
 		exit(-2);
 	}
 
-	// read matrix G and prepare Pcol
+	int i, j;
 
-	for(int j = 0; j < N; ++j ){
-		Pcol[j] = j;
+	#pragma omp parallel
+    {
 
-		for(int i = 0; i < M; ++i ){
-			double x, y;
-			fscanf(readG, "%lg %lg ", &x, &y);
-			G[i+M*j] = x + I*y;
+    	#pragma omp single nowait
+    	{
+			// prepare Pcol	
+			for(j = 0; j < N; ++j ){
+				Pcol[j] = j;
+			}
 		}
-	}
 
- 	// read vector J and prepare permutation vectors
-	for(int i = 0; i < M; ++i){
-		long int itemp;
-		fscanf(readJ, "%ld ", &itemp);
-		J[i] = 1.0 * itemp;
-		Prow[i] = i;
+		#pragma omp single nowait
+		{
+			// read matrix G
+			for(j = 0; j < N; ++j ){
+				for(i = 0; i < M; ++i ){
+					double x, y;
+					fscanf(readG, "%lg %lg ", &x, &y);
+					G[i+M*j] = x + I*y;
+				}
+			}
+		}
+
+
+		#pragma omp single nowait
+		{
+			// read vector J and prepare permutation vectors
+			for(i = 0; i < M; ++i){
+				long itemp;
+				fscanf(readJ, "%ld ", &itemp);
+				J[i] = 1.0 * itemp;
+				Prow[i] = i;
+			}
+		}
 	}
 
 
@@ -126,14 +145,14 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 		
 		// compute Akk for the working submatrix G[k:M, k:N]
-		for(int i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
+		for(i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
 
 		if(k == N-1) goto PIVOT_1;
 
 		// find pivot_lambda
-		for(int i = k+1; i < N; ++i){
+		for(i = k+1; i < N; ++i){
 			double complex Aik = 0;	//Aik = gi* J gk, but on a submatrix G[k:M, k:N]
-			for(int j = k; j < M; ++j)	Aik += conj(G[j+M*i]) * J[j] * G[j+M*k];
+			for(j = k; j < M; ++j)	Aik += conj(G[j+M*i]) * J[j] * G[j+M*k];
 			if(pivot_lambda < cabs(Aik)){
 				pivot_lambda = cabs(Aik);
 				pivot_r = i;
@@ -143,28 +162,28 @@ int main(int argc, char* argv[]){
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 		// find pivot_sigma
-		for(int i = k; i < N; ++i){
+		for(i = k; i < N; ++i){
 			if(i == pivot_r) continue;
 			double complex Air = 0;  //Air = gi* J gr, but on a submatrix G[k:M, k:N]
-			for(int j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
+			for(j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
 		double Arr = 0; // on a working submatrix G[k:M, k:N]
-		for(int i = k; i < M; ++i) Arr += conj(G[i+M*pivot_r]) * J[i] * G[i+M*pivot_r];
+		for(i = k; i < M; ++i) Arr += conj(G[i+M*pivot_r]) * J[i] * G[i+M*pivot_r];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 			// gr is the pivot column
 			// swap columns k <-> r
 			// then do PIVOT_1 with Householder
 
-			long int itemp = Pcol[pivot_r];
+			long itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k];
 			Pcol[k] = itemp;
 
-			int inc = 1;
+			inc = 1;
 			zswap_(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
 			Akk = Arr;
 
@@ -178,11 +197,11 @@ int main(int argc, char* argv[]){
 
 		if(pivot_r != k+1){
 
-			long int itemp = Pcol[pivot_r];
+			long itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k+1];
 			Pcol[k+1] = itemp;
 
-			int inc = 1;
+			inc = 1;
 			zswap_(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
@@ -191,7 +210,7 @@ int main(int argc, char* argv[]){
 
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
-		for(int i = k; i < M; ++i){
+		for(i = k; i < M; ++i){
 
 			if(cabs(G[i+M*k]) < EPSILON) continue;
 			if(first_non_zero_idx == -1) first_non_zero_idx = i;
@@ -207,7 +226,7 @@ int main(int argc, char* argv[]){
 
 		if(first_non_zero_idx != k && first_non_zero_idx != -1){ 
 
-			long int itemp = Prow[first_non_zero_idx];
+			long itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k];
 			Prow[k] = itemp;
 
@@ -225,7 +244,7 @@ int main(int argc, char* argv[]){
 
 		if(first_non_zero_idx != -1){
 
-			for(int i = k+1; i < M; ++i){
+			for(i = k+1; i < M; ++i){
 			
 				if(J[k] != J[i]) continue;
 
@@ -248,7 +267,7 @@ int main(int argc, char* argv[]){
 		// then swap rows k+1 <-> i
 
 		first_non_zero_idx = -1;	// first non zero element in the -Jk class
-		for(int i = k+1; i < M; ++i){
+		for(i = k+1; i < M; ++i){
 
 			if(J[k] == J[i] || cabs(G[i+M*k]) < EPSILON ) continue;
 
@@ -258,7 +277,7 @@ int main(int argc, char* argv[]){
 
 			// else, swap rows i <-> k+1
 
-			long int itemp = Prow[i];
+			long itemp = Prow[i];
 			Prow[i] = Prow[k+1];
 			Prow[k+1] = itemp;
 
@@ -277,7 +296,7 @@ int main(int argc, char* argv[]){
 
 		if(first_non_zero_idx != -1){
 
-			for(int i = k+2; i < M; ++i){
+			for(i = k+2; i < M; ++i){
 			
 				if(J[k+1] != J[i]) continue;
 
@@ -309,7 +328,7 @@ int main(int argc, char* argv[]){
 		first_non_zero_idx = -1;	// index of the first non zero element in column k+1
 									// will be filled with the first nonzero index, or stay -1
 
-		for(int i = k + kth_nonzeros; i < M; ++i){
+		for(i = k + kth_nonzeros; i < M; ++i){
 
 			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
 			if(first_non_zero_idx == -1) first_non_zero_idx = i;
@@ -332,7 +351,7 @@ int main(int argc, char* argv[]){
 
 		if(first_non_zero_idx != k + kth_nonzeros && first_non_zero_idx != -1){ 
 
-			long int itemp = Prow[first_non_zero_idx];
+			long itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k + kth_nonzeros];
 			Prow[k + kth_nonzeros] = itemp;
 
@@ -350,7 +369,7 @@ int main(int argc, char* argv[]){
 
 		if(first_non_zero_idx != -1){
 
-			for(int i = k + kth_nonzeros + 1; i < M; ++i){
+			for(i = k + kth_nonzeros + 1; i < M; ++i){
 			
 				if(J[k + kth_nonzeros] != J[i]) continue;
 
@@ -372,7 +391,7 @@ int main(int argc, char* argv[]){
 		// then swap rows k + kth_nonzeros + 1 <-> i
 
 		first_non_zero_idx = -1;	// first non zero element in the -J(k + kth_nonzeros) class
-		for(int i = k + kth_nonzeros + 1; i < M; ++i){
+		for(i = k + kth_nonzeros + 1; i < M; ++i){
 
 			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < EPSILON ) continue;
 
@@ -382,7 +401,7 @@ int main(int argc, char* argv[]){
 
 			// else, swap rows i <-> k + kth_nonzeros + 1
 
-			long int itemp = Prow[i];
+			long itemp = Prow[i];
 			Prow[i] = Prow[k + kth_nonzeros + 1];
 			Prow[k + kth_nonzeros + 1] = itemp;
 
@@ -404,7 +423,7 @@ int main(int argc, char* argv[]){
 
 		if(first_non_zero_idx != -1){
 
-			for(int i = k + kth_nonzeros + 2; i < M; ++i){
+			for(i = k + kth_nonzeros + 2; i < M; ++i){
 			
 				if(J[k + kth_nonzeros + 1] != J[i]) continue;
 
@@ -445,17 +464,17 @@ int main(int argc, char* argv[]){
 
 				// swap columns k <-> k+1
 
-				long int itemp = Pcol[k];
+				long itemp = Pcol[k];
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
 
 				int n = k + 4;
-				int inc = 1;
+				inc = 1;
 				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
 
 				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
 
-				for(int i = k; i < k+2; ++i){
+				for(i = k; i < k+2; ++i){
 
 					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
@@ -467,7 +486,7 @@ int main(int argc, char* argv[]){
 
 				// do plane rotations with kth row
 
-				int idx = k+2; 	// idx is the row that will be eliminated with the kth row
+				idx = k+2; 	// idx is the row that will be eliminated with the kth row
 				if(J[k] == J[k+3]) idx = k+3;
 
 				// generate plane rotation
@@ -549,7 +568,7 @@ int main(int argc, char* argv[]){
 
 
 			// copy rows of T back into G
-			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
+			for(i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -578,17 +597,17 @@ int main(int argc, char* argv[]){
 
 				// swap columns k <-> k+1
 
-				long int itemp = Pcol[k];
+				long itemp = Pcol[k];
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
 
 				int n = k + 3;
-				int inc = 1;
+				inc = 1;
 				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
 
 				// make the kth rows k, k+1 real (k+2 is already real)
 
-				for(int i = k; i < k+2; ++i){
+				for(i = k; i < k+2; ++i){
 
 					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
@@ -600,7 +619,7 @@ int main(int argc, char* argv[]){
 
 				// do a plane rotation, eliminate row k+2 with row idx
 
-				int idx = k; 	// idx is the row that will eliminate row k+2
+				idx = k; 	// idx is the row that will eliminate row k+2
 				if(J[idx] != J[k+2]) idx = k+1;
 
 				// generate plane rotation
@@ -659,7 +678,7 @@ int main(int argc, char* argv[]){
 
 			// copy rows of T back into G
 
-			for(int i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*(k+1)], &M);
+			for(i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*(k+1)], &M);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -682,7 +701,7 @@ int main(int argc, char* argv[]){
 
 		if( Akk > 0 && J[k] < 0){
 
-			int i;
+			i;
 			for(i = k+1; i < M; ++i)
 				if(J[i] > 0) break;
 
@@ -694,14 +713,14 @@ int main(int argc, char* argv[]){
 			zswap_(&Nk, &G[i+M*k], &M, &G[k+M*k], &M);
 
 			// update Prow
-			long int itemp = Prow[i];
+			long itemp = Prow[i];
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 		}
 
 		else if( Akk < 0 && J[k] > 0){
 
-			int i;
+			i;
 			for(i = k+1; i < M; ++i)
 				if(J[i] < 0) break;
 
@@ -713,7 +732,7 @@ int main(int argc, char* argv[]){
 			zswap_(&Nk, &G[i+M*k], &M, &G[k+M*k], &M);
 
 			// update Prow
-			long int itemp = Prow[i];
+			long itemp = Prow[i];
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 		}
@@ -726,14 +745,14 @@ int main(int argc, char* argv[]){
 		double complex H_sigma = 1;
 		if(cabs(G[k+M*k]) >= EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
 		f[k] = csqrt(cabs(Akk)) * H_sigma;
-		for(int i = k+1; i < M; ++i) f[i] = 0;
+		for(i = k+1; i < M; ++i) f[i] = 0;
 
 
 		// make the reflector
 		// make the vector f(k:M)
 
 		double complex alpha = -1;
-		int inc = 1;
+		inc = 1;
 		int Mk = M - k;
 
 		zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf, so we dont need tu multyply the first column of G with H
@@ -742,11 +761,11 @@ int main(int argc, char* argv[]){
 
 		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
-		for(int i = k; i < M; ++i)
-			for(int j = k; j < M; ++j)
+		for(i = k; i < M; ++i)
+			for(j = k; j < M; ++j)
 				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;
 			
-		for(int i = k; i < M; ++i) H[i+M*i] += 1;
+		for(i = k; i < M; ++i) H[i+M*i] += 1;
 
 
 		// apply the reflector on a submatrix
@@ -760,7 +779,7 @@ int main(int argc, char* argv[]){
 
 		inc = 1;
 		zcopy_(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
-		for(int j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	// G = T (copy blocks)
+		for(j = 0; j < Nk; ++j) zcopy_(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	// G = T (copy blocks)
 
 		LOOP_END: continue;
 	}
@@ -784,15 +803,15 @@ int main(int argc, char* argv[]){
 	FILE *writeRow = fopen("data/Prow.bin", "wb");
 
 	// write J and Prow
-	for(int i = 0; i < M; ++i){
+	for(i = 0; i < M; ++i){
 		fprintf(writeJ, "%ld ", (long int)J[i]);
 		fprintf(writeRow, "%ld ", Prow[i]);
 	}
 
 	// write G and pcol
-	for(int j = 0; j < N; ++j){
+	for(j = 0; j < N; ++j){
 		fprintf(writeCol, "%ld ", Pcol[j]);
-		for(int i = 0; i < M; ++i){
+		for(i = 0; i < M; ++i){
 			fprintf(writeG, "%.*g %.*g ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 	}

@@ -87,7 +87,7 @@ int main(int argc, char* argv[]){
 	double x, y;
 	int i, j;
 
-	#pragma omp parallel for private(i) shared(G)
+	#pragma omp parallel for shared(G)
 	for( i = 0; i < N*M; ++i ){
 		x = 50.0*rand()/(RAND_MAX) - 5;
 		y = 50.0*rand()/(RAND_MAX) - 5;
