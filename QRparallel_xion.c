@@ -25,8 +25,8 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define NTHREADS_FOR_COL_COPY 8
-#define SEQ_TRESHOLD_FOR_COL_COPY 25	// if M < NTHREADS_FOR_COL_COPY * SEQ_TRESHOLD_FOR_COL_COPY then col swap/copy is sequential
+#define NTHREADS_FOR_COL_COPY 32
+#define SEQ_TRESHOLD_FOR_COL_COPY 100	// if M < NTHREADS_FOR_COL_COPY * SEQ_TRESHOLD_FOR_COL_COPY then col swap/copy is sequential
 
 
 void printMatrix(double complex *G, int M, int N){
