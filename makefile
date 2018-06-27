@@ -44,13 +44,13 @@ generate_xion:
 	rm -rf data
 	mkdir data
 	@echo $(M) $(N)
-	icc -mkl generateG.c -o generateG.out
-	./generateG.out data/G.bin data/J.bin $(M) $(N)
+	icc -mkl generateGparallel.c -o generateGparallel.out -fopenmp
+	./generateGparallel.out data/G.bin data/J.bin $(M) $(N)
 
 runQR_xion:
 	@echo $(M) $(N)
-	icc -mkl QRreduction.c -o QRreduction.out
-	./QRreduction.out data/G.bin data/J.bin $(M) $(N)
+	icc -mkl QRparallel_xion.c -o QRparallel_xion.out -fopenmp
+	./QRparallel_xion.out data/G.bin data/J.bin $(M) $(N)
 
 check_xion:
 	@echo $(M) $(N)
