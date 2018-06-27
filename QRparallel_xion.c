@@ -29,8 +29,6 @@
 #define SEQ_TRESHOLD_FOR_COL_COPY 25	// if M < NTHREADS_FOR_COL_COPY * SEQ_TRESHOLD_FOR_COL_COPY then col swap/copy is sequential
 
 
-double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
-
 void printMatrix(double complex *G, int M, int N){
 
 	int i, j;
@@ -55,6 +53,8 @@ void printJ(double *J, int M){
 //----------------------------------------------------------------------------------------
 
 int main(int argc, char* argv[]){
+
+	double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 
 	// read variables from command line
 	int M = atoi(argv[3]);
@@ -111,7 +111,7 @@ int main(int argc, char* argv[]){
 			// read matrix G 
 			int i, j;
 			for(j = 0; j < N; ++j ){
-				for(int i = 0; i < M; ++i ){
+				for(i = 0; i < M; ++i ){
 					double x, y;
 					fscanf(readG, "%lg %lg ", &x, &y);
 					G[i+M*j] = x + I*y;
@@ -198,7 +198,7 @@ int main(int argc, char* argv[]){
 			double complex Air = 0;  //Air = gi* J gr, but on a submatrix G[k:M, k:N]
 
 			#pragma omp parallel for reduction(+:Air)
-			for(int j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
+			for(j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
 
 			#pragma omp critical
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
@@ -624,7 +624,7 @@ int main(int argc, char* argv[]){
 
 		// fill and count the signums (not necessary to be ordered)
 		#pragma omp parallel for
-		for(int i = k + kth_nonzeros + 2; i < M; ++i){
+		for(i = k + kth_nonzeros + 2; i < M; ++i){
 
 			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
 
@@ -738,7 +738,7 @@ int main(int argc, char* argv[]){
 
 				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
 
-				for(int i = k; i < k+2; ++i){
+				for(i = k; i < k+2; ++i){
 
 					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
@@ -832,7 +832,7 @@ int main(int argc, char* argv[]){
 
 
 			// copy rows of T back into G
-			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
+			for(i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -946,7 +946,7 @@ int main(int argc, char* argv[]){
 
 			// copy rows of T back into G
 
-			for(int i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*(k+1)], &M);
+			for(i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*(k+1)], &M);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -1091,12 +1091,12 @@ int main(int argc, char* argv[]){
 		// make the reflector
 
 		#pragma omp parallel for collapse(2)
-		for(int i = k; i < M; ++i)
-			for(int j = k; j < M; ++j)
+		for(i = k; i < M; ++i)
+			for(j = k; j < M; ++j)
 				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;
 			
 		#pragma omp parallel for
-		for(int i = k; i < M; ++i) H[i+M*i] += 1;
+		for(i = k; i < M; ++i) H[i+M*i] += 1;
 
 
 		// apply the reflector on a submatrix
@@ -1113,10 +1113,10 @@ int main(int argc, char* argv[]){
 		if(offset >= SEQ_TRESHOLD_FOR_COL_COPY){
 
 			#pragma omp parallel for num_threads(NTHREADS_FOR_COL_COPY)
-			for(int i = 0; i <= Mk - offset; i += offset){
+			for(i = 0; i <= Mk - offset; i += offset){
 
 				#pragma omp parallel for
-				for(int j = 0; j < Nk; ++j){
+				for(j = 0; j < Nk; ++j){
 					zgemv_(&non_trans, &offset, &Mk, &alpha, &H[k + i + M*k], &M, &G[k + M*(k+j+1)], &inc, &beta, &T[i+j*Mk], &inc);
 				}
 			}
