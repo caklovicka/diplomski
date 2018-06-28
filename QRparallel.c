@@ -732,9 +732,9 @@ int main(int argc, char* argv[]){
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
 
-				int n = k + 4;
+				int n_ = k + 4;
 				int inc = 1;
-				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
+				zswap_(&n_, &G[M*k], &inc, &G[M*(k+1)], &inc);
 
 				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
 
@@ -823,16 +823,16 @@ int main(int argc, char* argv[]){
 
 			// apply the reduction
 
-			int n = 4;
+			int n_ = 4;
 			int Nk = N - k;
 			char non_trans = 'N';
 			double complex alpha = 1;
 			double complex beta = 0;
-			zgemm_(&non_trans, &non_trans, &n, &Nk, &n, &alpha, U, &n, &G[k+M*k], &M, &beta, T, &n);
+			zgemm_(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
 
 
 			// copy rows of T back into G
-			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*k], &M);
+			for(int i = 0; i < 4; ++i) zcopy_(&Nk, &T[i], &n_, &G[k + i + M*k], &M);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -869,9 +869,9 @@ int main(int argc, char* argv[]){
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
 
-				int n = k + 3;
+				int n_ = k + 3;
 				int inc = 1;
-				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
+				zswap_(&n_, &G[M*k], &inc, &G[M*(k+1)], &inc);
 
 				// make the kth rows k, k+1 real (k+2 is already real)
 
@@ -936,17 +936,17 @@ int main(int argc, char* argv[]){
 			// apply the reduction
 			// g11 and g21 remain unchanged
 
-			int n = 3;
+			int n_ = 3;
 			int Nk = N - k - 1;
 			char non_trans = 'N';
 			double complex alpha = 1;
 			double complex beta = 0;
-			zgemm_(&non_trans, &non_trans, &n, &Nk, &n, &alpha, U, &n, &G[k+M*(k+1)], &M, &beta, T, &n);
+			zgemm_(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*(k+1)], &M, &beta, T, &n_);
 
 
 			// copy rows of T back into G
 
-			for(int i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n, &G[k + i + M*(k+1)], &M);
+			for(int i = 0; i < 3; ++i) zcopy_(&Nk, &T[i], &n_, &G[k + i + M*(k+1)], &M);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -1091,8 +1091,8 @@ int main(int argc, char* argv[]){
 		// make the reflector
 
 		#pragma omp parallel for collapse(2)
-		for(int i = k; i < M; ++i)
-			for(int j = k; j < M; ++j)
+		for(int j = k; j < M; ++j)
+			for(int i = k; i < M; ++i)
 				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;
 			
 		#pragma omp parallel for
