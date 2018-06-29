@@ -19,6 +19,7 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
+#define NTHREADS 300
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -140,7 +141,7 @@ int main(int argc, char* argv[]){
 
 	// ---------------------------------------------------- SVD ----------------------------------------------------
 
-	char jobz = 'N';
+	/*char jobz = 'N';
 	double *s = (double*) malloc(N*sizeof(double));	// for singular values, they will be sorted in s as s(i) >= s(i+1)
 	int lwork = 6*N;
 	double complex *work = (double complex*) malloc(lwork*sizeof(double complex));
@@ -161,6 +162,7 @@ int main(int argc, char* argv[]){
 		exit(-3);
 	}
 	else printf("Smallest singular value of A: %.*g\n", DIGITS, s[N-1]);
+	*/
 
 
 	// -------------------------- write G and J in files -------------------------- 
