@@ -49,8 +49,8 @@ generate_xion:
 
 runQR_xion:
 	@echo $(M) $(N)
-	icc -mkl QRparallel_xion.c -o QRparallel_xion.out -fopenmp
-	./QRparallel_xion.out data/G.bin data/J.bin $(M) $(N)
+	icc -mkl QRparallel_xion_mkl.c -o QRparallel_xion_mkl.out -fopenmp
+	./QRparallel_xion_mkl.out data/G.bin data/J.bin $(M) $(N)
 
 check_xion:
 	@echo $(M) $(N)
