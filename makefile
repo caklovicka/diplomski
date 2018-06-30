@@ -61,5 +61,5 @@ check_xion:
 
 clean:
 	rm -rf data 
-	rm -f generateG.out GFreduction.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xion_mkl.c
+	rm -f generateG.out GFreduction.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xion_mkl.out
 
