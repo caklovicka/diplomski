@@ -26,11 +26,10 @@ all_seq:
 	gcc check.c -o check.out -lm -lblas -llapack -w
 	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N) -w
 
-generateG_par:
+generate_par:
 	rm -rf data
 	mkdir data
 	@echo $(M) $(N)
-#	gcc generateGparallel.c -o generateGparallel.out -lblas -llapack -lm -fopenmp -Wl,--defsym=__heap_start=0x802000,--defsym=__heap_end=0x803fff
 	gcc generateGparallel.c -o generateGparallel.out -lblas -llapack -fopenmp -w
 	./generateGparallel.out data/G.bin data/J.bin $(M) $(N) -w
 
@@ -40,26 +39,25 @@ runQR_par:
 	./QRparallel.out data/G.bin data/J.bin $(M) $(N) -w
 
 
-generate_xion:
+generate_xeon:
 	rm -rf data
 	mkdir data
 	@echo $(M) $(N)
 	icc -mkl generateGparallel.c -o generateGparallel.out -fopenmp
 	./generateGparallel.out data/G.bin data/J.bin $(M) $(N)
 
-runQR_xion:
+runQR_xeon:
 	@echo $(M) $(N)
-	icc -mkl QRparallel_xion_mkl.c -o QRparallel_xion_mkl.out -fopenmp
-	./QRparallel_xion_mkl.out data/G.bin data/J.bin $(M) $(N)
+	icc -mkl QRparallel_xeon_mkl.c -o QRparallel_xeon_mkl.out -fopenmp
+	./QRparallel_xeon_mkl.out data/G.bin data/J.bin $(M) $(N)
 
-check_xion:
+check_xeon:
 	@echo $(M) $(N)
 	icc -mkl check.c -o check.out -fopenmp
 	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N)
 
 
-
 clean:
 	rm -rf data 
-	rm -f generateG.out GFreduction.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xion_mkl.out
+	rm -f generateG.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xeon_mkl.out
 

@@ -31,9 +31,8 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define NTHREADS 100
 
-#define D 130
+#define D 64
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -63,11 +62,15 @@ int main(int argc, char* argv[]){
 
 	double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 	omp_set_nested(1);
+	omp_set_dynamic(0);
 	mkl_set_dynamic(0);
+	omp_set_max_active_levels(3);
+
 
 	// read variables from command line
 	int M = atoi(argv[3]);
 	int N = atoi(argv[4]);
+
 	FILE *readG = fopen(argv[1], "rb");
 	FILE *readJ = fopen(argv[2], "rb");
 
@@ -152,6 +155,9 @@ int main(int argc, char* argv[]){
 
 	double pivot2time = 0;
 	double pivot1time = 0;
+	double mnozenjetime = 0;
+	double redukcijatime = 0;
+	double pivotiranje = 0;
 	int pivot_1_count = 0;
 	int pivot_2_count = 0;
 	start = omp_get_wtime();
@@ -165,6 +171,8 @@ int main(int argc, char* argv[]){
 		// we need to know the signum of the J-norm of the first column
 		// because the pivoting element, Akk, will have to satisfy
 		// sign(Jk) = sign(gk*Jgk)
+
+		double pp = omp_get_wtime();
 
 		double Akk = 0;	// Akk = gk* J gk, on a working submatrix G[k:M, k:N]
 		double pivot_lambda = 0;
@@ -246,6 +254,7 @@ int main(int argc, char* argv[]){
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
+		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
 
@@ -367,6 +376,7 @@ int main(int argc, char* argv[]){
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
+		double rr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)
 		{
 
@@ -446,6 +456,7 @@ int main(int argc, char* argv[]){
 
 						if( cimag(G[n[i+offset] + M*k]) != 0){
 							double complex scal = conj(G[n[i+offset] + M*k]) / cabs(G[n[i+offset] + M*k]);
+							G[n[i+offset]+M*k] = cabs(G[n[i+offset]+M*k]);
 							int Nk = N - k - 1;
 							zscal(&Nk, &scal, &G[n[i+offset] + M*(k+1)], &M);
 						}
@@ -464,6 +475,8 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
+
+		rr = omp_get_wtime() - rr;
 
 
 		int kth_nonzeros = 2;
@@ -591,6 +604,7 @@ int main(int argc, char* argv[]){
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
+		double rrr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)
 		{
 
@@ -688,6 +702,9 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
+
+		rrr = omp_get_wtime() - rrr;
+		redukcijatime = redukcijatime + rrr + rr;
 
 
 		// -------- check forms od 2x2 pivot ---------
@@ -976,9 +993,12 @@ int main(int argc, char* argv[]){
 		// if here, something broke down
 		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...Is A maybe singular?\n\n\n");
 		exit(-4);
+
 	
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1: 
+
+		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 
 		pivot_1_count += 1;
 		double start1 = omp_get_wtime();
@@ -1007,7 +1027,7 @@ int main(int argc, char* argv[]){
 			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zswap_(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
+			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
 		}
 
 		else if( Akk < 0 && J[k] > 0){
@@ -1029,7 +1049,7 @@ int main(int argc, char* argv[]){
 			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zswap_(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
+			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
 		}
 		
 
@@ -1067,12 +1087,12 @@ int main(int argc, char* argv[]){
 		
 		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
 		if((M-k)/D == 0) nthreads = 1;
-		#pragma omp parallel for num_threads((int)csqrt(nthreads))
+		#pragma omp parallel for collapse(2) num_threads(nthreads)
 		for(j = k; j < M; ++j){
-			#pragma omp parallel for num_threads((int)csqrt(nthreads))
-			for(i = k; i < M; ++i)
+			for(i = k; i < M; ++i){
 				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;
-			H[j+M*j] += 1;
+				if(i == j) H[i+M*j] += 1;
+			}
 		}
 
 
@@ -1083,10 +1103,14 @@ int main(int argc, char* argv[]){
 		double complex beta = 0;
 		int Nk = N - k - 1;
 
-		mkl_nthreads = (M*N)/(D*D) > mkl_get_max_threads() ? (M*N)/(D*D) : mkl_get_max_threads();
-		if((M*N)/(D*D) == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
+		//mkl_nthreads = (M*N)/DD > mkl_get_max_threads() ? (M*N)/DD : mkl_get_max_threads();
+		//if((M*N)/DD == 0) mkl_nthreads = 1;
+		//mkl_set_num_threads(mkl_nthreads);
+		mkl_set_dynamic(1);
+		double a = omp_get_wtime();
 		zgemm(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k+1:N)
+		mnozenjetime = mnozenjetime + omp_get_wtime() - a;
+		mkl_set_dynamic(0);
 
 
 		// copy back things from T to G
@@ -1101,12 +1125,12 @@ int main(int argc, char* argv[]){
 		// G = T (copy columns)
 		nthreads = Nk/D > omp_get_max_threads() ? Nk/D : omp_get_max_threads();
 		if(Nk/D == 0) nthreads = 1;
-		#pragma omp parallel for num_threads(nthreads)
+		mkl_set_num_threads((int)csqrt(mkl_nthreads));
+		#pragma omp parallel for num_threads((int)csqrt(nthreads))
 		for(j = 0; j < Nk; ++j) zcopy(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	
-
+	
 		double end1 = omp_get_wtime();
 		pivot1time += (double)(end1 - start1);
-		//printf("PIVOT_1 time = %lf\n", (double)(end1 - start1));
 
 		LOOP_END: continue;
 	}
@@ -1116,6 +1140,10 @@ int main(int argc, char* argv[]){
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
+	printf("mnozenje u PIVOT_1 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", mnozenjetime, mnozenjetime/pivot1time * 100, mnozenjetime/seconds * 100);
+	printf("redukcija u PIVOT_2 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot1time * 100, redukcijatime/seconds * 100);
+	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
+
 
 
 	// -------------------------------- writing -------------------------------- 	
