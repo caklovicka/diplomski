@@ -66,7 +66,6 @@ int main(int argc, char* argv[]){
 	mkl_set_dynamic(0);
 	omp_set_max_active_levels(3);
 
-
 	// read variables from command line
 	int M = atoi(argv[3]);
 	int N = atoi(argv[4]);
@@ -167,6 +166,8 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
+		printf("k = %d\n", k);
+		if(k % 500 == 1 || k % 500 == 0) printf("k = %d, pivot2time = %lg, pivot1time = %lg, mnozenje = %lg, redukcija = %lg, pivotiranje = %lg, pivot1 = %d, pivot2 = %d\n", k, pivot2time, pivot1time, mnozenjetime, redukcijatime, pivotiranje, pivot_1_count, pivot_2_count);
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 		// we need to know the signum of the J-norm of the first column
 		// because the pivoting element, Akk, will have to satisfy
@@ -183,15 +184,14 @@ int main(int argc, char* argv[]){
 		int nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
 		if ((M-k)/D == 0) nthreads = 1;
 
+
 		// compute Akk for the working submatrix G[k:M, k:N]
 		#pragma omp parallel for reduction(+:Akk) num_threads( nthreads )
 		for(i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];		
 
 		if(k == N-1) goto PIVOT_1;
 
-
 		// find pivot_lambda
-
 		#pragma omp parallel for num_threads((int) csqrt(nthreads) )
 		for(i = k+1; i < N; ++i){
 			double complex Aik = 0;		//Aik = gi* J gk, but on a submatrix G[k:M, k:N]
@@ -208,9 +208,8 @@ int main(int argc, char* argv[]){
 
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
-
 		// find pivot_sigma
-		#pragma omp parallel for num_threads( (int)csqrt(nthreads) )
+		#pragma omp parallel for reduction(max:pivot_sigma) num_threads( (int)csqrt(nthreads) ) 
 		for(i = k; i < N; ++i){
 
 			if(i == pivot_r) continue;
@@ -219,7 +218,6 @@ int main(int argc, char* argv[]){
 			#pragma omp parallel for reduction(+:Air) num_threads( (int)csqrt(nthreads) )
 			for(j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
 
-			#pragma omp critical
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
 

@@ -53,11 +53,11 @@ runQR_xeon:
 
 check_xeon:
 	@echo $(M) $(N)
-	icc -mkl check.c -o check.out -fopenmp
-	./check.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N)
+	icc -mkl check_mkl.c -o check_mkl.out -fopenmp
+	./check_mkl.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N)
 
 
 clean:
 	rm -rf data 
-	rm -f generateG.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xeon_mkl.out
+	rm -f generateG.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xeon_mkl.out check_mkl.out
 

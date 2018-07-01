@@ -1,0 +1,3 @@
+12000 7000
+icc -mkl QRparallel_xeon_mkl.c -o QRparallel_xeon_mkl.out -fopenmp
+./QRparallel_xeon_mkl.out data/G.bin data/J.bin 12000 7000
