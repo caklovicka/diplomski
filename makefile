@@ -12,7 +12,7 @@ check:
 
 runQR:
 	@echo $(M) $(N)
-	gcc QRreduction.c -o QRreduction.out -lblas -llapack -lm -w
+	icc -mkl QRreduction.c -o QRreduction.out -lm -w
 	./QRreduction.out data/G.bin data/J.bin $(M) $(N) -w
 
 all_seq: 
