@@ -26,7 +26,7 @@
 
 void printMatrix(double complex *G, int M, int N){
 
-	i, j;
+	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
 			printf("%10.5g + i%10.5g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
@@ -38,7 +38,7 @@ void printMatrix(double complex *G, int M, int N){
 
 void printJ(double *J, int M){
 
-	i;
+	int i;
 	for( i = 0; i < M; ++i ) printf("%3d  ", (int)J[i]);
 	printf("\n");
 }
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]){
 			Pcol[pivot_r] = Pcol[k];
 			Pcol[k] = itemp;
 
-			inc = 1;
+			int inc = 1;
 			zswap_(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
 			Akk = Arr;
 
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]){
 			Pcol[pivot_r] = Pcol[k+1];
 			Pcol[k+1] = itemp;
 
-			inc = 1;
+			int inc = 1;
 			zswap_(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
@@ -469,7 +469,7 @@ int main(int argc, char* argv[]){
 				Pcol[k+1] = itemp;
 
 				int n = k + 4;
-				inc = 1;
+				int inc = 1;
 				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
 
 				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
@@ -486,7 +486,7 @@ int main(int argc, char* argv[]){
 
 				// do plane rotations with kth row
 
-				idx = k+2; 	// idx is the row that will be eliminated with the kth row
+				int idx = k+2; 	// idx is the row that will be eliminated with the kth row
 				if(J[k] == J[k+3]) idx = k+3;
 
 				// generate plane rotation
@@ -602,7 +602,7 @@ int main(int argc, char* argv[]){
 				Pcol[k+1] = itemp;
 
 				int n = k + 3;
-				inc = 1;
+				int inc = 1;
 				zswap_(&n, &G[k+M*k], &inc, &G[k+M*(k+1)], &inc);
 
 				// make the kth rows k, k+1 real (k+2 is already real)
@@ -619,7 +619,7 @@ int main(int argc, char* argv[]){
 
 				// do a plane rotation, eliminate row k+2 with row idx
 
-				idx = k; 	// idx is the row that will eliminate row k+2
+				int idx = k; 	// idx is the row that will eliminate row k+2
 				if(J[idx] != J[k+2]) idx = k+1;
 
 				// generate plane rotation
@@ -752,7 +752,7 @@ int main(int argc, char* argv[]){
 		// make the vector f(k:M)
 
 		double complex alpha = -1;
-		inc = 1;
+		int inc = 1;
 		int Mk = M - k;
 
 		zcopy_(&Mk, &f[k], &inc, &tempf[k], &inc); // copy f into tempf, so we dont need tu multyply the first column of G with H
