@@ -51,6 +51,12 @@ runQR_xeon:
 	icc -mkl QRparallel_xeon_mkl.c -o QRparallel_xeon_mkl.out -fopenmp
 	./QRparallel_xeon_mkl.out data/G.bin data/J.bin $(M) $(N)
 
+runQR_exp:
+	@echo $(M) $(N)
+	icc -mkl QRparallel_experimental.c -o QRparallel_experimental.out -fopenmp
+	./QRparallel_experimental.out data/G.bin data/J.bin $(M) $(N)
+
+
 check_xeon:
 	@echo $(M) $(N)
 	icc -mkl check_mkl.c -o check_mkl.out -fopenmp
@@ -59,5 +65,5 @@ check_xeon:
 
 clean:
 	rm -rf data 
-	rm -f generateG.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xeon_mkl.out check_mkl.out
+	rm -f generateG.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xeon_mkl.out check_mkl.out QRparallel_experimental.out
 
