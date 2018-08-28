@@ -179,7 +179,7 @@ int main(int argc, char* argv[]){
 	}
 	printf("Racunanje normi: %lg s\n", omp_get_wtime() - norm_time);
 
-	#omp parallel num_threads(200)
+	#pragma omp parallel num_threads(200)
 	{
 
 		printf("max mkl: %d\n", mkl_get_max_threads());
