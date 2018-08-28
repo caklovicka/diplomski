@@ -188,7 +188,8 @@ int main(int argc, char* argv[]){
 
 		if( k ){	// if we have something to update
 
-			#pragma omp parallel for nowait num_threads( nthreads )
+			#pragma omp parallel num_threads( nthreads ){
+			#pragma omp for nowait
 			for( j = k; j < N; ++j){
 
 				// pivot 1 was last
@@ -219,6 +220,7 @@ int main(int argc, char* argv[]){
 					}
 				}
 			}
+			}
 		}
 
 		// ------------------------ start the pivoting strategy ------------------------
@@ -247,11 +249,11 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < N; ++i){
 
 			printf("mkl_max_threads u paralelnoj regiji: %d\n", mkl_get_max_threads());
-
+			double complex Aik;
 			int Nk = N-k-1;
 			inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() );
-			double complex Aik = zdotc(&Nk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
+			zdotc(&Aik, &Nk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 
 			#pragma omp critical
 			if(pivot_lambda < cabs(Aik)){
@@ -280,10 +282,11 @@ int main(int argc, char* argv[]){
 
 			if(i == pivot_r) continue;
 
+			double complex Air
 			int Nk = N-k-1;
 			inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() );
-			double complex Air = zdotc(&Nk, &G[k+M*i], &inc, &f[k], &inc);
+			zdotc(&Air, &Nk, &G[k+M*i], &inc, &f[k], &inc);
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
