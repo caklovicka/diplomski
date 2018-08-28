@@ -179,12 +179,6 @@ int main(int argc, char* argv[]){
 	}
 	printf("Racunanje normi: %lg s\n", omp_get_wtime() - norm_time);
 
-	#pragma omp parallel num_threads(200)
-	{
-
-		printf("max mkl: %d\n", mkl_get_max_threads());
-	}
-
 
 	for(k = 0; k < N; ++k){
 
@@ -238,7 +232,7 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double Akk = norm[k];
+		double Akk = (double) norm[k];
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
@@ -258,7 +252,7 @@ int main(int argc, char* argv[]){
 			double complex Aik;
 			int Nk = N-k-1;
 			int inc = 1;
-			mkl_set_num_threads_local( mkl_get_max_threads() );
+			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
 			zdotc(&Aik, &Nk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 
 			#pragma omp critical
@@ -291,7 +285,7 @@ int main(int argc, char* argv[]){
 			double complex Air;
 			int Nk = N-k-1;
 			int inc = 1;
-			mkl_set_num_threads_local( mkl_get_max_threads() );
+			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads);
 			zdotc(&Air, &Nk, &G[k+M*i], &inc, &f[k], &inc);
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
@@ -301,7 +295,7 @@ int main(int argc, char* argv[]){
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
 
-		double Arr = norm[pivot_r];
+		double Arr = (double) norm[pivot_r];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 			// gr is the pivot column 
