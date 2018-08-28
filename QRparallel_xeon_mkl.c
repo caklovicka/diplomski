@@ -166,8 +166,9 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printf("k = %d\n", k);
-		if(k % 500 == 1 || k % 500 == 0) printf("k = %d, pivot2time = %lg, pivot1time = %lg, mnozenje = %lg, redukcija = %lg, pivotiranje = %lg, pivot1 = %d, pivot2 = %d\n", k, pivot2time, pivot1time, mnozenjetime, redukcijatime, pivotiranje, pivot_1_count, pivot_2_count);
+		//printf("k = %d\n", k);
+		//if(k % 500 == 1 || k % 500 == 0) printf("k = %d, pivot2time = %lg, pivot1time = %lg, mnozenje = %lg, redukcija = %lg, pivotiranje = %lg, pivot1 = %d, pivot2 = %d\n", k, pivot2time, pivot1time, mnozenjetime, redukcijatime, pivotiranje, pivot_1_count, pivot_2_count);
+		
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 		// we need to know the signum of the J-norm of the first column
 		// because the pivoting element, Akk, will have to satisfy
@@ -194,6 +195,7 @@ int main(int argc, char* argv[]){
 		// find pivot_lambda
 		#pragma omp parallel for num_threads((int) csqrt(nthreads) )
 		for(i = k+1; i < N; ++i){
+
 			double complex Aik = 0;		//Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 
 			#pragma omp parallel for reduction(+:Aik) num_threads( (int)csqrt(nthreads) )
