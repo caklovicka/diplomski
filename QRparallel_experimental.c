@@ -179,6 +179,12 @@ int main(int argc, char* argv[]){
 	}
 	printf("Racunanje normi: %lg s\n", omp_get_wtime() - norm_time);
 
+	#omp parallel num_threads(200)
+	{
+
+		printf("max mkl: %d\n", mkl_get_max_threads());
+	}
+
 
 	for(k = 0; k < N; ++k){
 
@@ -249,7 +255,6 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k+1; i < N; ++i){
 
-			printf("mkl_max_threads u paralelnoj regiji: %d\n", mkl_get_max_threads());
 			double complex Aik;
 			int Nk = N-k-1;
 			int inc = 1;
