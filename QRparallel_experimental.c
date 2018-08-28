@@ -188,7 +188,8 @@ int main(int argc, char* argv[]){
 
 		if( k ){	// if we have something to update
 
-			#pragma omp parallel num_threads( nthreads ){
+			#pragma omp parallel num_threads( nthreads )
+			{
 			#pragma omp for nowait
 			for( j = k; j < N; ++j){
 
@@ -251,7 +252,7 @@ int main(int argc, char* argv[]){
 			printf("mkl_max_threads u paralelnoj regiji: %d\n", mkl_get_max_threads());
 			double complex Aik;
 			int Nk = N-k-1;
-			inc = 1;
+			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() );
 			zdotc(&Aik, &Nk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 
@@ -282,9 +283,9 @@ int main(int argc, char* argv[]){
 
 			if(i == pivot_r) continue;
 
-			double complex Air
+			double complex Air;
 			int Nk = N-k-1;
-			inc = 1;
+			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() );
 			zdotc(&Air, &Nk, &G[k+M*i], &inc, &f[k], &inc);
 
