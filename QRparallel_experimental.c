@@ -195,6 +195,10 @@ int main(int argc, char* argv[]){
 			#pragma omp for nowait
 			for( j = k; j < N; ++j){
 
+				printf("updaetam normu stupca %d koji je na pocetku bio na poziciji %d\n", Pcol[j], j);
+				printf("\n");
+				printMatrix(G, M, N);
+
 				// pivot 1 was last
 				if( last_pivot == 1 ){
 
@@ -210,7 +214,7 @@ int main(int argc, char* argv[]){
 				}
 
 				// pivot 2 was last
-				else{
+				else if( last_pivot == 2 ){
 
 					// not a case of catastrophic cancellation
 					if( cabs(norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
