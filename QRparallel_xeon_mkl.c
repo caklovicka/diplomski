@@ -378,6 +378,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		k = k+2;
 		goto LOOP_END;
 
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
