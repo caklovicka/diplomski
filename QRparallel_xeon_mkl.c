@@ -166,6 +166,8 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
+		printf("k = %d\n", k);
+
 		//printMatrix(G, M, N);
 		//printf("\n");
 
