@@ -804,7 +804,7 @@ int main(int argc, char* argv[]){
 
 			// now do the final reduction
 
-			/*double complex g11 = G[k+M*k];
+			double complex g11 = G[k+M*k];
 			double complex g21 = G[k+1+M*k];
 			double complex g12 = G[k+M*(k+1)];
 			double complex g22 = G[k+1+M*(k+1)];
@@ -862,7 +862,7 @@ int main(int argc, char* argv[]){
 			G[k+2+M*k] = 0;
 			G[k+3+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
-			G[k+3+M*(k+1)] = 0;*/
+			G[k+3+M*(k+1)] = 0;
 
 			k = k+2;
 
