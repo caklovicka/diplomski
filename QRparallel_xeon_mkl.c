@@ -730,7 +730,7 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			printf("\tPIVOT (A1)\n");
+			//printf("\tPIVOT (A1)\n");
 
 			// check if its a proper form
 			// if not, fix it
@@ -738,6 +738,7 @@ int main(int argc, char* argv[]){
 			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON){
 
 				// swap columns k <-> k+1
+				printf("tu sammmmmmmm!!!!!!!!!!!!!!!!!!!!!!\n");
 
 				long int itemp = Pcol[k];
 				Pcol[k] = Pcol[k+1];
