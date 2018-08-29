@@ -731,7 +731,7 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			//printf("\tPIVOT (A1)\n");
+			printf("\tPIVOT (A1)\n");
 
 			// check if its a proper form
 			// if not, fix it
@@ -864,7 +864,7 @@ int main(int argc, char* argv[]){
 			G[k+2+M*(k+1)] = 0;
 			G[k+3+M*(k+1)] = 0;
 
-			k = k+2;
+			k = k+1;
 
 			double end2 = omp_get_wtime();
 			pivot2time += (double) (end2 - start2);
@@ -989,7 +989,7 @@ int main(int argc, char* argv[]){
 			G[k+2+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
 
-			k = k+2;
+			k = k+1;
 
 			double end2 = omp_get_wtime();
 			pivot2time += (double) (end2 - start2);
