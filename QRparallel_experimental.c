@@ -218,7 +218,7 @@ int main(int argc, char* argv[]){
 				else if( last_pivot == 2 ){
 					printMatrix(&G[60], M, 3);
 
-					printf("\n oduzimaju se: %lg + i %lg     iiiii    %lg + i %lg\n", creal(G[k-1+M*j]), cimag(G[k-1+M*j]), creal(G[k-2+M*j]), cimag(G[k-2+M*j]));
+					printf("norm[%d] (prije) = %lg\n", j, norm[j]);
 
 					// not a case of catastrophic cancellation
 					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
@@ -229,6 +229,7 @@ int main(int argc, char* argv[]){
 						norm[j] = 0;
 						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 					}
+				printf("norm[%d] (poslije) = %lg\n", j, norm[j]);
 				}
 			}
 			}
