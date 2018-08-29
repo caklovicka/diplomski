@@ -166,8 +166,8 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printMatrix(G, M, N);
-		printf("\n");
+		//printMatrix(G, M, N);
+		//printf("\n");
 
 		//printf("k = %d\n", k);
 		//if(k % 500 == 1 || k % 500 == 0) printf("k = %d, pivot2time = %lg, pivot1time = %lg, mnozenje = %lg, redukcija = %lg, pivotiranje = %lg, pivot1 = %d, pivot2 = %d\n", k, pivot2time, pivot1time, mnozenjetime, redukcijatime, pivotiranje, pivot_1_count, pivot_2_count);
