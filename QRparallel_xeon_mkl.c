@@ -378,6 +378,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		goto LOOP_END;
 
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
@@ -481,8 +482,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-
-		goto LOOP_END;
 
 		rr = omp_get_wtime() - rr;
 
