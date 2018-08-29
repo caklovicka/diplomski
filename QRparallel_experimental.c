@@ -183,6 +183,7 @@ int main(int argc, char* argv[]){
 	for(k = 0; k < N; ++k){
 
 		printf("k = %d\n", k);
+		printf("last_pivot = %d\n", last_pivot);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
