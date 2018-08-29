@@ -866,7 +866,7 @@ int main(int argc, char* argv[]){
 
 			printMatrix(G, M, N);
 
-			k = k+2;
+			k = k+1;
 
 			double end2 = omp_get_wtime();
 			pivot2time += (double) (end2 - start2);
