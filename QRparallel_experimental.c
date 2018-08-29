@@ -101,7 +101,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || p == NULL || n == NULL){
+	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || p == NULL || n == NULL || norm == NULL){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -201,13 +201,13 @@ int main(int argc, char* argv[]){
 				if( last_pivot == 1 ){
 
 					// not a case of catastrophic cancellation
-					if( cabs(norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
-						norm[Pcol[j]] = norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
+					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
+						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
 
 					// else compute the norm again 
 					else{
-						norm[Pcol[j]] = 0;
-						for(i = k; i < M; ++i) norm[Pcol[j]] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						norm[j] = 0;
+						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 					}
 				}
 
@@ -215,13 +215,13 @@ int main(int argc, char* argv[]){
 				else if( last_pivot == 2 ){
 
 					// not a case of catastrophic cancellation
-					if( cabs(norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
-						norm[Pcol[j]] = norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
+					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
+						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 
 					// else compute the norm again 
 					else{
 						norm[j] = 0;
-						for(i = k; i < M; ++i) norm[Pcol[j]] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 					}
 				}
 			}
@@ -236,7 +236,7 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double Akk = (double) norm[Pcol[k]];
+		double Akk = (double) norm[k];
 		printf("Akk = %lg\n", Akk);
 		if(k == N-1) goto PIVOT_1;
 
@@ -300,7 +300,7 @@ int main(int argc, char* argv[]){
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
 
-		double Arr = (double) norm[Pcol[pivot_r]];
+		double Arr = (double) norm[pivot_r];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 			// gr is the pivot column 
@@ -310,6 +310,10 @@ int main(int argc, char* argv[]){
 			long int itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k];
 			Pcol[k] = itemp;
+
+			double complex ctemp = norm[pivot_r];
+			norm[pivot_r] = norm[k];
+			norm[k] = ctemp;
 
 
 			int inc = 1;
@@ -336,6 +340,10 @@ int main(int argc, char* argv[]){
 			long int itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k+1];
 			Pcol[k+1] = itemp;
+
+			double complex ctemp = norm[pivot_r];
+			norm[pivot_r] = norm[k+1];
+			norm[k+1] = ctemp;
 
 			int inc = 1;
 			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
@@ -808,6 +816,10 @@ int main(int argc, char* argv[]){
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
 
+				double complex ctemp = norm[k];
+				norm[k] = norm[k+1];
+				norm[k+1] = ctemp;
+
 				int n_ = k + 4;
 				int inc = 1;
 				int mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
@@ -958,6 +970,10 @@ int main(int argc, char* argv[]){
 				long int itemp = Pcol[k];
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
+
+				double complex ctemp = norm[k];
+				norm[k] = norm[k+1];
+				norm[k+1] = ctemp;
 
 				int n_ = k + 3;
 				int inc = 1;
