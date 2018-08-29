@@ -216,7 +216,7 @@ int main(int argc, char* argv[]){
 
 				// pivot 2 was last
 				else if( last_pivot == 2 ){
-					printf("TU SAM\n");
+					printf("TU SAM, j = %d\n", j);
 
 					// not a case of catastrophic cancellation
 					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
