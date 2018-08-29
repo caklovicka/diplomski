@@ -197,54 +197,37 @@ int main(int argc, char* argv[]){
 
 			#pragma omp parallel num_threads( nthreads )
 			{
-			#pragma omp for nowait
-			for( j = k; j < N; ++j){
+				#pragma omp for nowait
+				for( j = k; j < N; ++j){
 
-				// pivot 1 was last
-				if( last_pivot == 1 ){
+					// pivot 1 was last
+					if( last_pivot == 1 ){
 
-					if(j==7) printMatrix(&G[70], M, 1);
+						// not a case of catastrophic cancellation
+						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
+							norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
 
-					if(j == 7)printf("norm[%d] (prije) = %lg\n", j, norm[j]);
-					double complex aaa = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
-					if(j == 7)printf("norm[%d] = %lg - %lg\n", j, creal(norm[j]), aaa);
-
-					// not a case of catastrophic cancellation
-					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
-						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
-
-					// else compute the norm again 
-					else{
-						norm[j] = 0;
-						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						// else compute the norm again 
+						else{
+							norm[j] = 0;
+							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						}
 					}
 
-					if(j == 7)printf("norm[%d] (poslije) = %lg\n", j, norm[j]);
+					// pivot 2 was last
+					else if( last_pivot == 2 ){
+						
+						// not a case of catastrophic cancellation
+						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
+							norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 
+						// else compute the norm again 
+						else{
+							norm[j] = 0;
+							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						}
+					}
 				}
-
-				// pivot 2 was last
-				else if( last_pivot == 2 ){
-					if(omp_get_thread_num() == 0){
-						printMatrix(&G[60], M, 3);
-						printJ(J, M);
-					}
-
-					printf("norm[%d] (prije) = %lg\n", j, norm[j]);
-					printf("norm[%d] = %lg - %lg - %lg\n", j, creal(norm[j]), (double) (conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]), (double) (conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]));
-
-					// not a case of catastrophic cancellation
-					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
-						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
-
-					// else compute the norm again 
-					else{
-						norm[j] = 0;
-						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-					}
-				printf("norm[%d] (poslije) = %lg\n", j, norm[j]);
-				}
-			}
 			}
 		}
 
@@ -279,9 +262,7 @@ int main(int argc, char* argv[]){
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
 			//zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
-			for(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * f[j]; 
-
-			printf("Aik = %lg + i %lg\n", creal(Aik), cimag(Aik));
+			for(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * f[j];
 			
 			#pragma omp critical
 			if(pivot_lambda < cabs(Aik)){
@@ -315,9 +296,7 @@ int main(int argc, char* argv[]){
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads);
 			//zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
-			for(j = k; j < M; ++j) Air += conj(G[j+M*i]) * f[j]; 
-
-			printf("Air = %lg + i %lg\n", creal(Air), cimag(Air));
+			for(j = k; j < M; ++j) Air += conj(G[j+M*i]) * f[j];
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
