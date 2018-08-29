@@ -255,10 +255,10 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < N; ++i){
 
 			double complex Aik = 0;
-			int Nk = N-k;
+			int Mk = M-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
-			zdotc(&Aik, &Nk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
+			zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
 			printf("Aik (zdotc) = %lg + i %lg\n", creal(Aik), cimag(Aik));
 			Aik = 0;
 			for(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * f[j];
@@ -293,10 +293,10 @@ int main(int argc, char* argv[]){
 			if(i == pivot_r) continue;
 
 			double complex Air;
-			int Nk = N-k;
+			int Mk = M-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads);
-			zdotc(&Air, &Nk, &G[k+M*i], &inc, &f[k], &inc);
+			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
