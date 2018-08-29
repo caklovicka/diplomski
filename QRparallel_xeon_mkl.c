@@ -606,8 +606,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		k = k+2;
-		goto LOOP_END;
 
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
@@ -713,6 +711,9 @@ int main(int argc, char* argv[]){
 
 		rrr = omp_get_wtime() - rrr;
 		redukcijatime = redukcijatime + rrr + rr;
+
+		k = k+2;
+		goto LOOP_END;
 
 
 		// -------- check forms od 2x2 pivot ---------
