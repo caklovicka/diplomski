@@ -258,7 +258,7 @@ int main(int argc, char* argv[]){
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
 			//zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
-			or(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * f[j]; 
+			for(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * f[j]; 
 
 			printf("Aik = %lg + i %lg\n", creal(Aik), cimag(Aik));
 			
