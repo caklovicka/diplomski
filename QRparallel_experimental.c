@@ -219,7 +219,7 @@ int main(int argc, char* argv[]){
 					printf("TU SAM, j = %d\n", j);
 
 					// not a case of catastrophic cancellation
-					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
+					if( 0 && cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
 						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 
 					// else compute the norm again 
