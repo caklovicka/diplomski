@@ -342,6 +342,8 @@ int main(int argc, char* argv[]){
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
 
+		last_pivot = 2;
+
 		// do a column swap pivot_r <-> k+1 if needed
 
 		if(pivot_r != k+1){
@@ -1082,7 +1084,6 @@ int main(int argc, char* argv[]){
 			double end2 = omp_get_wtime();
 			pivot2time += (double) (end2 - start2);
 			//printf("PIVOT_2 time = %lf\n", (double)(end2 - start2));
-			last_pivot = 2;
 
 			goto LOOP_END;
 		}
