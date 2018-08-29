@@ -216,7 +216,10 @@ int main(int argc, char* argv[]){
 
 				// pivot 2 was last
 				else if( last_pivot == 2 ){
-					printMatrix(&G[60], M, 3);
+					if(omp_get_thread_num() == 0){
+						printMatrix(&G[60], M, 3);
+						printJ(J, M);
+					}
 
 					printf("norm[%d] (prije) = %lg\n", j, norm[j]);
 
