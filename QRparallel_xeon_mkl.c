@@ -848,17 +848,7 @@ int main(int argc, char* argv[]){
 			double complex alpha = 1;
 			double complex beta = 0;
 
-			double a11 = 0, a22 = 0;
-			double complex a21 = 0;
-			for(i = k; i < M; ++i) a11 += conj(G[i+M*k])*J[i]*G[i+M*k];
-			for(i = k; i < M; ++i) a22 += conj(G[i+M*(k+1)])*J[i]*G[i+M*(k+1)];
-			for(i = k; i < M; ++i) a21 += conj(G[i+M*(k+1)])*J[i]*G[i+M*k];
-
-			printf("%lg                   %lg + i %lg\n", a11, creal(a21), -cimag(a21));
-			printf("%lg + i %lg           %lg\n", creal(a21), cimag(a21), a22);
-			printf("detA = %lg\n", a11*a22 - a21*conj(a21));
-
-			/*int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
@@ -868,10 +858,12 @@ int main(int argc, char* argv[]){
 			for(i = 0; i < 4; ++i) zcopy(&Nk, &T[i], &n_, &G[k + i + M*k], &M);
 
 			// put zeros explicitly in the right places
-			G[k+2+M*k] = 0;
+			/*G[k+2+M*k] = 0;
 			G[k+3+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
 			G[k+3+M*(k+1)] = 0;*/
+
+			printMatrix(G, M, N);
 
 			k = k+2;
 
