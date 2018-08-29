@@ -20,7 +20,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%23.*g + i%23.*g    ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%5.*g + i%5.*g    ", DIGITS, DIGITS, creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
