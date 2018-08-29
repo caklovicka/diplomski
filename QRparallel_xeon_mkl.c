@@ -204,6 +204,8 @@ int main(int argc, char* argv[]){
 			#pragma omp parallel for reduction(+:Aik) num_threads( (int)csqrt(nthreads) )
 			for(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * J[j] * G[j+M*k];
 
+			printf("Aik = %lg\n", creal(Aik), cimag(Aik));
+
 			#pragma omp critical
 			if(pivot_lambda < cabs(Aik)){
 				pivot_lambda = cabs(Aik);
@@ -222,6 +224,8 @@ int main(int argc, char* argv[]){
 
 			#pragma omp parallel for reduction(+:Air) num_threads( (int)csqrt(nthreads) )
 			for(j = k; j < M; ++j)	Air += conj(G[j+M*i]) * J[j] * G[j+M*pivot_r];
+
+			printf("Air = %lg\n", creal(Air), cimag(Air));
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
