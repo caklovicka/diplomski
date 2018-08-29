@@ -204,7 +204,7 @@ int main(int argc, char* argv[]){
 				if( last_pivot == 1 ){
 
 					if(j == 7)printf("norm[%d] (prije) = %lg\n", j, norm[j]);
-					if(j == 7)printf("norm[%d] = %lg - %lg\n", j, norm[j], conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]);
+					if(j == 7)printf("norm[%d] = %lg - %lg\n", j, norm[j], (double) (conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]));
 
 					// not a case of catastrophic cancellation
 					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
@@ -228,7 +228,7 @@ int main(int argc, char* argv[]){
 					}
 
 					printf("norm[%d] (prije) = %lg\n", j, norm[j]);
-					printf("norm[%d] = %lg - %lg - %lg\n", j, norm[j], conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j], conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]);
+					printf("norm[%d] = %lg - %lg - %lg\n", j, norm[j], (double) (conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]), (double) (conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]));
 
 					// not a case of catastrophic cancellation
 					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
