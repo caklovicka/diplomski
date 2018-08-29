@@ -483,6 +483,8 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		goto LOOP_END;
+
 		rr = omp_get_wtime() - rr;
 
 
