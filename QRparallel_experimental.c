@@ -182,6 +182,8 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
+		printf("k = %d\n", k);
+
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		//for( i = 0; i < N; ++i ) printf("%3d  ", Pcol[i]);
