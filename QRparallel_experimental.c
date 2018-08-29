@@ -203,6 +203,8 @@ int main(int argc, char* argv[]){
 				// pivot 1 was last
 				if( last_pivot == 1 ){
 
+					printMatrix(&G[70], M, 1);
+
 					if(j == 7)printf("norm[%d] (prije) = %lg\n", j, norm[j]);
 					if(j == 7)printf("norm[%d] = %lg - %lg\n", j, norm[j], (double) (conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]));
 
