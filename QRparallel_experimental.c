@@ -184,6 +184,9 @@ int main(int argc, char* argv[]){
 
 		printf("k = %d\n", k);
 		printf("last_pivot = %d\n", last_pivot);
+		printMatrix(G, M, N);
+		printf("\n");
+		printMatrix(norm, 1, N);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
