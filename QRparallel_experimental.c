@@ -254,7 +254,7 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k+1; i < N; ++i){
 
-			double complex Aik;
+			double complex Aik = 0;
 			int Nk = N-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
