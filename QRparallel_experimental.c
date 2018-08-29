@@ -184,6 +184,8 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
+		printJ(Pcol, N);
+
 		// ------------------------ update J-norms of columns ------------------------
 
 		if( k ){	// if we have something to update
