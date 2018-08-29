@@ -177,16 +177,16 @@ int main(int argc, char* argv[]){
 		norm[j] = 0;
 		for(i = 0; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 	}
-	printf("Racunanje normi: %lg s\n", omp_get_wtime() - norm_time);
+	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
 
 
 	for(k = 0; k < N; ++k){
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
-		for( i = 0; i < N; ++i ) printf("%3d  ", Pcol[i]);
-			printf("\n");
-		printMatrix(G, M, N);
+		//for( i = 0; i < N; ++i ) printf("%3d  ", Pcol[i]);
+		//printf("\n");
+		//printMatrix(G, M, N);
 
 		// ------------------------ update J-norms of columns ------------------------
 
@@ -255,7 +255,7 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < N; ++i){
 
 			double complex Aik;
-			int Nk = N-k-1;
+			int Nk = N-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
 			zdotc(&Aik, &Nk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
@@ -288,7 +288,7 @@ int main(int argc, char* argv[]){
 			if(i == pivot_r) continue;
 
 			double complex Air;
-			int Nk = N-k-1;
+			int Nk = N-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads);
 			zdotc(&Air, &Nk, &G[k+M*i], &inc, &f[k], &inc);
