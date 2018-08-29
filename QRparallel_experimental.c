@@ -185,6 +185,7 @@ int main(int argc, char* argv[]){
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		for( i = 0; i < N; ++i ) printf("%3d  ", Pcol[i]);
+			printf("\n");
 		printMatrix(G, M, N);
 
 		// ------------------------ update J-norms of columns ------------------------
