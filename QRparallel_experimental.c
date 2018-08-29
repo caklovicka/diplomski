@@ -197,13 +197,13 @@ int main(int argc, char* argv[]){
 				if( last_pivot == 1 ){
 
 					// not a case of catastrophic cancellation
-					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
-						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
+					if( cabs(norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100)
+						norm[Pcol[j]] = norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
 
 					// else compute the norm again 
 					else{
-						norm[j] = 0;
-						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						norm[Pcol[j]] = 0;
+						for(i = k; i < M; ++i) norm[Pcol[j]] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 					}
 				}
 
@@ -211,13 +211,13 @@ int main(int argc, char* argv[]){
 				else{
 
 					// not a case of catastrophic cancellation
-					if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
-						norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
+					if( cabs(norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100)
+						norm[Pcol[j]] = norm[Pcol[j]] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 
 					// else compute the norm again 
 					else{
 						norm[j] = 0;
-						for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						for(i = k; i < M; ++i) norm[Pcol[j]] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 					}
 				}
 			}
@@ -232,7 +232,7 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double Akk = (double) norm[k];
+		double Akk = (double) norm[Pcol[k]];
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
@@ -295,7 +295,7 @@ int main(int argc, char* argv[]){
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
 
-		double Arr = (double) norm[pivot_r];
+		double Arr = (double) norm[Pcol[pivot_r]];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 			// gr is the pivot column 
