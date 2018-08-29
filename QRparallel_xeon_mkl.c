@@ -738,7 +738,6 @@ int main(int argc, char* argv[]){
 			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON){
 
 				// swap columns k <-> k+1
-				printf("tu sammmmmmmm!!!!!!!!!!!!!!!!!!!!!!\n");
 
 				long int itemp = Pcol[k];
 				Pcol[k] = Pcol[k+1];
@@ -818,6 +817,9 @@ int main(int argc, char* argv[]){
 
 			double complex i_xy = (J[k] * J[k+2] * r * cabs(z*z) * (g21*g21 - g11*g11)) / (1 + csqrt(1+a));
 			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
+
+			printf("z = %lg + i %lg\n", creal(z), cimag(z));
+			printf("a = %lg + i %lg\n", creal(a), cimag(a));
 
 			// making the matrix U dimensions 4x4
 			// first column
