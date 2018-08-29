@@ -253,11 +253,12 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k+1; i < N; ++i){
 
-			double complex Aik;
+			double complex Aik = 0;
 			int Mk = M-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads );
-			zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
+			//zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
+			or(j = k; j < M; ++j) Aik += conj(G[j+M*i]) * f[j]; 
 
 			printf("Aik = %lg + i %lg\n", creal(Aik), cimag(Aik));
 			
@@ -288,11 +289,12 @@ int main(int argc, char* argv[]){
 
 			if(i == pivot_r) continue;
 
-			double complex Air;
+			double complex Air = 0;
 			int Mk = M-k;
 			int inc = 1;
 			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads);
-			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
+			//zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
+			for(j = k; j < M; ++j) Air += conj(G[j+M*i]) * f[j]; 
 
 			printf("Air = %lg + i %lg\n", creal(Air), cimag(Air));
 
