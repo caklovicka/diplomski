@@ -11,7 +11,7 @@
 
 
 #define EPSILON DBL_EPSILON
-#define DIGITS DBL_DIG
+#define DIGITS 3 //DBL_DIG
 
 double dznrm2(int* N, double complex* X, int* inc);
 
