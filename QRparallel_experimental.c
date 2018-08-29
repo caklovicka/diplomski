@@ -195,9 +195,9 @@ int main(int argc, char* argv[]){
 			#pragma omp for nowait
 			for( j = k; j < N; ++j){
 
-				printf("updaetam normu stupca %d koji je na pocetku bio na poziciji %d\n", Pcol[j], j);
-				printf("\n");
+				printf("\nupdaetam normu stupca %d koji je na pocetku bio na poziciji %d\n", Pcol[j], j);
 				printMatrix(G, M, N);
+				printf("\n");
 
 				// pivot 1 was last
 				if( last_pivot == 1 ){
