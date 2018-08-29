@@ -818,9 +818,6 @@ int main(int argc, char* argv[]){
 			double complex i_xy = (J[k] * J[k+2] * r * cabs(z*z) * (g21*g21 - g11*g11)) / (1 + csqrt(1+a));
 			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
 
-			printf("z = %lg + i %lg\n", creal(z), cimag(z));
-			printf("a = %lg + i %lg\n", creal(a), cimag(a));
-
 			// making the matrix U dimensions 4x4
 			// first column
 			U[0] = 1 - i_yx * g21 * g21;
@@ -854,7 +851,7 @@ int main(int argc, char* argv[]){
 			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
+			/*zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
 
 			// copy rows of T back into G
 			#pragma omp parallel for num_threads(4)
@@ -864,7 +861,7 @@ int main(int argc, char* argv[]){
 			G[k+2+M*k] = 0;
 			G[k+3+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
-			G[k+3+M*(k+1)] = 0;
+			G[k+3+M*(k+1)] = 0;*/
 
 			k = k+1;
 
