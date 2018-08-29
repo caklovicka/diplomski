@@ -803,7 +803,7 @@ int main(int argc, char* argv[]){
 
 			// now do the final reduction
 
-			double complex g11 = G[k+M*k];
+			/*double complex g11 = G[k+M*k];
 			double complex g21 = G[k+1+M*k];
 			double complex g12 = G[k+M*(k+1)];
 			double complex g22 = G[k+1+M*(k+1)];
@@ -851,7 +851,7 @@ int main(int argc, char* argv[]){
 			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			/*zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
+			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
 
 			// copy rows of T back into G
 			#pragma omp parallel for num_threads(4)
