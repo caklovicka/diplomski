@@ -185,6 +185,7 @@ int main(int argc, char* argv[]){
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		for( i = 0; i < N; ++i ) printf("%3d  ", Pcol[i]);
+		printMatrix(G, M, N);
 
 		// ------------------------ update J-norms of columns ------------------------
 
@@ -194,10 +195,6 @@ int main(int argc, char* argv[]){
 			{
 			#pragma omp for nowait
 			for( j = k; j < N; ++j){
-
-				printf("\nupdaetam normu stupca %d koji je na pocetku bio na poziciji %d\n", Pcol[j], j);
-				printMatrix(G, M, N);
-				printf("\n");
 
 				// pivot 1 was last
 				if( last_pivot == 1 ){
