@@ -863,12 +863,12 @@ int main(int argc, char* argv[]){
 			G[k+2+M*(k+1)] = 0;
 			G[k+3+M*(k+1)] = 0;
 
-			k = k+1;
+			k = k+2;
 
 			double end2 = omp_get_wtime();
 			pivot2time += (double) (end2 - start2);
 			//printf("PIVOT_2 time = %lf\n", (double)(end2 - start2));
-			exit(-10);
+
 			goto LOOP_END;
 		}
 
@@ -988,12 +988,12 @@ int main(int argc, char* argv[]){
 			G[k+2+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
 
-			k = k+1;
+			k = k+2;
 
 			double end2 = omp_get_wtime();
 			pivot2time += (double) (end2 - start2);
 			//printf("PIVOT_2 time = %lf\n", (double)(end2 - start2));
-			exit(-10);
+
 			goto LOOP_END;
 		}
 
