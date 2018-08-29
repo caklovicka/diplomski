@@ -13,6 +13,8 @@
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 
+double dznrm2(int* N, double complex* X, int* inc);
+
 void printMatrix(double complex *G, int M, int N){
 
 	int i, j;
@@ -192,8 +194,7 @@ int main(int argc, char* argv[]){
 
 	int NN = N*N;
 	int inc = 1;
-	double norm2;
-	dznrm2(&norm2, &NN, AA, &inc);
+	double norm2 = dznrm2(&NN, AA, &inc);
 
 	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
