@@ -634,7 +634,7 @@ int main(int argc, char* argv[]){
 			// first thread kills positives
 			if(omp_get_thread_num() == 0){
 				int offset;
-				for(offset = 1; offset= < np; offset *= 2){
+				for(offset = 1; offset < np; offset *= 2){
 
 					int nthreads_loc = np/(2*offset);
 					if(nthreads_loc == 0) nthreads_loc = 1;
