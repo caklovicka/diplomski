@@ -723,6 +723,8 @@ int main(int argc, char* argv[]){
 
 			printf("\tPIVOT (A1)\n");
 
+			printMatrix(G, M, N);
+
 			// check if its a proper form
 			// if not, fix it
 

@@ -416,11 +416,11 @@ int main(int argc, char* argv[]){
 						}
 
 						if( cimag(G[p[i+offset] + M*k]) != 0){
-                                                        double complex scal = conj(G[p[i+offset] + M*k]) / cabs(G[p[i+offset] + M*k]);
-                                                        G[p[i+offset] + M*k] = cabs(G[p[i+offset] + M*k]);
-                                                        int Nk = N - k - 1;
-                                                        zscal(&Nk, &scal, &G[p[i+offset] + M*(k+1)], &M);
-                                                }
+                            double complex scal = conj(G[p[i+offset] + M*k]) / cabs(G[p[i+offset] + M*k]);
+                            G[p[i+offset] + M*k] = cabs(G[p[i+offset] + M*k]);
+                            int Nk = N - k - 1;
+                            zscal(&Nk, &scal, &G[p[i+offset] + M*(k+1)], &M);
+                        }
 
 
 						double c;
@@ -490,8 +490,8 @@ int main(int argc, char* argv[]){
 
 		int kth_nonzeros = 2;
 		if(np == 0 || nn == 0) kth_nonzeros = 1;	// just one of them is 0. at this point one od them is nonzero
-								// if not, the program would exit with -4 (before this point)
-								// then A is maybe singular?
+													// if not, the program would exit with -4 (before this point)
+													// then A is maybe singular?
 
 
 		// do the same thing on a SECOND COLUMN
@@ -734,6 +734,8 @@ int main(int argc, char* argv[]){
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
 			printf("\tPIVOT (A1)\n");
+
+			printMatrix(G, M, N);
 
 			// check if its a proper form
 			// if not, fix it
