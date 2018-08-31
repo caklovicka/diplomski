@@ -182,18 +182,9 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		printf("k = %d\n", k);
-		printf("last_pivot = %d\n", last_pivot);
-		printJ(J, M);
-		printMatrix(G, M, N);
-		printf("\n");
-		printMatrix(norm, 1, N);
+		//printf("k = %d\n", k);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
-
-		//for( i = 0; i < N; ++i ) printf("%3d  ", Pcol[i]);
-		//printf("\n");
-		//printMatrix(G, M, N);
 
 		// ------------------------ update J-norms of columns ------------------------
 
@@ -234,8 +225,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-
-		printMatrix(norm, 1, N);
 
 		// ------------------------ start the pivoting strategy ------------------------
 		

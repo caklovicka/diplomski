@@ -151,8 +151,6 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printMatrix(G, M, N);
-
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 		// we need to know the signum of the J-norm of the first column
 		// because the pivoting element, Akk, will have to satisfy
@@ -721,9 +719,7 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			printf("\tPIVOT (A1)\n");
-
-			printMatrix(G, M, N);
+			//printf("\tPIVOT (A1)\n");
 
 			// check if its a proper form
 			// if not, fix it
@@ -1165,8 +1161,6 @@ int main(int argc, char* argv[]){
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
-
-	printMatrix(G, M, N);
 
 
 	// -------------------------------- writing -------------------------------- 	

@@ -166,9 +166,7 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printf("k = %d\n", k);
-
-		printMatrix(G, M, N);
+		//printf("k = %d\n", k);
 
 		//printMatrix(G, M, N);
 		//printf("\n");
@@ -761,9 +759,7 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			printf("\tPIVOT (A1)\n");
-
-			printMatrix(G, M, N);
+			//printf("\tPIVOT (A1)\n");
 
 			// check if its a proper form
 			// if not, fix it
@@ -1176,8 +1172,6 @@ int main(int argc, char* argv[]){
 
 		LOOP_END: continue;
 	}
-
-	printMatrix(G, M, N);
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
