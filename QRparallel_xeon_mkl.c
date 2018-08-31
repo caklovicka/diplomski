@@ -168,6 +168,8 @@ int main(int argc, char* argv[]){
 
 		printf("k = %d\n", k);
 
+		printMatrix(G, M, N);
+
 		//printMatrix(G, M, N);
 		//printf("\n");
 
@@ -731,7 +733,7 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			//printf("\tPIVOT (A1)\n");
+			printf("\tPIVOT (A1)\n");
 
 			// check if its a proper form
 			// if not, fix it
@@ -859,12 +861,10 @@ int main(int argc, char* argv[]){
 			for(i = 0; i < 4; ++i) zcopy(&Nk, &T[i], &n_, &G[k + i + M*k], &M);
 
 			// put zeros explicitly in the right places
-			/*G[k+2+M*k] = 0;
+			G[k+2+M*k] = 0;
 			G[k+3+M*k] = 0;
 			G[k+2+M*(k+1)] = 0;
-			G[k+3+M*(k+1)] = 0;*/
-
-			printMatrix(G, M, N);
+			G[k+3+M*(k+1)] = 0;
 
 			k = k+1;
 
@@ -1145,6 +1145,8 @@ int main(int argc, char* argv[]){
 		LOOP_END: continue;
 	}
 
+	printMatrix(G, M, N);
+
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
 	printf("algorithm time = %lg s\n", seconds);
@@ -1153,7 +1155,6 @@ int main(int argc, char* argv[]){
 	printf("mnozenje u PIVOT_1 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", mnozenjetime, mnozenjetime/pivot1time * 100, mnozenjetime/seconds * 100);
 	printf("redukcija u PIVOT_2 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot1time * 100, redukcijatime/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
-
 
 
 	// -------------------------------- writing -------------------------------- 	
