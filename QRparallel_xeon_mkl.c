@@ -195,8 +195,6 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for reduction(+:Akk) num_threads( nthreads )
 		for(i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];	
 
-		printf("Akk = %lg\n", Akk);
-
 		if(k == N-1) goto PIVOT_1;
 
 		// find pivot_lambda
