@@ -742,6 +742,8 @@ int main(int argc, char* argv[]){
 
 			if( cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON){
 
+				printf("fixing to proper form...\n");
+
 				// swap columns k <-> k+1
 
 				long int itemp = Pcol[k];

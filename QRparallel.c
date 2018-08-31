@@ -1224,7 +1224,7 @@ int main(int argc, char* argv[]){
 
 	// ------------------------------- cleaning -------------------------------
 
-	fclose(readG);
+	/*fclose(readG);
 	fclose(readJ);
 	fclose(writeG);
 	fclose(writeJ);
@@ -1241,7 +1241,7 @@ int main(int argc, char* argv[]){
 	free(tempf);
 	free(U);
 	free(p);
-	free(n);
+	free(n);*/
 
 
 	//printf("\nFinished.\n");
