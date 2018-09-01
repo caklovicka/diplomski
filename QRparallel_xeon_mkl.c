@@ -759,6 +759,8 @@ int main(int argc, char* argv[]){
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
 			printf("\tPIVOT (A1)\n");
+			printf("poslije redukcije, prije A1:\n");
+			printMatrix(G, M, N);
 
 			// check if its a proper form
 			// if not, fix it
