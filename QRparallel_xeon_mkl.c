@@ -40,7 +40,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%10.5g + i%10.5g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%6.1g + i%6.1g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -165,6 +165,8 @@ int main(int argc, char* argv[]){
 
 	int i, j, k;
 	for(k = 0; k < N; ++k){
+
+		printMatrix(G, M, N);
 
 		//printf("k = %d\n", k);
 
@@ -1170,6 +1172,8 @@ int main(int argc, char* argv[]){
 
 		LOOP_END: continue;
 	}
+
+	printMatrix(G, M, N);
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
