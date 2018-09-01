@@ -31,6 +31,7 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
+#define eps 1e-3
 
 #define D 64
 
@@ -199,7 +200,7 @@ int main(int argc, char* argv[]){
 					if( last_pivot == 1 ){
 
 						// not a case of catastrophic cancellation
-						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > DBL_EPSILON * 100000)
+						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > eps)
 							norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
 
 						// else compute the norm again 
@@ -213,7 +214,7 @@ int main(int argc, char* argv[]){
 					else if( last_pivot == 2 ){
 						
 						// not a case of catastrophic cancellation
-						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > DBL_EPSILON * 100000)
+						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > eps)
 							norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 
 						// else compute the norm again 
