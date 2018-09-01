@@ -31,7 +31,7 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define eps 1e-3
+#define eps 10
 
 #define D 64
 
