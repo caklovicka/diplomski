@@ -166,7 +166,9 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printMatrix(G, M, N);
+		if(k == 4) break;
+
+		//printMatrix(G, M, N);
 
 		//printf("k = %d\n", k);
 
@@ -1173,7 +1175,7 @@ int main(int argc, char* argv[]){
 		LOOP_END: continue;
 	}
 
-	printMatrix(G, M, N);
+	//printMatrix(G, M, N);
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
