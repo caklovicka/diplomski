@@ -881,7 +881,7 @@ int main(int argc, char* argv[]){
 			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			if(k == 8) break;
+			//if(k == 8) break;
 			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
 
 			// copy rows of T back into G
