@@ -32,6 +32,7 @@
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 #define eps 1e-2
+#define refresh 30
 
 #define D 64
 
@@ -189,7 +190,7 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ update J-norms of columns ------------------------
 
-		if( k ){	// if we have something to update
+		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
 
 			#pragma omp parallel num_threads( nthreads )
 			{
@@ -232,6 +233,21 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
+
+		// refresh norms
+		else{
+
+			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+			if ((N-k)/D == 0) nthreads = 1;
+
+			#pragma omp parallel for num_threads( nthreads )
+			for(j = k; j < N; ++j){
+				norm[j] = 0;
+				for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+			}
+		}
+
+
 
 		// ------------------------ start the pivoting strategy ------------------------
 		
