@@ -31,7 +31,7 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define eps 10
+#define eps 1e-3
 
 #define D 64
 
@@ -199,9 +199,12 @@ int main(int argc, char* argv[]){
 					// pivot 1 was last
 					if( last_pivot == 1 ){
 
+						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
+						double frac = cabs(norm[j]) / cabs(denomi);
+
 						// not a case of catastrophic cancellation
-						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j]) > eps)
-							norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
+						if( norm[j] * denomi < 0 || cabs(frac - 1) < eps )
+							norm[j] -= denomi;
 
 						// else compute the norm again 
 						else{
@@ -212,10 +215,13 @@ int main(int argc, char* argv[]){
 
 					// pivot 2 was last
 					else if( last_pivot == 2 ){
+
+						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
+						double frac = cabs(norm[j]) / cabs(denomi);
 						
 						// not a case of catastrophic cancellation
-						if( cabs(norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j]) > eps)
-							norm[j] = norm[j] - conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] - conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
+						if( norm[j] * denomi < 0 || cabs(frac - 1) < eps)
+							norm[j] -= denomi;
 
 						// else compute the norm again 
 						else{
