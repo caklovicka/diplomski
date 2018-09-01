@@ -203,7 +203,7 @@ int main(int argc, char* argv[]){
 						double frac = cabs(norm[j]) / cabs(denomi);
 
 						// not a case of catastrophic cancellation
-						if( norm[j] * denomi < 0 || cabs(frac - 1) < eps )
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
 							norm[j] -= denomi;
 
 						// else compute the norm again 
@@ -220,7 +220,7 @@ int main(int argc, char* argv[]){
 						double frac = cabs(norm[j]) / cabs(denomi);
 						
 						// not a case of catastrophic cancellation
-						if( norm[j] * denomi < 0 || cabs(frac - 1) < eps)
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
 							norm[j] -= denomi;
 
 						// else compute the norm again 
