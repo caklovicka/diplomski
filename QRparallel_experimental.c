@@ -748,11 +748,11 @@ int main(int argc, char* argv[]){
 					}
 				}
 
-				if(np == 1 && cimag(G[p[0] + M*k]) != 0){
-					double complex scal = conj(G[p[0] + M*k]) / cabs(G[p[0] + M*k]);
-					G[p[0] + M*k] = cabs(G[p[0] + M*k]);
-					int Nk = N - k - 1;
-					zscal(&Nk, &scal, &G[p[0] + M*(k+1)], &M);
+				if(np == 1 && cimag(G[p[0] + M*(k+1)]) != 0){
+					double complex scal = conj(G[p[0] + M*(k+1)]) / cabs(G[p[0] + M*(k+1)]);
+					G[p[0] + M*(k+1)] = cabs(G[p[0] + M*(k+1)]);
+					int Nk = N - k - 2;
+					zscal(&Nk, &scal, &G[p[0] + M*(k+2)], &M);
 				}
 			}
 
@@ -802,11 +802,11 @@ int main(int argc, char* argv[]){
 					}
 				}
 
-				if(nn == 1 && cimag(G[n[0] + M*k]) != 0){
-					double complex scal = conj(G[n[0] + M*k]) / cabs(G[n[0] + M*k]);
-					G[n[0] + M*k] = cabs(G[n[0] + M*k]);
-					int Nk = N - k - 1;
-					zscal(&Nk, &scal, &G[n[0] + M*(k+1)], &M);
+				if(nn == 1 && cimag(G[n[0] + M*(k+1)]) != 0){
+					double complex scal = conj(G[n[0] + M*(k+1)]) / cabs(G[n[0] + M*(k+1)]);
+					G[n[0] + M*(k+1)] = cabs(G[n[0] + M*(k+1)]);
+					int Nk = N - k - 2;
+					zscal(&Nk, &scal, &G[n[0] + M*(k+2)], &M);
 				}
 			}
 		}

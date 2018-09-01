@@ -151,8 +151,6 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printMatrix(G, M, N);
-
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 		// we need to know the signum of the J-norm of the first column
 		// because the pivoting element, Akk, will have to satisfy
@@ -423,14 +421,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("nn = %d, np = %d\n", nn, np);
-		for(i = 0; i < nn; ++i) printf("%d ", n[i]);
-		printf("\n");
-		for(i = 0; i < np; ++i) printf("%d ", p[i]);
-		printf("\n");
-
-
-
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
@@ -648,13 +638,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("nn = %d, np = %d\n", nn, np);
-		for(i = 0; i < nn; ++i) printf("%d ", n[i]);
-		printf("\n");
-		for(i = 0; i < np; ++i) printf("%d ", p[i]);
-		printf("\n");
-
-
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
@@ -734,9 +717,8 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			printf("\tPIVOT (A1)\n");
-			printf("poslije redukcije, prije A1:\n");
-			printMatrix(G, M, N);
+			//printf("\tPIVOT (A1)\n");
+		
 			// check if its a proper form
 			// if not, fix it
 
@@ -1171,8 +1153,6 @@ int main(int argc, char* argv[]){
 
 		LOOP_END: continue;
 	}
-
-	printMatrix(G, M, N);
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);

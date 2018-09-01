@@ -166,11 +166,7 @@ int main(int argc, char* argv[]){
 	int i, j, k;
 	for(k = 0; k < N; ++k){
 
-		printf("k = %d\n", k);
-		printMatrix(G, M, N);
-
-		//printMatrix(G, M, N);
-		//printf("\n");
+		//printf("k = %d\n", k);
 
 		//printf("k = %d\n", k);
 		//if(k % 500 == 1 || k % 500 == 0) printf("k = %d, pivot2time = %lg, pivot1time = %lg, mnozenje = %lg, redukcija = %lg, pivotiranje = %lg, pivot1 = %d, pivot2 = %d\n", k, pivot2time, pivot1time, mnozenjetime, redukcijatime, pivotiranje, pivot_1_count, pivot_2_count);
@@ -377,13 +373,6 @@ int main(int argc, char* argv[]){
 				p[np++] = i;
 			}
 		}
-
-		printf("nn = %d, np = %d\n", nn, np);
-		for(i = 0; i < nn; ++i) printf("%d ", n[i]);
-		printf("\n");
-		for(i = 0; i < np; ++i) printf("%d ", p[i]);
-		printf("\n");
-
 
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
@@ -626,13 +615,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("nn = %d, np = %d\n", nn, np);
-		for(i = 0; i < nn; ++i) printf("%d ", n[i]);
-		printf("\n");
-		for(i = 0; i < np; ++i) printf("%d ", p[i]);
-		printf("\n");
-
-
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
@@ -770,10 +752,8 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			printf("\tPIVOT (A1)\n");
-			printf("poslije redukcije, prije A1:\n");
-			printMatrix(G, M, N);
-
+			//printf("\tPIVOT (A1)\n");
+		
 			// check if its a proper form
 			// if not, fix it
 
@@ -1186,8 +1166,6 @@ int main(int argc, char* argv[]){
 
 		LOOP_END: continue;
 	}
-
-	printMatrix(G, M, N);
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
