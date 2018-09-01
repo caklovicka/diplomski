@@ -759,7 +759,8 @@ int main(int argc, char* argv[]){
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
 
-			//printf("\tPIVOT (A1)\n");
+			printf("\tPIVOT (A1)\n");
+			if(k == 8) break;
 
 			// check if its a proper form
 			// if not, fix it
