@@ -423,6 +423,10 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		printf("nn = %d, np = %d\n");
+		printMatrix(n, 1, nn);
+		printMatrix(p, 1, np);
+
 
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
@@ -640,6 +644,10 @@ int main(int argc, char* argv[]){
 				p[np++] = i;
 			}
 		}
+
+		printf("nn = %d, np = %d\n");
+		printMatrix(n, 1, nn);
+		printMatrix(p, 1, np);
 
 
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
