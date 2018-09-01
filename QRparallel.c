@@ -423,7 +423,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("nn = %d, np = %d\n");
+		printf("nn = %d, np = %d\n", nn, np);
 		printMatrix(n, 1, nn);
 		printMatrix(p, 1, np);
 
@@ -645,7 +645,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("nn = %d, np = %d\n");
+		printf("nn = %d, np = %d\n", nn, np);
 		printMatrix(n, 1, nn);
 		printMatrix(p, 1, np);
 
