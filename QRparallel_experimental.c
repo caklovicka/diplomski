@@ -31,7 +31,7 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define eps 1e-2
+#define eps 1e-1
 #define refresh 30
 
 #define D 64

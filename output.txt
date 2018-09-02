@@ -1,0 +1,38 @@
+rm -rf data
+mkdir data
+10000 7000
+icc -mkl generateGparallel.c -o generateGparallel.out -fopenmp
+./generateGparallel.out data/G.bin data/J.bin 10000 7000
+assembly time = 414.778 s
+writing time = 700.281 s
+10000 7000
+icc -mkl QRparallel_xeon_mkl.c -o QRparallel_xeon_mkl.out -fopenmp
+./QRparallel_xeon_mkl.out data/G.bin data/J.bin 10000 7000
+reading time = 198.948 s
+algorithm time = 7315.54 s
+PIVOT_1 (1608)	time = 3698.6 s (50.5582 %)
+PIVOT_2 (2696)	time = 2437.54 s (33.3201 %)
+mnozenje u PIVOT_1 time = 3308.14 s (udio relativnog = 89.443 %, udio apsolutnog = 45.2207 %)
+redukcija u PIVOT_2 time = 2116.99 s (udio relativnog = 57.2377 %, udio apsolutnog = 28.9383 %)
+pivotiranje time = 1179.39 s (16.1216 %)
+writing time = 279.088 s
+10000 7000
+icc -mkl QRparallel_experimental.c -o QRparallel_experimental.out -fopenmp
+./QRparallel_experimental.out data/G.bin data/J.bin 10000 7000
+reading time = 199.356 s
+Racunanje normi = 0.0830679 s
+algorithm time = 6450.4 s
+PIVOT_1 (1608)	time = 3763.71 s (58.3485 %)
+PIVOT_2 (2696)	time = 2426.47 s (37.6174 %)
+mnozenje u PIVOT_1 time = 3378.66 s (udio relativnog = 89.7693 %, udio apsolutnog = 52.379 %)
+redukcija u PIVOT_2 time = 2072.36 s (udio relativnog = 55.0616 %, udio apsolutnog = 32.1276 %)
+pivotiranje time = 219.975 s (3.41025 %)
+writing time = 278.488 s
+10000 7000
+icc -mkl check_mkl.c -o check_mkl.out -fopenmp
+./check_mkl.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin 10000 7000
+maximum coordinate difference in (1301, 6992): 1.04749e-04
+norm(PA-AA): 5.96553e-02
+norm(PA-AA)/norm(AA) = 6.02250e-11
+-------------------------------------------------------------------------------
+
