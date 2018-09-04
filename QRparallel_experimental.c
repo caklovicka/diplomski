@@ -503,7 +503,7 @@ int main(int argc, char* argv[]){
 						// G[p[i], k] destroys G[p[i+offset], k]
 						// first if kth column isnt real, make it real
 
-						if( cimag(G[p[i] + M*k]) != 0){
+						/*if( cimag(G[p[i] + M*k]) != 0){
 							double complex scal = conj(G[p[i] + M*k]) / cabs(G[p[i] + M*k]);
 							G[p[i] + M*k] = cabs(G[p[i] + M*k]);
 							int Nk = N - k - 1;
@@ -515,7 +515,7 @@ int main(int argc, char* argv[]){
                             G[p[i+offset] + M*k] = cabs(G[p[i+offset] + M*k]);
                             int Nk = N - k - 1;
                             zscal(&Nk, &scal, &G[p[i+offset] + M*(k+1)], &M);
-                        }
+                        }*/
 
 
 						double c;
@@ -559,7 +559,7 @@ int main(int argc, char* argv[]){
 						// G[n[i], k] destroys G[n[i+offset], k]
 						// make them real
 
-						if( cimag(G[n[i] + M*k]) != 0){
+						/*if( cimag(G[n[i] + M*k]) != 0){
 							double complex scal = conj(G[n[i] + M*k]) / cabs(G[n[i] + M*k]);
 							G[n[i] + M*k] = cabs(G[n[i] + M*k]);
 							int Nk = N - k - 1;
@@ -571,7 +571,7 @@ int main(int argc, char* argv[]){
 							G[n[i+offset]+M*k] = cabs(G[n[i+offset]+M*k]);
 							int Nk = N - k - 1;
 							zscal(&Nk, &scal, &G[n[i+offset] + M*(k+1)], &M);
-						}
+						}*/
 
 						double c;
 						double complex s;
@@ -746,7 +746,7 @@ int main(int argc, char* argv[]){
 
 						mkl_set_num_threads_local(mkl_nthreads);
 						
-						if( cimag(G[p[i] + M*(k+1)]) != 0){
+						/*if( cimag(G[p[i] + M*(k+1)]) != 0){
 							double complex scal = conj(G[p[i] + M*(k+1)]) / cabs(G[p[i] + M*(k+1)]);
 							G[p[i] + M*(k+1)] = cabs(G[p[i] + M*(k+1)]);
 							int Nk = N - k - 2;
@@ -758,7 +758,7 @@ int main(int argc, char* argv[]){
 							G[p[i+offset] + M*(k+1)] = cabs(G[p[i+offset] + M*(k+1)]);
 							int Nk = N - k - 2;
 							zscal(&Nk, &scal, &G[p[i+offset] + M*(k+2)], &M);
-						}
+						}*/
 
 							
 						double c;
@@ -801,7 +801,7 @@ int main(int argc, char* argv[]){
 
 						mkl_set_num_threads_local(mkl_nthreads);
 
-						if( cimag(G[n[i] + M*(k+1)]) != 0){
+						/*if( cimag(G[n[i] + M*(k+1)]) != 0){
 							double complex scal = conj(G[n[i] + M*(k+1)]) / cabs(G[n[i] + M*(k+1)]);
 							G[n[i] + M*(k+1)] = cabs(G[n[i] + M*(k+1)]);
 							int Nk = N - k - 2;
@@ -813,7 +813,7 @@ int main(int argc, char* argv[]){
 							G[n[i+offset] + M*(k+1)] = cabs(G[n[i+offset] + M*(k+1)]);
 							int Nk = N - k - 2;
 							zscal(&Nk, &scal, &G[n[i+offset] + M*(k+2)], &M);
-						}
+						}*/
 
 
 						double c;
@@ -1311,7 +1311,7 @@ int main(int argc, char* argv[]){
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
 	printf("mnozenje u PIVOT_1 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", mnozenjetime, mnozenjetime/pivot1time * 100, mnozenjetime/seconds * 100);
-	printf("redukcija u PIVOT_2 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot1time * 100, redukcijatime/seconds * 100);
+	printf("redukcija u PIVOT_2 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
 
 
