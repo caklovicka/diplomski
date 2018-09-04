@@ -76,7 +76,7 @@ int main(int argc, char* argv[]){
 	FILE *readJ = fopen(argv[2], "rb");
 
 
-	//printf("\n\n--------------------------------- ALGORITHM ------------------------------------\n");
+	printf("\n\n--------------------------------- ALGORITHM ------------------------------------\n");
 	//printf("\nReading data...\n");
 
 	// allocate memory
@@ -1390,8 +1390,7 @@ int main(int argc, char* argv[]){
 	mkl_free(p);
 	mkl_free(n);
 
-
 	//printf("\nFinished.\n");
-	//printf("\n-------------------------------------------------------------------------------\n\n");
+	printf("\n-------------------------------------------------------------------------------\n\n");
 	return(0);
 }
