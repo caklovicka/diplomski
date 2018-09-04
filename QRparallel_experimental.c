@@ -992,7 +992,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
 
-			int mkl_nthreads = Nk/D > mkl_get_max_threads()-4 ? Nk/D : mkl_get_max_threads()-4;
+			mkl_nthreads = Nk/D > mkl_get_max_threads()-4 ? Nk/D : mkl_get_max_threads()-4;
 			if(Nk/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 			// copy rows of T back into G
@@ -1134,7 +1134,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 			zgemm_(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*(k+1)], &M, &beta, T, &n_);
 
-			int mkl_nthreads = Nk/D > mkl_get_max_threads()-3 ? Nk/D : mkl_get_max_threads()-3;
+			mkl_nthreads = Nk/D > mkl_get_max_threads()-3 ? Nk/D : mkl_get_max_threads()-3;
 			if(Nk/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 			//copy rows of T back into G
