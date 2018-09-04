@@ -856,6 +856,47 @@ int main(int argc, char* argv[]){
 		if(kth_nonzeros == 1 && kkth_nonzeros == 1) goto LOOP_END;
 
 
+		//make rows real which need to be
+
+		int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
+		if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
+
+		#pragma omp parallel num_threads(2)
+		{
+			if(omp_get_thread_num() == 0){
+
+				#pragma omp parallel for num_threads( kth_nonzeros )
+				for(i = k; i < k + kth_nonzeros; ++i){
+
+					if( cimag(G[i + M*k]) < EPSILON) continue;
+
+					mkl_set_num_threads_local(mkl_nthreads);
+
+					double complex scal = conj(G[i + M*k]) / cabs(G[i + M*k]);
+					G[i + M*k] = cabs(G[i + M*k]);
+					int Nk = N - k - 1;
+					zscal(&Nk, &scal, &G[i + M*(k+1)], &M);
+				}
+			}
+			if(omp_get_thread_num() == 1){
+
+				#pragma omp parallel for num_threads( kkth_nonzeros )
+				for(i = k + kth_nonzeros; i < k + kth_nonzeros + kkth_nonzeros; ++i){
+
+					if( cimag(G[i + M*(k+1)]) < EPSILON) continue;
+
+					mkl_set_num_threads_local(mkl_nthreads);
+
+					double complex scal = conj(G[i + M*(k+1)]) / cabs(G[i + M*(k+1)]);
+					G[i + M*(k+1)] = cabs(G[i + M*(k+1)]);
+					int Nk = N - k - 2;
+					zscal(&Nk, &scal, &G[i + M*(k+2)], &M);
+				}
+			}
+		}
+		mkl_set_num_threads_local(0);
+
+
 		// handle the (A1) form
 
 		if(kth_nonzeros == 2 && kkth_nonzeros == 2){
