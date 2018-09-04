@@ -868,7 +868,7 @@ int main(int argc, char* argv[]){
 		{
 			if(omp_get_thread_num() == 0){
 
-				#pragma omp parallel for num_threads( kth_nonzeros )
+				#pragma omp parallel for num_threads( kth_nonzeros ) private(i)
 				for(i = k; i < k + kth_nonzeros; ++i){
 
 					if( cimag(G[i + M*k]) < EPSILON) continue;
@@ -883,7 +883,7 @@ int main(int argc, char* argv[]){
 			}
 			if(omp_get_thread_num() == 1){
 
-				#pragma omp parallel for num_threads( kkth_nonzeros )
+				#pragma omp parallel for num_threads( kkth_nonzeros ) private(i)
 				for(i = k + kth_nonzeros; i < k + kth_nonzeros + kkth_nonzeros; ++i){
 
 					if( cimag(G[i + M*(k+1)]) < EPSILON) continue;
