@@ -871,6 +871,8 @@ int main(int argc, char* argv[]){
 				#pragma omp parallel for num_threads( kth_nonzeros ) private(i)
 				for(i = k; i < k + kth_nonzeros; ++i){
 
+					printf("%lg\n", cimag(G[i + M*k]));
+
 					if( cimag(G[i + M*k]) < EPSILON) continue;
 
 					mkl_set_num_threads_local(mkl_nthreads);
