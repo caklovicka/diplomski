@@ -871,13 +871,14 @@ int main(int argc, char* argv[]){
 				#pragma omp parallel for num_threads( kth_nonzeros ) private(i)
 				for(i = k; i < k + kth_nonzeros; ++i){
 
-					printf("tu sammmm\n");
-
 					if( cimag(G[i + M*k]) < EPSILON) continue;
 
 					mkl_set_num_threads_local(mkl_nthreads);
 
 					double complex scal = conj(G[i + M*k]) / cabs(G[i + M*k]);
+
+					printf("scal = %lg + i %lg\n", creal(scal), cimag(scal));
+
 					G[i + M*k] = cabs(G[i + M*k]);
 					int Nk = N - k - 1;
 					zscal(&Nk, &scal, &G[i + M*(k+1)], &M);
