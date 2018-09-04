@@ -527,7 +527,7 @@ int main(int argc, char* argv[]){
 						// apply the rotation
 						int Nk = N-k;
 						zrot(&Nk, &G[p[i] + M*k], &M, &G[p[i + offset] + M*k], &M, &c, &s);
-						//G[p[i + offset] + M*k] = 0;
+						G[p[i + offset] + M*k] = 0;
 					}
 				}
 
@@ -582,7 +582,7 @@ int main(int argc, char* argv[]){
 						// apply the rotation
 						int Nk = N-k;
 						zrot(&Nk, &G[n[i] + M*k], &M, &G[n[i + offset] + M*k], &M, &c, &s);
-						//G[n[i + offset] + M*k] = 0;
+						G[n[i + offset] + M*k] = 0;
 					}
 				}
 
@@ -770,7 +770,7 @@ int main(int argc, char* argv[]){
 						// apply the rotation
 						int Nk = N - k - 1;
 						zrot(&Nk, &G[p[i] + M*(k+1)], &M, &G[p[i + offset] + M*(k+1)], &M, &c, &s);
-						//G[p[i + offset] + M*(k+1)] = 0;
+						G[p[i + offset] + M*(k+1)] = 0;
 					}
 				}
 
@@ -825,7 +825,7 @@ int main(int argc, char* argv[]){
 						// apply the rotation
 						int Nk = N - k - 1;
 						zrot(&Nk, &G[n[i] + M*(k+1)], &M, &G[n[i + offset] + M*(k+1)], &M, &c, &s);
-						//G[n[i + offset] + M*(k+1)] = 0;
+						G[n[i + offset] + M*(k+1)] = 0;
 					}
 				}
 
@@ -854,9 +854,6 @@ int main(int argc, char* argv[]){
 
 		// condition (B2)
 		if(kth_nonzeros == 1 && kkth_nonzeros == 1) goto LOOP_END;
-
-		printf("nakon redukcije = \n");
-		printMatrix(G, M, N);
 
 
 		//make rows real which need to be
@@ -898,10 +895,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
-
-		printf("\nnakon izravnjivanja = \n");
-		printMatrix(G, M, N);
-
 
 		// handle the (A1) form
 
