@@ -1282,7 +1282,7 @@ int main(int argc, char* argv[]){
 		double complex alpha = -1;
 		int inc = 1;
 		int Mk = M - k;
-		int mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 		zcopy(&Mk, &f[k], &inc, &tempf[k], &inc);	// copy f into tempf
