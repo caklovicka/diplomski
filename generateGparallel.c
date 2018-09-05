@@ -205,17 +205,27 @@ int main(int argc, char* argv[]){
 
 	FILE *writeA = fopen("data/A.bin", "wb");
 
-	for(j = 0; j < N; ++j)
-		for(i = 0; i < N; ++i)	
-			fprintf(writeA, "%.*g %.*g ", DIGITS, creal(A[i+N*j]), DIGITS, cimag(A[i+N*j]));
-
-	for(j = 0; j < N; ++j){
-		for(i = 0; i < M; ++i){
-			fprintf(writeG, "%.*g %.*g ", DIGITS, creal(G[i+M*j]), DIGITS, cimag(G[i+M*j]));
+	#pragma omp parallel num_threads(3)
+	{
+		if(omp_get_thread_num() == 0){
+			for(j = 0; j < N; ++j)
+				for(i = 0; i < N; ++i)	
+					fprintf(writeA, "%.*g %.*g ", DIGITS, creal(A[i+N*j]), DIGITS, cimag(A[i+N*j]));
 		}
-	}
 
-	for(i = 0; i < M; ++i) fprintf(writeJ, "%ld ", (long int)J[i]);
+		if(omp_get_thread_num() == 1){
+			for(j = 0; j < N; ++j){
+				for(i = 0; i < M; ++i){
+					fprintf(writeG, "%.*g %.*g ", DIGITS, creal(G[i+M*j]), DIGITS, cimag(G[i+M*j]));
+				}
+			}
+		}
+
+		if(omp_get_thread_num() == 2){
+			for(i = 0; i < M; ++i) fprintf(writeJ, "%ld ", (long int)J[i]);
+		}
+
+	}
 
 	end = omp_get_wtime();
 	seconds = (float)(end - start);
