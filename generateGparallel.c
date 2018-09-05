@@ -205,7 +205,7 @@ int main(int argc, char* argv[]){
 
 	FILE *writeA = fopen("data/A.bin", "wb");
 
-	#pragma omp parallel num_threads(3)
+	//#pragma omp parallel num_threads(3)
 	{
 		if(omp_get_thread_num() == 0){
 			for(j = 0; j < N; ++j){
