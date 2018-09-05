@@ -208,6 +208,7 @@ int main(int argc, char* argv[]){
 	//#pragma omp parallel num_threads(3)
 	{
 		if(omp_get_thread_num() == 0){
+			int i, j;
 			for(j = 0; j < N; ++j){
 				for(i = 0; i < N; ++i){
 					fprintf(writeA, "%.*g %.*g ", DIGITS, creal(A[i+N*j]), DIGITS, cimag(A[i+N*j]));
@@ -216,6 +217,7 @@ int main(int argc, char* argv[]){
 		}
 
 		if(omp_get_thread_num() == 1){
+			int i, j;
 			for(j = 0; j < N; ++j){
 				for(i = 0; i < M; ++i){
 					fprintf(writeG, "%.*g %.*g ", DIGITS, creal(G[i+M*j]), DIGITS, cimag(G[i+M*j]));
@@ -224,6 +226,7 @@ int main(int argc, char* argv[]){
 		}
 
 		if(omp_get_thread_num() == 2){
+			int i;
 			for(i = 0; i < M; ++i) fprintf(writeJ, "%ld ", (long int)J[i]);
 		}
 	}
