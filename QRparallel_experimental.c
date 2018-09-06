@@ -492,7 +492,7 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/D > (mkl_get_max_threads()/2 - nthreads_loc) ? (N-k)/D : (mkl_get_max_threads()/2 - nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
@@ -548,7 +548,7 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/D > (mkl_get_max_threads()/2 - nthreads_loc) ? (N-k)/D : (mkl_get_max_threads()/2 - nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
@@ -736,7 +736,7 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2 - nthreads_loc) ? (N-k)/N : (mkl_get_max_threads()/2 - nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
@@ -791,7 +791,7 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2 - nthreads_loc) ? (N-k)/N : (mkl_get_max_threads()/2 - nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
