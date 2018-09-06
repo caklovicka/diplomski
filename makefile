@@ -56,6 +56,16 @@ runQR_exp:
 	icc -mkl QRparallel_experimental.c -o QRparallel_experimental.out -fopenmp
 	./QRparallel_experimental.out data/G.bin data/J.bin $(M) $(N)
 
+compile_exp:
+	@echo $(M) $(N)
+	icc -mkl QRparallel_xeon_mkl.c -o QRparallel_xeon_mkl.out -fopenmp
+
+run_exp:
+	@echo $(M) $(N)
+	numactl -m 1 ./QRparallel_xeon_mkl.out data/G.bin data/J.bin $(M) $(N)
+
+
+
 
 check_xeon:
 	@echo $(M) $(N)
