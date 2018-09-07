@@ -34,7 +34,7 @@
 #define eps 1e-1
 #define refresh 30
 
-#define D 64
+#define D 128
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -417,7 +417,7 @@ int main(int argc, char* argv[]){
 		int nn = 0;	// number of -1 in J[k:M, k:M]
 
 		// update the signum arrays
-		if( J[k] < 0) n[nn++] = k;
+		if( J[k] < 0 ) n[nn++] = k;
 		else p[np++] = k;
 
 
