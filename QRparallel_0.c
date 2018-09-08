@@ -62,6 +62,8 @@ void printJ(double *J, int M){
 
 int main(int argc, char* argv[]){
 
+	printf("max omp threads: %d, max mkl threads: %d\n", omp_get_max_threads(), mkl_get_max_threads());
+
 	double ALPHA = (1.0 + csqrt(17.0))/8.0; //Bunch-Parlett alpha
 	omp_set_nested(1);
 	omp_set_dynamic(0);
