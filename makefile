@@ -71,7 +71,7 @@ run0:
 	@echo $(M) $(N)
 	numactl -m 1 ./QRparallel_0.out data/G.bin data/J.bin $(M) $(N)
 
-run2:
+run1:
 	@echo $(M) $(N)
 	numactl -m 1 ./QRparallel_1.out data/G.bin data/J.bin $(M) $(N)
 

@@ -348,8 +348,11 @@ int main(int argc, char* argv[]){
 			goto PIVOT_1;
 		}
 
+		PIVOT_1: continue;
+
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
+
 /*
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
