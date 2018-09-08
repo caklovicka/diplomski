@@ -58,14 +58,26 @@ runQR_exp:
 
 compile_exp:
 	@echo $(M) $(N)
-	icc -mkl QRparallel_xeon_mkl.c -o QRparallel_xeon_mkl.out -fopenmp
+	icc -mkl QRparallel_experimental.c -o QRparallel_experimental.out -fopenmp
+	icc -mkl QRparallel_0.c -o QRparallel_0.out -fopenmp
+	icc -mkl QRparallel_1.c -o QRparallel_1.out -fopenmp
+	icc -mkl QRparallel_2.c -o QRparallel_2.out -fopenmp
 
 run_exp:
 	@echo $(M) $(N)
-	numactl -m 1 ./QRparallel_xeon_mkl.out data/G.bin data/J.bin $(M) $(N)
+	numactl -m 1 ./QRparallel_experimental.out data/G.bin data/J.bin $(M) $(N)
 
+run0:
+	@echo $(M) $(N)
+	numactl -m 1 ./QRparallel_0.out data/G.bin data/J.bin $(M) $(N)
 
+run2:
+	@echo $(M) $(N)
+	numactl -m 1 ./QRparallel_1.out data/G.bin data/J.bin $(M) $(N)
 
+run2:
+	@echo $(M) $(N)
+	numactl -m 1 ./QRparallel_2.out data/G.bin data/J.bin $(M) $(N)
 
 check_xeon:
 	@echo $(M) $(N)
