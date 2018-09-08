@@ -311,10 +311,10 @@ int main(int argc, char* argv[]){
 
 			double complex Air = 0;
 			int Mk = M-k;
-			int inc = 1;
-			mkl_set_num_threads_local( mkl_get_max_threads() - nthreads);
-			//zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
-			for(j = k; j < M; ++j) Air += conj(G[j+M*i]) * f[j];
+			int inc = 1;int mkl_nthreads = mkl_get_max_threads() / nthreads;
+			if(mkl_nthreads == 0) mkl_nthreads = 1;
+			mkl_set_num_threads_local( mkl_nthreads );
+			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
