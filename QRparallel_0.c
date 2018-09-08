@@ -277,6 +277,7 @@ int main(int argc, char* argv[]){
 			double complex Aik = 0;
 			int Mk = M-k;
 			int inc = 1;
+			int mkl_nthreads = mkl_get_max_threads() / nthreads;
 			if(mkl_nthreads == 0) mkl_nthreads = 1;
 			mkl_set_num_threads_local( mkl_nthreads );
 			zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
