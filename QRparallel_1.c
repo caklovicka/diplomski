@@ -170,7 +170,7 @@ int main(int argc, char* argv[]){
 
 	// first compute J-norms of matrix G
 
-	nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
+	/*nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
 	if (N/D == 0) nthreads = 1;
 	double norm_time = omp_get_wtime();
 
@@ -180,6 +180,7 @@ int main(int argc, char* argv[]){
 		for(i = 0; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 	}
 	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
+	*/
 
 
 	for(k = 0; k < N; ++k){
