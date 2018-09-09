@@ -261,7 +261,7 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double Akk = (double) norm[k];
+		//double Akk = (double) norm[k];
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
