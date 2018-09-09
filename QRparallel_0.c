@@ -34,7 +34,7 @@
 #define eps 1e-1
 #define refresh 30
 
-#define D 128
+#define D 64
 
 
 void printMatrix(double complex *G, int M, int N){
