@@ -184,6 +184,7 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
+		double Akk = 40;
 		goto PIVOT_1;
 
 		//printf("k = %d\n", k);
