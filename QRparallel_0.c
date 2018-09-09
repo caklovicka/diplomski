@@ -194,6 +194,9 @@ int main(int argc, char* argv[]){
 
 		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
 
+			nthreads = N/(2*D) > omp_get_max_threads() ? N/((2*D) : omp_get_max_threads();
+			if (N/(2*D) == 0) nthreads = 1;
+
 			#pragma omp parallel num_threads( nthreads )
 			{
 				#pragma omp for nowait

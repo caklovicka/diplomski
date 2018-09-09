@@ -271,25 +271,27 @@ int main(int argc, char* argv[]){
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
-		#pragma omp parallel for num_threads( nthreads )
-		for(i = k+1; i < N; ++i){
+		#pragma omp parallel num_threads( nthreads )
+		{
+			#pragma omp for nowait
+			for(i = k+1; i < N; ++i){
 
-			double complex Aik = 0;
-			int Mk = M-k;
-			int inc = 1;
-			int mkl_nthreads = mkl_get_max_threads() / nthreads;
-			if(mkl_nthreads == 0) mkl_nthreads = 1;
-			mkl_set_num_threads_local( mkl_nthreads );
-			zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
-			
-			#pragma omp critical
-			if(pivot_lambda < cabs(Aik)){
-				pivot_lambda = cabs(Aik);
-				pivot_r = i;
+				double complex Aik = 0;
+				int Mk = M-k;
+				int inc = 1;
+				int mkl_nthreads = mkl_get_max_threads() / nthreads;
+				if(mkl_nthreads == 0) mkl_nthreads = 1;
+				mkl_set_num_threads_local( mkl_nthreads );
+				zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
+				
+				#pragma omp critical
+				if(pivot_lambda < cabs(Aik)){
+					pivot_lambda = cabs(Aik);
+					pivot_r = i;
+				}
 			}
 		}
 		mkl_set_num_threads_local(0);	//return global value
-
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 
