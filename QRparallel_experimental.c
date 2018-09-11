@@ -1311,6 +1311,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		printMatrix(G, M, N);
 		printMatrix(&f[k], M-k, 1);
 
 
