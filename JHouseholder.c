@@ -195,7 +195,7 @@ int main(int argc, char* argv[]){
 					// pivot 1 was last
 					if( last_pivot == 1 ){
 
-						double complex vJg = norm[j] + conj(v[k-1 + M*(k-1)] - G[k-1+M*j]);
+						double complex vJg = norm[j] + conj(v[k-1 + M*(k-1)] - G[k-1+M*j]) * J[k] * (v[k-1 + M*(k-1)] - G[k-1+M*j]);
 						double factor = cabs(1 - 2*vJg / vJv[k-1] );
 
 						if( factor * factor > eps )
