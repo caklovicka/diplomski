@@ -426,12 +426,11 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
 
-			// swap rows in v 
-			int kk = k-1;
-			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
-			if(kk/D == 0) mkl_nthreads = 1;
+			// swap rows in v
+			mkl_nthreads = k/D > mkl_get_max_threads() ? k/D : mkl_get_max_threads();
+			if(k/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zswap(&kk, &v[k], &M, &v[i], &M);
+			zswap(&k, &v[k], &M, &v[i], &M);
 
 			printMatrix(v, M, k-1);
 		}
@@ -461,11 +460,10 @@ int main(int argc, char* argv[]){
 			printMatrix(v, M, k-1);
 
 			// swap rows in v 
-			int kk = k-1;
-			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
-			if(kk/D == 0) mkl_nthreads = 1;
+			mkl_nthreads = k/D > mkl_get_max_threads() ? k/D : mkl_get_max_threads();
+			if(k/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zswap(&kk, &v[k], &M, &v[i], &M);
+			zswap(&k, &v[k], &M, &v[i], &M);
 
 			printMatrix(v, M, k-1);
 		}
