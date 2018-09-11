@@ -496,8 +496,8 @@ int main(int argc, char* argv[]){
 		pivot1time += (double)(omp_get_wtime() - start1);
 		last_pivot = 1;
 
-		printMatrix(&v[k+M*k], 1, M-k);
-		
+		printMatrix(&v[k+M*k], M-k, 1);
+
 		LOOP_END: continue;
 
 	}	// END OF MAIN LOOP
