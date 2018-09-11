@@ -32,9 +32,6 @@
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 #define eps 1e-1
-#define refresh 30
-
-#define D 64
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -182,7 +179,7 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
-			printf("primjena rotacija na stupac %d\n, iz pivota\n", k);
+			printf("primjena rotacija na stupac %d iz pivota\n", k);
 
 			double complex alpha;
 			int Mi = M - i;
@@ -197,10 +194,11 @@ int main(int argc, char* argv[]){
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
-		t[k] = k;
+
+		if( t[k] < k ) t[k] = k;
 
 		#pragma omp parallel for
-		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*k];
 
 		double complex akk;
 		int Mk = M - k;
@@ -254,7 +252,7 @@ int main(int argc, char* argv[]){
 		// first apply previous rotation
 
 		#pragma omp parallel for
-		for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+		for(i = t[pivot_r]; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
 		// [SEQUENTIAL] outer loop
 		for(i = t[pivot_r]; i < k; ++i){
@@ -272,10 +270,11 @@ int main(int argc, char* argv[]){
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*pivot_r], &inc);	// G[i + M*r] = alpha * v[i + M*i] + G[i + M*r]
 		}
-		t[pivot_r] = k;
+
+		if( t[pivot_r] < k ) t[pivot_r] = k;
 
 		#pragma omp parallel for
-		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -387,12 +386,12 @@ int main(int argc, char* argv[]){
 		nthreads = M/D > omp_get_max_threads() ? M/D : omp_get_max_threads();
 		if (M/D == 0) nthreads = 1;
 
-		if(t[k] < k-1){
+		if(t[k] < k){
 
 			printf("primjena rotacija na stupac %d\n", k);
 
 			#pragma omp parallel for num_threads( nthreads )
-			for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+			for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 		}
 
 		// [SEQUENTIAL] outer loop
@@ -411,7 +410,8 @@ int main(int argc, char* argv[]){
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
-		t[k] = k;
+
+		if( t[k] < k) t[k] = k;
 
 
 		// check the condition sign(Akk) = Jk
@@ -420,8 +420,7 @@ int main(int argc, char* argv[]){
 		if( Akk > 0 && J[k] < 0){
 
 			int i;
-			for(i = k+1; i < M; ++i)
-				if(J[i] > 0) break;
+			for(i = k+1; i < M; ++i) if(J[i] > 0) break;
 
 			J[k] = 1.0;
 			J[i] = -1.0;
@@ -443,13 +442,12 @@ int main(int argc, char* argv[]){
 			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
 			if(kk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &v[k], &M, &v[i], &M);
+			zswap(&kk, &v[k], &M, &v[i], &M);
 		}
 
 		else if( Akk < 0 && J[k] > 0){
 
-			for(i = k+1; i < M; ++i)
-				if(J[i] < 0) break;
+			for(i = k+1; i < M; ++i) if(J[i] < 0) break;
 
 			J[k] = -1.0;
 			J[i] = 1.0;
@@ -472,7 +470,7 @@ int main(int argc, char* argv[]){
 			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
 			if(kk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &v[k], &M, &v[i], &M);
+			zswap(&kk, &v[k], &M, &v[i], &M);
 		}
 		
 
@@ -498,6 +496,9 @@ int main(int argc, char* argv[]){
 
 		zcopy(&Mk, &G[k+M*k], &inc, &v[k+M*k], &inc);
 		v[k + M*k] -= gkk;
+
+		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
+		if (Mk/D == 0) nthreads = 1;
 
 		// update G
 		G[k + M*k] = gkk;
