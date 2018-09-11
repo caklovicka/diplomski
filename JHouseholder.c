@@ -210,8 +210,8 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(mkl_nthreads);
 		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
 
-		printMatrix(G[k+M*k], Mk, 1);
-		printMatrix(f, Mk, 1);
+		printMatrix(&G[k+M*k], Mk, 1);
+		printMatrix(&f[k], Mk, 1);
 
 		double Akk = (double) akk;
 
