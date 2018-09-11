@@ -417,6 +417,7 @@ int main(int argc, char* argv[]){
 			Prow[k] = itemp;
 
 			printf("RADIM Prow\n");
+			printMatrix(v, M, k-1);
 
 			// swap rows in G 
 			int Nk = N - k;
@@ -431,6 +432,8 @@ int main(int argc, char* argv[]){
 			if(kk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&kk, &v[k], &M, &v[i], &M);
+
+			printMatrix(v, M, k-1);
 		}
 
 		else if( Akk < 0 && J[k] > 0){
@@ -455,12 +458,16 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
 
+			printMatrix(v, M, k-1);
+
 			// swap rows in v 
 			int kk = k-1;
 			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
 			if(kk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&kk, &v[k], &M, &v[i], &M);
+
+			printMatrix(v, M, k-1);
 		}
 		
 
