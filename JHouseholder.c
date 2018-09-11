@@ -185,6 +185,8 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
+			printf("primjena rotacija na stupac %d\n", k);
+
 			double complex alpha;
 			int Mi = M - i;
 			int inc = 1;
@@ -387,6 +389,8 @@ int main(int argc, char* argv[]){
 		if (M/D == 0) nthreads = 1;
 
 		if(t[k] < k-1){
+
+			printf("primjena rotacija na stupac %d\n", k);
 
 			#pragma omp parallel for num_threads( nthreads )
 			for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
