@@ -38,6 +38,12 @@ runQR_par:
 	gcc QRparallel.c -o QRparallel.out -lblas -llapack -lm -fopenmp -w
 	./QRparallel.out data/G.bin data/J.bin $(M) $(N) -w
 
+runH:
+	@echo $(M) $(N)
+	gcc JHouseholder.c -o JHouseholder.out -lblas -llapack -lm -fopenmp -w
+	./JHouseholder.out data/G.bin data/J.bin $(M) $(N) -w
+
+
 
 generate_xeon:
 	rm -rf data
