@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
 	double complex *G = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *v = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);	// reflector vectors
-	double complex *t = (int*) mkl_malloc(N*sizeof(int), 64);		// which transformations on which column were applied
+	int *t = (int*) mkl_malloc(N*sizeof(int), 64);		// which transformations on which column were applied
 	double complex *vJv = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// reflector vector J norms
 	double *J = (double*) mkl_malloc(M*sizeof(double), 64);
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
