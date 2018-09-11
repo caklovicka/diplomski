@@ -493,9 +493,7 @@ int main(int argc, char* argv[]){
 		// save the vector needed to transform the other columns
 		zcopy(&Mk, &f[k], &inc, &v[k + M*k], &inc);	// copy f into the corresponding column of v
 	
-		double end1 = omp_get_wtime();
-		pivot1time += (double)(end1 - start1);
-
+		pivot1time += (double)(omp_get_wtime() - start1);
 		last_pivot = 1;
 		LOOP_END: continue;
 
@@ -505,8 +503,7 @@ int main(int argc, char* argv[]){
 
 	// ----------------------------------------- PRINT TIMEs -----------------------------------------
 
-	end = omp_get_wtime();
-	seconds = (double)(end - start);
+	seconds = (double)(omp_get_wtime() - start);
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
