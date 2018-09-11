@@ -181,6 +181,8 @@ int main(int argc, char* argv[]){
 
 			printf("primjena rotacija na stupac %d iz pivota\n", k);
 
+			if(k == 2) printMatrix(&G[k*M], M, 1);
+
 			double complex alpha;
 			int Mi = M - i;
 			int inc = 1;
@@ -194,6 +196,8 @@ int main(int argc, char* argv[]){
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
+
+		if(k == 2) printMatrix(&G[k*M], M, 1);
 
 		if( t[k] < k ) t[k] = k;
 
