@@ -386,6 +386,9 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1: 
 
+		printMatrix(G, M, N);
+
+
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 
 		pivot_1_count += 1;
