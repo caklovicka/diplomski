@@ -177,8 +177,10 @@ int main(int argc, char* argv[]){
 
 		// first apply the previous rotations
 
+		int min = t[k] < k ? t[k] : k;
+
 		#pragma omp parallel for
-		for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		for(i = min; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
@@ -198,10 +200,15 @@ int main(int argc, char* argv[]){
 		}
 		t[k] = k;
 
+		double complex akk;
+		int Mk = M - k;
+		int inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
 
-		double Akk = 0;
-		#pragma omp parallel for reduction(+:Akk)
-		for(i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];	
+		double Akk = (double) akk;
 
 		// DELETE
 		printf("A%d = %lg\n", k, Akk);
@@ -211,7 +218,6 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ find pivot_lambda ------------------------
 
-		// we already have f, t[k] <= k!!!
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -243,11 +249,10 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ find pivot_sigma ------------------------
 
-		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
-		if ((M-k)/D == 0) nthreads = 1;
+		min = t[k] < k ? t[k] : k;
 
 		#pragma omp parallel for
-		for(i = t[pivot_r]; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+		for(i = min; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -288,13 +293,19 @@ int main(int argc, char* argv[]){
 			zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
 			alpha = - 2 * alpha / vJv[i];
 
-			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*pivot_r], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*pivot_r], &inc);	// G[i + M*r] = alpha * v[i + M*i] + G[i + M*r]
 		}
 		t[pivot_r] = k;
 
-		double Arr = 0;
-		#pragma omp parallel for reduction(+:Arr)
-		for(i = k; i < M; ++i) Arr += conj(G[i+M*pivot_r]) * J[i] * G[i+M*pivot_r];	
+		double complex arr;
+		int Mk = M - k;
+		int inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+		zdotc(&akk, &Mk, &G[k+M*pivot_r], &inc, &f[k], &inc);
+
+		double Arr = (double) arr;
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 
@@ -375,8 +386,11 @@ int main(int argc, char* argv[]){
 		nthreads = M/D > omp_get_max_threads() ? M/D : omp_get_max_threads();
 		if (M/D == 0) nthreads = 1;
 
-		#pragma omp parallel for num_threads( nthreads )
-		for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		if(t[k] < k-1){
+
+			#pragma omp parallel for num_threads( nthreads )
+			for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		}
 
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
