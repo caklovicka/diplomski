@@ -40,7 +40,7 @@ runQR_par:
 
 runH:
 	@echo $(M) $(N)
-	gcc JHouseholder.c -o JHouseholder.out -lblas -llapack -lm -fopenmp -w
+	icc JHouseholder.c -o JHouseholder.out -mkl -lm -fopenmp -w
 	./JHouseholder.out data/G.bin data/J.bin $(M) $(N) -w
 
 
