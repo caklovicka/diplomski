@@ -181,7 +181,10 @@ int main(int argc, char* argv[]){
 
 			printf("primjena rotacija na stupac %d iz pivota\n", k);
 
-			if(k == 2) printMatrix(&G[k*M], M, 1);
+			if(k == 2){
+				printMatrix(&G[k*M], M, 1);
+				printMatrix(&v[i+M*i], M-i, 1);
+			}
 
 			double complex alpha;
 			int Mi = M - i;
@@ -511,9 +514,6 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < M; ++i) G[i + M*k] = 0;
 	
 		pivot1time += (double)(omp_get_wtime() - start1);
-
-		printMatrix(&v[k+M*k], M-k, 1);
-
 		LOOP_END: continue;
 
 	}	// END OF MAIN LOOP
