@@ -208,6 +208,7 @@ int main(int argc, char* argv[]){
 		double Akk = (double) akk;
 
 		// DELETE
+		printf("A%d = %lg\n", k, Akk);
 		goto PIVOT_1;
 
 		if(k == N-1) goto PIVOT_1;
