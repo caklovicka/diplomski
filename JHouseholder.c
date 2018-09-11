@@ -179,7 +179,7 @@ int main(int argc, char* argv[]){
 			printf("v%d = \n", i);
 			printMatrix(&v[i+M*i], M-i, 1);
 			printf("g = \n");
-			printMatrix(&G[i+M*k], M-i, 1)}
+			printMatrix(&G[i+M*k], M-i, 1);}
 
 			#pragma omp parallel for
 			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
