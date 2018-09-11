@@ -393,6 +393,11 @@ int main(int argc, char* argv[]){
 
 		// first apply the previous rotations
 
+		nthreads = M/D > omp_get_max_threads() ? M/D : omp_get_max_threads();
+		if (M/D == 0) nthreads = 1;
+
+		#pragma omp parallel for num_threads( nthreads )
+		for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
 		// [SEQUENTIAL] outer loop
 		for(i = 0; i < k; ++i){
@@ -405,7 +410,7 @@ int main(int argc, char* argv[]){
 			if(Mi/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 
-			zdotc(&alpha, &Mi, &G[i + M*k], &inc, &v[i + M*i], &inc);
+			zdotc(&alpha, &Mi, &f[i], &inc, &v[i + M*i], &inc);
 			alpha = - 2 * alpha / vJv[i];
 
 			zaxpy(&Mi, &alpha, &G[i + M*k], &inc, &v[i + M*i], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
@@ -466,16 +471,13 @@ int main(int argc, char* argv[]){
 
 		double complex H_sigma = 1;
 		if(cabs(G[k+M*k]) >= EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
-		f[k] = csqrt(cabs(Akk)) * H_sigma;
+		double complex gkk = csqrt(cabs(Akk)) * H_sigma;
 
-		#pragma omp parallel for num_threads(nthreads)
-		for(i = k+1; i < M; ++i) f[i] = 0;
+		// save the J norm of the vector
+		vJv[k] = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
 
-		// make the vector f(k:M)
-		// copy f into tempf, so we dont need tu multyply the first column of G with H
-		// and do f(k:M) = f(k:M) - g(k:M)
-
+		// make the reflector vector and save it
 		double complex alpha = -1;
 		int inc = 1;
 		int Mk = M - k;
@@ -483,15 +485,13 @@ int main(int argc, char* argv[]){
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 
-		// save the J norm of the vector
-		vJv[k] = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
+		zcopy(&Mk, &G[k+M*k], &inc, &v[k+M*k], &inc);
+		v[k + M*k] -= gkk;
 
-		zcopy(&Mk, &f[k], &inc, &G[k + M*k], &inc);	// copy f into the first column of G
-		zaxpy(&Mk, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
-
-
-		// save the vector needed to transform the other columns
-		zcopy(&Mk, &f[k], &inc, &v[k + M*k], &inc);	// copy f into the corresponding column of v
+		// update G
+		G[k + M*k] = gkk;
+		#pragma omp parallel for num_threads(nthreads)
+		for(i = k+1; i < M; ++i) G[i + M*k] = 0;
 	
 		pivot1time += (double)(omp_get_wtime() - start1);
 		last_pivot = 1;
