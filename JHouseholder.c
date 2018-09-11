@@ -162,107 +162,11 @@ int main(int argc, char* argv[]){
 
 	int i, j, k, nthreads, mkl_nthreads;
 
-
-	// first compute J-norms of matrix G
-
-	nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
-	if (N/D == 0) nthreads = 1;
-	double norm_time = omp_get_wtime();
-
-	#pragma omp parallel for num_threads( nthreads )
-	for(j = 0; j < N; ++j){
-		norm[j] = 0;
-		for(i = 0; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-	}
-	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
-
-
 	for(k = 0; k < N; ++k){
 
 		// TODO: refreashaj normu ako jako padne ispod pocetne....
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
-
-		// ------------------------ update J-norms of columns ------------------------
-
-		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
-
-			#pragma omp parallel num_threads( nthreads )
-			{
-				#pragma omp for nowait
-				for( j = k; j < N; ++j){
-
-					// pivot 1 was last
-					if( last_pivot == 1 ){
-
-						double complex vJg = norm[j] + conj(v[k-1 + M*(k-1)] - G[k-1+M*j]) * J[k] * (v[k-1 + M*(k-1)] - G[k-1+M*j]);
-						double factor = cabs(1 - 2*vJg / vJv[k-1] );
-
-						if( factor * factor > eps )
-							norm[j] = norm[j] * factor * factor;
-
-						// else compute the norm again 
-						else{
-
-							// apply rotations first
-							for(i = t[k]; i < k; ++i){
-
-								mkl_set_num_threads_local(1);
-
-								double complex alpha;
-								int Mi = M - i;
-								int inc = 1;
-
-								zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
-								alpha = - 2 * alpha / vJv[i];
-
-								zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
-							}
-
-							t[k] = k;
-
-							norm[j] = 0;
-							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-						}
-					}
-
-					// pivot 2 was last
-					else if( last_pivot == 2 ){
-
-						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
-						double frac = cabs(norm[j]) / cabs(denomi);
-						
-						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
-							norm[j] -= denomi;
-
-						// else compute the norm again 
-						else{
-							norm[j] = 0;
-							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-						}
-					}
-				}
-			}
-		}
-
-		// refresh norms
-		/*else{
-
-			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-			if ((N-k)/D == 0) nthreads = 1;
-
-			#pragma omp parallel for num_threads( nthreads )
-			for(j = k; j < N; ++j){
-				norm[j] = 0;
-				for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-			}
-		}
-		*/
-		mkl_set_num_threads_local(1);
-
-
-		// ------------------------ start the pivoting strategy ------------------------
 		
 		double pp = omp_get_wtime();
 		double pivot_lambda = 0;
@@ -270,7 +174,34 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double Akk = (double) norm[k];
+
+		// first apply the previous rotations
+
+		#pragma omp parallel for
+		for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+
+		// [SEQUENTIAL] outer loop
+		for(i = t[k]; i < k; ++i){
+
+			double complex alpha;
+			int Mi = M - i;
+			int inc = 1;
+
+			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
+			if(Mi/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+
+			zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
+			alpha = - 2 * alpha / vJv[i];
+
+			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+		}
+		t[k] = k;
+
+
+		double Akk = 0;
+		#pragma omp parallel for reduction(+:Akk)
+		for(i = k; i < M; ++i) Akk += conj(G[i+M*k]) * J[i] * G[i+M*k];	
 
 		// DELETE
 		printf("A%d = %lg\n", k, Akk);
@@ -280,11 +211,7 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ find pivot_lambda ------------------------
 
-		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
-		if ((M-k)/D == 0) nthreads = 1;
-
-		#pragma omp parallel for num_threads( nthreads )
-		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		// we already have f, t[k] <= k!!!
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -319,8 +246,8 @@ int main(int argc, char* argv[]){
 		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
 		if ((M-k)/D == 0) nthreads = 1;
 
-		#pragma omp parallel for num_threads( nthreads )
-		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+		#pragma omp parallel for
+		for(i = t[pivot_r]; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -344,7 +271,30 @@ int main(int argc, char* argv[]){
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
-		double Arr = (double) norm[pivot_r];
+
+		// first apply previous rotation
+
+		// [SEQUENTIAL] outer loop
+		for(i = t[pivot_r]; i < k; ++i){
+
+			double complex alpha;
+			int Mi = M - i;
+			int inc = 1;
+
+			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
+			if(Mi/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+
+			zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
+			alpha = - 2 * alpha / vJv[i];
+
+			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*pivot_r], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+		}
+		t[pivot_r] = k;
+
+		double Arr = 0;
+		#pragma omp parallel for reduction(+:Arr)
+		for(i = k; i < M; ++i) Arr += conj(G[i+M*pivot_r]) * J[i] * G[i+M*pivot_r];	
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 
@@ -414,10 +364,11 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1: 
 
+		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
-
 		pivot_1_count += 1;
 		double start1 = omp_get_wtime();
+
 
 		// first apply the previous rotations
 
@@ -537,7 +488,6 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < M; ++i) G[i + M*k] = 0;
 	
 		pivot1time += (double)(omp_get_wtime() - start1);
-		last_pivot = 1;
 
 		printMatrix(&v[k+M*k], M-k, 1);
 
