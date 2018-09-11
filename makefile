@@ -86,7 +86,7 @@ run2:
 
 check_xeon:
 	@echo $(M) $(N)
-	icc -mkl check_mkl.c -o check_mkl.out -fopenmp
+	icc -mkl check_mkl.c -o check_mkl.out -fopenmp -w
 	./check_mkl.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin $(M) $(N)
 
 
