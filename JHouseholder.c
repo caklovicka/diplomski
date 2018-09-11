@@ -175,11 +175,14 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
-			#pragma omp parallel for
+			int Mi = M - i;
+			nthreads = Mi/D > omp_get_max_threads() ? Mi/D : omp_get_max_threads();
+			if (Mi/D == 0) nthreads = 1;
+
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
 
 			double complex alpha;
-			int Mi = M - i;
 			int inc = 1;
 
 			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
@@ -194,7 +197,10 @@ int main(int argc, char* argv[]){
 
 		if( t[k] < k ) t[k] = k;
 
-		#pragma omp parallel for
+		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
+		if ((M-k)/D == 0) nthreads = 1;
+
+		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*k];
 
 		double complex akk;
@@ -215,8 +221,8 @@ int main(int argc, char* argv[]){
 		// ------------------------ find pivot_lambda ------------------------
 
 
-		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-		if ((N-k)/D == 0) nthreads = 1;
+		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
+		if ((N-k-1)/D == 0) nthreads = 1;
 
 		#pragma omp parallel num_threads( nthreads )
 		{
@@ -249,11 +255,14 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[pivot_r]; i < k; ++i){
 
-			#pragma omp parallel for
+			int Mi = M - i;
+			nthreads = Mi/D > omp_get_max_threads() ? Mi/D : omp_get_max_threads();
+			if (Mi/D == 0) nthreads = 1;
+
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*pivot_r];
 
 			double complex alpha;
-			int Mi = M - i;
 			int inc = 1;
 
 			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
@@ -268,7 +277,10 @@ int main(int argc, char* argv[]){
 
 		if( t[pivot_r] < k ) t[pivot_r] = k;
 
-		#pragma omp parallel for
+		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
+		if ((M-k)/D == 0) nthreads = 1;
+
+		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
@@ -371,11 +383,14 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
-			#pragma omp parallel for
+			int Mi = M - i;
+			nthreads = Mi/D > omp_get_max_threads() ? Mi/D : omp_get_max_threads();
+			if (Mi/D == 0) nthreads = 1;
+
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
 
 			double complex alpha;
-			int Mi = M - i;
 			int inc = 1;
 
 			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
@@ -388,7 +403,7 @@ int main(int argc, char* argv[]){
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
 
-		if( t[k] < k) t[k] = k;
+		if( t[k] < k ) t[k] = k;
 
 
 		// check the condition sign(Akk) = Jk
@@ -472,11 +487,12 @@ int main(int argc, char* argv[]){
 		zcopy(&Mk, &G[k+M*k], &inc, &v[k+M*k], &inc);
 		v[k + M*k] -= gkk;
 
-		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
-		if (Mk/D == 0) nthreads = 1;
-
 		// update G
 		G[k + M*k] = gkk;
+
+		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
+		if ( (Mk-1)/D == 0) nthreads = 1;
+		
 		#pragma omp parallel for num_threads(nthreads)
 		for(i = k+1; i < M; ++i) G[i + M*k] = 0;
 	
