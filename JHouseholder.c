@@ -81,7 +81,6 @@ int main(int argc, char* argv[]){
 
 	// allocate memory
 	double complex *G = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
-	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *v = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);	// reflector vectors
 	int *t = (int*) mkl_malloc(N*sizeof(int), 64);		// which transformations on which column were applied
 	double complex *vJv = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// reflector vector J norms
@@ -100,7 +99,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || norm == NULL || v == NULL || t == 0 || vJv == NULL || J == NULL || Pcol == NULL || Prow == NULL || f == NULL ){
+	if(G == NULL || v == NULL || t == 0 || vJv == NULL || J == NULL || Pcol == NULL || Prow == NULL || f == NULL ){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -320,10 +319,9 @@ int main(int argc, char* argv[]){
 			t[pivot_r] = t[k];
 			t[k] = itemp;
 
-
-			double complex ctemp = norm[pivot_r];
-			norm[pivot_r] = norm[k];
-			norm[k] = ctemp;
+			double complex ctemp = vJv[pivot_r];
+			vJv[pivot_r] = vJv[k];
+			vJv[k] = ctemp;
 
 
 			int inc = 1;
@@ -357,9 +355,9 @@ int main(int argc, char* argv[]){
 			t[pivot_r] = t[k];
 			t[k] = itemp;
 
-			double complex ctemp = norm[pivot_r];
-			norm[pivot_r] = norm[k+1];
-			norm[k+1] = ctemp;
+			double complex ctemp = vJv[pivot_r];
+			vJv[pivot_r] = vJv[k+1];
+			vJv[k+1] = ctemp;
 
 			int inc = 1;
 			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
