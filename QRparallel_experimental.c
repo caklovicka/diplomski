@@ -1311,10 +1311,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printMatrix(G, M, N);
-		printMatrix(&f[k], M-k, 1);
-
-
 		// apply the reflector on a submatrix
 
 		char non_trans = 'N';

@@ -175,12 +175,6 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
-			if(k == 2){
-			printf("v%d = \n", i);
-			printMatrix(&v[i+M*i], M-i, 1);
-			printf("g = \n");
-			printMatrix(&G[i+M*k], M-i, 1);}
-
 			#pragma omp parallel for
 			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
 
@@ -320,8 +314,6 @@ int main(int argc, char* argv[]){
 			t[pivot_r] = t[k];
 			t[k] = itemp;
 
-			printf("RADIM Pcol\n");
-
 			int inc = 1;
 			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
 			if(M/D == 0) mkl_nthreads = 1;
@@ -416,9 +408,6 @@ int main(int argc, char* argv[]){
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 
-			printf("RADIM Prow\n");
-			printMatrix(v, M, k-1);
-
 			// swap rows in G 
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
@@ -431,8 +420,6 @@ int main(int argc, char* argv[]){
 			if(k/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&k, &v[k], &M, &v[i], &M);
-
-			printMatrix(v, M, k-1);
 		}
 
 		else if( Akk < 0 && J[k] > 0){
@@ -448,8 +435,6 @@ int main(int argc, char* argv[]){
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 
-			printf("RADIM Prow\n");
-
 			// swap rows in G 
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
@@ -457,15 +442,11 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
 
-			printMatrix(v, M, k-1);
-
 			// swap rows in v 
 			mkl_nthreads = k/D > mkl_get_max_threads() ? k/D : mkl_get_max_threads();
 			if(k/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&k, &v[k], &M, &v[i], &M);
-
-			printMatrix(v, M, k-1);
 		}
 		
 
