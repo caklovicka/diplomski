@@ -1295,6 +1295,8 @@ int main(int argc, char* argv[]){
 		// constant needed to make the reflector H
 		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
+		printMatrix(&f[k], M-k, 1);
+
 
 		// make the reflector
 		

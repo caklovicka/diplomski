@@ -497,6 +497,8 @@ int main(int argc, char* argv[]){
 		last_pivot = 1;
 		LOOP_END: continue;
 
+		printMatrix(&v[k+M*k], 1, M-k);
+
 	}	// END OF MAIN LOOP
 
 
