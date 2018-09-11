@@ -419,6 +419,9 @@ int main(int argc, char* argv[]){
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
 
+		printf("nakon trnasformacije stupca %d\n", k);
+		printMatrix(G, M, N);
+
 
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
