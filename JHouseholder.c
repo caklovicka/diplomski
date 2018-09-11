@@ -400,7 +400,7 @@ int main(int argc, char* argv[]){
 		for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
 		// [SEQUENTIAL] outer loop
-		for(i = 0; i <= k-1; ++i){
+		for(i = 0; i < k; ++i){
 
 			double complex alpha;
 			int Mi = M - i;
@@ -440,6 +440,13 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
+
+			// swap rows in v 
+			int kk = k-1;
+			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
+			if(kk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &v[k], &M, &v[i], &M);
 		}
 
 		else if( Akk < 0 && J[k] > 0){
@@ -462,6 +469,13 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
+
+			// swap rows in v 
+			int kk = k-1;
+			mkl_nthreads = kk/D > mkl_get_max_threads() ? kk/D : mkl_get_max_threads();
+			if(kk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &v[k], &M, &v[i], &M);
 		}
 		
 
