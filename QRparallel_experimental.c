@@ -34,7 +34,7 @@
 #define eps 1e-1
 #define refresh 30
 
-#define D 128
+#define D 64
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -258,8 +258,6 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
-		printMatrix(G, M, N);
-		printf("A%d = %lg\n", k, Akk);
 
 		if(k == N-1) goto PIVOT_1;
 
@@ -1297,8 +1295,6 @@ int main(int argc, char* argv[]){
 
 		// constant needed to make the reflector H
 		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
-
-		printMatrix(&f[k], M-k, 1);
 
 
 		// make the reflector
