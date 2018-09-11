@@ -258,8 +258,6 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
-		printf("A%d = %lg\n", k, Akk);
-		goto PIVOT_1;
 
 		if(k == N-1) goto PIVOT_1;
 
