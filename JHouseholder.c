@@ -160,7 +160,7 @@ int main(int argc, char* argv[]){
 	int last_pivot = -1;
 	start = omp_get_wtime();
 
-	int i, j, k, nthreads;
+	int i, j, k, nthreads, mkl_nthreads;
 
 
 	// first compute J-norms of matrix G
@@ -278,7 +278,7 @@ int main(int argc, char* argv[]){
 				double complex Aik = 0;
 				int Mk = M-k;
 				int inc = 1;
-				int mkl_nthreads = mkl_get_max_threads() / nthreads;
+				mkl_nthreads = mkl_get_max_threads() / nthreads;
 				if(mkl_nthreads == 0) mkl_nthreads = 1;
 				mkl_set_num_threads_local( mkl_nthreads );
 				zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
@@ -314,7 +314,7 @@ int main(int argc, char* argv[]){
 			double complex Air = 0;
 			int Mk = M-k;
 			int inc = 1;
-			int mkl_nthreads = mkl_get_max_threads() / nthreads;
+			mkl_nthreads = mkl_get_max_threads() / nthreads;
 			if(mkl_nthreads == 0) mkl_nthreads = 1;
 			mkl_set_num_threads_local( mkl_nthreads );
 			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
@@ -339,7 +339,7 @@ int main(int argc, char* argv[]){
 
 
 			int inc = 1;
-			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
+			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
@@ -370,7 +370,7 @@ int main(int argc, char* argv[]){
 			norm[k+1] = ctemp;
 
 			int inc = 1;
-			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
+			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
@@ -401,14 +401,14 @@ int main(int argc, char* argv[]){
 			int Mi = M - i;
 			int inc = 1;
 
-			int mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
+			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
 			if(Mi/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 
 			zdotc(&alpha, &Mi, &G[i + M*k], &inc, &v[i + M*i], &inc);
 			alpha = - 2 * alpha / vJv[k];
 
-			zaxpy(&Mi, &alpha, &G[i + M*k], &inc, v[i + M*i], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+			zaxpy(&Mi, &alpha, &G[i + M*k], &inc, &v[i + M*i], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
 
 
@@ -431,7 +431,7 @@ int main(int argc, char* argv[]){
 
 			// swap rows in G 
 			int Nk = N - k;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
@@ -453,7 +453,7 @@ int main(int argc, char* argv[]){
 
 			// swap rows in G 
 			int Nk = N - k;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
@@ -510,10 +510,7 @@ int main(int argc, char* argv[]){
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
-	printf("mnozenje u PIVOT_1 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", mnozenjetime, mnozenjetime/pivot1time * 100, mnozenjetime/seconds * 100);
-	printf("redukcija u PIVOT_2 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
-
 
 
 	// ----------------------------------------- writing -----------------------------------------
@@ -564,8 +561,7 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	end = omp_get_wtime();
-	seconds = (double)(end - start);
+	seconds = (double)(omp_get_wtime() - start);
 	printf("writing time = %lg s\n", seconds);
 
 

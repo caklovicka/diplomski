@@ -44,7 +44,6 @@ runH:
 	./JHouseholder.out data/G.bin data/J.bin $(M) $(N) -w
 
 
-
 generate_xeon:
 	rm -rf data
 	mkdir data
