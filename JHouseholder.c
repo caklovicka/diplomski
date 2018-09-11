@@ -320,11 +320,6 @@ int main(int argc, char* argv[]){
 			t[pivot_r] = t[k];
 			t[k] = itemp;
 
-			double complex ctemp = vJv[pivot_r];
-			vJv[pivot_r] = vJv[k];
-			vJv[k] = ctemp;
-
-
 			int inc = 1;
 			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
 			if(M/D == 0) mkl_nthreads = 1;
@@ -355,10 +350,6 @@ int main(int argc, char* argv[]){
 			itemp = t[pivot_r];
 			t[pivot_r] = t[k];
 			t[k] = itemp;
-
-			double complex ctemp = vJv[pivot_r];
-			vJv[pivot_r] = vJv[k+1];
-			vJv[k+1] = ctemp;
 
 			int inc = 1;
 			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
