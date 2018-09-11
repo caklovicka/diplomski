@@ -185,7 +185,7 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
-			printf("primjena rotacija na stupac %d\n", k);
+			printf("primjena rotacija na stupac %d\n, iz pivota", k);
 
 			double complex alpha;
 			int Mi = M - i;
@@ -209,6 +209,8 @@ int main(int argc, char* argv[]){
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
+
+		printMatrix(G, M, N);
 
 		double Akk = (double) akk;
 

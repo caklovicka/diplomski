@@ -259,6 +259,8 @@ int main(int argc, char* argv[]){
 
 		double Akk = (double) norm[k];
 
+		printMatrix(G, M, N);
+
 		printf("A%d = %lg\n", k, Akk);
 
 		if(k == N-1) goto PIVOT_1;
