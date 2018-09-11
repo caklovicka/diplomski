@@ -177,10 +177,8 @@ int main(int argc, char* argv[]){
 
 		// first apply the previous rotations
 
-		int min = t[k] < k ? t[k] : k;
-
 		#pragma omp parallel for
-		for(i = min; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
@@ -202,6 +200,9 @@ int main(int argc, char* argv[]){
 		}
 		t[k] = k;
 
+		#pragma omp parallel for
+		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+
 		double complex akk;
 		int Mk = M - k;
 		int inc = 1;
@@ -209,9 +210,6 @@ int main(int argc, char* argv[]){
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
-
-		printMatrix(&G[k+M*k], Mk, 1);
-		printMatrix(&f[k], Mk, 1);
 
 		double Akk = (double) akk;
 
@@ -254,10 +252,31 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ find pivot_sigma ------------------------
 
-		min = t[k] < k ? t[k] : k;
+		// first apply previous rotation
 
 		#pragma omp parallel for
-		for(i = min; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+		for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+
+		// [SEQUENTIAL] outer loop
+		for(i = t[pivot_r]; i < k; ++i){
+
+			double complex alpha;
+			int Mi = M - i;
+			int inc = 1;
+
+			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
+			if(Mi/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+
+			zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
+			alpha = - 2 * alpha / vJv[i];
+
+			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*pivot_r], &inc);	// G[i + M*r] = alpha * v[i + M*i] + G[i + M*r]
+		}
+		t[pivot_r] = k;
+
+		#pragma omp parallel for
+		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -280,27 +299,6 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);	//return global value
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
-
-
-		// first apply previous rotation
-
-		// [SEQUENTIAL] outer loop
-		for(i = t[pivot_r]; i < k; ++i){
-
-			double complex alpha;
-			int Mi = M - i;
-			int inc = 1;
-
-			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
-			if(Mi/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-
-			zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
-			alpha = - 2 * alpha / vJv[i];
-
-			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*pivot_r], &inc);	// G[i + M*r] = alpha * v[i + M*i] + G[i + M*r]
-		}
-		t[pivot_r] = k;
 
 		double complex arr;
 		Mk = M - k;
