@@ -320,6 +320,8 @@ int main(int argc, char* argv[]){
 			t[pivot_r] = t[k];
 			t[k] = itemp;
 
+			printf("RADIM Pcol\n");
+
 			int inc = 1;
 			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
 			if(M/D == 0) mkl_nthreads = 1;
