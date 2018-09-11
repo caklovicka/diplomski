@@ -400,7 +400,7 @@ int main(int argc, char* argv[]){
 		for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
 		// [SEQUENTIAL] outer loop
-		for(i = 0; i < k; ++i){
+		for(i = 0; i <= k-1; ++i){
 
 			double complex alpha;
 			int Mi = M - i;
@@ -413,7 +413,7 @@ int main(int argc, char* argv[]){
 			zdotc(&alpha, &Mi, &f[i], &inc, &v[i + M*i], &inc);
 			alpha = - 2 * alpha / vJv[i];
 
-			zaxpy(&Mi, &alpha, &G[i + M*k], &inc, &v[i + M*i], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
 
 
