@@ -414,6 +414,8 @@ int main(int argc, char* argv[]){
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 
+			printf("RADIM Prow\n");
+
 			// swap rows in G 
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
@@ -441,6 +443,8 @@ int main(int argc, char* argv[]){
 			long int itemp = Prow[i];
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
+
+			printf("RADIM Prow\n");
 
 			// swap rows in G 
 			int Nk = N - k;
