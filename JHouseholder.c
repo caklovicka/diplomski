@@ -82,14 +82,13 @@ int main(int argc, char* argv[]){
 	// allocate memory
 	double complex *G = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	double complex *v = (double complex*) mkl_malloc(M*M*sizeof(double complex), 64);	// reflector vectors
+	double complex *v = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);	// reflector vectors
+	double complex *t = (double complex*) mkl_malloc(N*sizeof(double complex), 64);		// which transformations on which column were applied
 	double complex *vJv = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// reflector vector J norms
-	double complex *U = (double complex*) mkl_malloc(16*sizeof(double complex), 64);	// matrix of rotatoins
 	double *J = (double*) mkl_malloc(M*sizeof(double), 64);
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
-	double complex *tempf = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector tempf, fisrt column after Householder transform
 
 
 	// check if files are opened
@@ -101,7 +100,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || norm == NULL || v == NULL || J == NULL || U == NULL || Pcol == NULL || Prow == NULL || tempf == NULL || f == NULL ){
+	if(G == NULL || norm == NULL || v == NULL || t == 0 || vJv == NULL || J == NULL || Pcol == NULL || Prow == NULL || f == NULL ){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -117,6 +116,7 @@ int main(int argc, char* argv[]){
 			int j;
 			for(j = 0; j < N; ++j ){
 				Pcol[j] = j;
+				t[j] = 0;
 			}
 		}
 
@@ -195,15 +195,32 @@ int main(int argc, char* argv[]){
 					// pivot 1 was last
 					if( last_pivot == 1 ){
 
-						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
-						double frac = cabs(norm[j]) / cabs(denomi);
+						double complex vJg = norm[j] + conj(v[k-1 + M*(k-1)] - G[k-1+M*j]);
+						double factor = cabs(1 - 2*vJg / vJv[k-1] );
 
-						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
-							norm[j] -= denomi;
+						if( factor * factor > eps )
+							norm[j] = norm[j] * factor * factor;
 
 						// else compute the norm again 
 						else{
+
+							// apply rotations first
+							for(i = t[k]; i < k; ++i){
+
+								mkl_set_num_threads_local(1);
+
+								double complex alpha;
+								int Mi = M - i;
+								int inc = 1;
+
+								zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
+								alpha = - 2 * alpha / vJv[i];
+
+								zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+							}
+
+							t[k] = k;
+
 							norm[j] = 0;
 							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 						}
@@ -230,7 +247,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// refresh norms
-		else{
+		/*else{
 
 			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 			if ((N-k)/D == 0) nthreads = 1;
@@ -241,7 +258,8 @@ int main(int argc, char* argv[]){
 				for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
 			}
 		}
-
+		*/
+		mkl_set_num_threads_local(1);
 
 
 		// ------------------------ start the pivoting strategy ------------------------
@@ -333,6 +351,11 @@ int main(int argc, char* argv[]){
 			Pcol[pivot_r] = Pcol[k];
 			Pcol[k] = itemp;
 
+			itemp = t[pivot_r];
+			t[pivot_r] = t[k];
+			t[k] = itemp;
+
+
 			double complex ctemp = norm[pivot_r];
 			norm[pivot_r] = norm[k];
 			norm[k] = ctemp;
@@ -364,6 +387,10 @@ int main(int argc, char* argv[]){
 			long int itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k+1];
 			Pcol[k+1] = itemp;
+
+			itemp = t[pivot_r];
+			t[pivot_r] = t[k];
+			t[k] = itemp;
 
 			double complex ctemp = norm[pivot_r];
 			norm[pivot_r] = norm[k+1];
@@ -403,7 +430,7 @@ int main(int argc, char* argv[]){
 		for(i = 0; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
 		// [SEQUENTIAL] outer loop
-		for(i = 0; i < k; ++i){
+		for(i = t[k]; i < k; ++i){
 
 			double complex alpha;
 			int Mi = M - i;
@@ -418,6 +445,7 @@ int main(int argc, char* argv[]){
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
+		t[k] = k;
 
 		printf("nakon trnasformacije stupca %d\n", k);
 		printMatrix(G, M, N);
