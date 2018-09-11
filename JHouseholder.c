@@ -406,7 +406,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 
 			zdotc(&alpha, &Mi, &G[i + M*k], &inc, &v[i + M*i], &inc);
-			alpha = - 2 * alpha / vJv[k];
+			alpha = - 2 * alpha / vJv[i];
 
 			zaxpy(&Mi, &alpha, &G[i + M*k], &inc, &v[i + M*i], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
@@ -498,6 +498,27 @@ int main(int argc, char* argv[]){
 		LOOP_END: continue;
 
 	}	// END OF MAIN LOOP
+
+
+	// apply the last reflector on the last column
+	if( last_pivot == 1){
+
+		for(i = 0; i < N-1; ++i){
+
+			double complex alpha;
+			int Mi = M - i;
+			int inc = 1;
+
+			mkl_nthreads = Mi/D > mkl_get_max_threads() ? Mi/D : mkl_get_max_threads();
+			if(Mi/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+
+			zdotc(&alpha, &Mi, &G[i + M*(N-1)], &inc, &v[i + M*i], &inc);
+			alpha = - 2 * alpha / vJv[i];
+
+			zaxpy(&Mi, &alpha, &G[i + M*(N-1)], &inc, &v[i + M*i], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
+		}
+	}
 
 
 
