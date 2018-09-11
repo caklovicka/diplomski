@@ -172,19 +172,11 @@ int main(int argc, char* argv[]){
 
 
 		// first apply the previous rotations
-
-		#pragma omp parallel for
-		for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*k];
-
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
-			printf("primjena rotacija na stupac %d iz pivota\n", k);
-
-			if(k == 2){
-				printMatrix(&G[k*M], M, 1);
-				printMatrix(&v[i+M*i], M-i, 1);
-			}
+			#pragma omp parallel for
+			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
 
 			double complex alpha;
 			int Mi = M - i;
@@ -199,8 +191,6 @@ int main(int argc, char* argv[]){
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
-
-		if(k == 2) printMatrix(&G[k*M], M, 1);
 
 		if( t[k] < k ) t[k] = k;
 
@@ -258,12 +248,11 @@ int main(int argc, char* argv[]){
 		// ------------------------ find pivot_sigma ------------------------
 
 		// first apply previous rotation
-
-		#pragma omp parallel for
-		for(i = t[pivot_r]; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
-
 		// [SEQUENTIAL] outer loop
 		for(i = t[pivot_r]; i < k; ++i){
+
+			#pragma omp parallel for
+			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*pivot_r];
 
 			double complex alpha;
 			int Mi = M - i;
@@ -390,20 +379,11 @@ int main(int argc, char* argv[]){
 
 
 		// first apply the previous rotations
-
-		nthreads = M/D > omp_get_max_threads() ? M/D : omp_get_max_threads();
-		if (M/D == 0) nthreads = 1;
-
-		if(t[k] < k){
-
-			printf("primjena rotacija na stupac %d\n", k);
-
-			#pragma omp parallel for num_threads( nthreads )
-			for(i = t[k]; i < M; ++i)	f[i] = J[i] * G[i+M*k];
-		}
-
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
+
+			#pragma omp parallel for
+			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
 
 			double complex alpha;
 			int Mi = M - i;
