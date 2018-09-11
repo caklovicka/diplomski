@@ -1311,6 +1311,8 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		printMatrix(&f[k], M-k, 1);
+
 
 		// apply the reflector on a submatrix
 

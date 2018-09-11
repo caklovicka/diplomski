@@ -175,6 +175,12 @@ int main(int argc, char* argv[]){
 		// [SEQUENTIAL] outer loop
 		for(i = t[k]; i < k; ++i){
 
+			if(k == 2){
+			printf("v%d = \n", i);
+			printMatrix(&v[i+M*i], M-i, 1);
+			printf("g = \n");
+			printMatrix(&G[i+M*k], M-i, 1)}
+
 			#pragma omp parallel for
 			for(j = i; j < M; ++j) f[j] = J[j] * G[j+M*k];
 
