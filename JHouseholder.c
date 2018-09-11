@@ -410,7 +410,7 @@ int main(int argc, char* argv[]){
 			if(Mi/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 
-			zdotc(&alpha, &Mi, &f[i], &inc, &v[i + M*i], &inc);
+			zdotc(&alpha, &Mi, &v[i + M*i], &inc, &f[i], &inc);
 			alpha = - 2 * alpha / vJv[i];
 
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
