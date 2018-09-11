@@ -258,6 +258,9 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
+
+		printf("A%d = %lg\n", k, Akk);
+
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
@@ -1210,8 +1213,6 @@ int main(int argc, char* argv[]){
 	
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1: 
-
-		printMatrix(G, M, N);
 
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 

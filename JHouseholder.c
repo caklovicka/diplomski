@@ -273,6 +273,7 @@ int main(int argc, char* argv[]){
 		double Akk = (double) norm[k];
 
 		// DELETE
+		printf("A%d = %lg\n", k, Akk);
 		goto PIVOT_1;
 
 		if(k == N-1) goto PIVOT_1;
@@ -413,9 +414,6 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1: 
 
-		printMatrix(G, M, N);
-
-
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 
 		pivot_1_count += 1;
@@ -446,9 +444,6 @@ int main(int argc, char* argv[]){
 			zaxpy(&Mi, &alpha, &v[i + M*i], &inc, &G[i + M*k], &inc);	// G[i + M*k] = alpha * v[i + M*i] + G[i + M*k]
 		}
 		t[k] = k;
-
-		printf("nakon trnasformacije stupca %d\n", k);
-		printMatrix(G, M, N);
 
 
 		// check the condition sign(Akk) = Jk
