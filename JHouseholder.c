@@ -399,20 +399,21 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(j = k+1; j < N; ++j){
 
-			int Mk = M - k;
-			mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
-			if (mkl_nthreads == 0) mkl_nthreads = 1;
-
 			double complex alpha = 0;
-
-			#pragma omp parallel for reduction(+:alpha) num_threads( mkl_nthreads )
 			for(i = k; i < M; ++i) alpha += conj(f[i]) * J[i] * G[i+M*j];
 
 			int inc = 1;
 			alpha = - 2 * alpha / fJf;
 
+			int Mk = M - k;
+			mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+			if (mkl_nthreads == 0) mkl_nthreads = 1;
+
+			mkl_set_num_threads_local(mkl_nthreads);
+
 			zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);	// G[k + M*j] = alpha * f[k] + G[k + M*k]
 		}
+		mkl_set_num_threads_local(0);
 	
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
