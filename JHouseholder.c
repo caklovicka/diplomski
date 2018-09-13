@@ -257,7 +257,7 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
-		zdotc(&akk, &Mk, &G[k+M*pivot_r], &inc, &f[k], &inc);
+		zdotc(&arr, &Mk, &G[k+M*pivot_r], &inc, &f[k], &inc);
 
 		double Arr = (double) arr;
 

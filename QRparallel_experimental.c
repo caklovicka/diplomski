@@ -293,6 +293,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);	//return global value
+		
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 
