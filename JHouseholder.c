@@ -82,6 +82,10 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
+	int *p = (int*) mkl_malloc(M*sizeof(int), 64);	// for location of +1 in J for givens reduction
+	int *n = (int*) mkl_malloc(M*sizeof(int), 64);  // for location of -1 in J for givens reduction
+	double complex *U = (double complex*) mkl_malloc(16*sizeof(double complex), 64);	// matrix of rotatoins
+	double complex *T = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -149,6 +153,7 @@ int main(int argc, char* argv[]){
 	double pivot2time = 0;
 	double pivot1time = 0;
 	double pivotiranje = 0;
+	double redukcijatime = 0;
 	int pivot_1_count = 0;
 	int pivot_2_count = 0;
 	int last_pivot = -1;
@@ -288,10 +293,6 @@ int main(int argc, char* argv[]){
 			long int itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k+1];
 			Pcol[k+1] = itemp;
-
-			double complex ctemp = norm[pivot_r];
-			norm[pivot_r] = norm[k+1];
-			norm[k+1] = ctemp;
 
 			int inc = 1;
 			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
@@ -837,10 +838,6 @@ int main(int argc, char* argv[]){
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
 
-				double complex ctemp = norm[k];
-				norm[k] = norm[k+1];
-				norm[k+1] = ctemp;
-
 				int n_ = k + 4;
 				int inc = 1;
 				int mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
@@ -1003,10 +1000,6 @@ int main(int argc, char* argv[]){
 				long int itemp = Pcol[k];
 				Pcol[k] = Pcol[k+1];
 				Pcol[k+1] = itemp;
-
-				double complex ctemp = norm[k];
-				norm[k] = norm[k+1];
-				norm[k+1] = ctemp;
 
 				int n_ = k + 3;
 				int inc = 1;
