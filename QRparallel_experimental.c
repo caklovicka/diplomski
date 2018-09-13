@@ -166,7 +166,6 @@ int main(int argc, char* argv[]){
 
 	int i, j, k, nthreads, mkl_nthreads;
 
-
 	for(k = 0; k < N; ++k){
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
