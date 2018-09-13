@@ -801,7 +801,7 @@ int main(int argc, char* argv[]){
 
 		//make rows real which need to be
 
-		int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
+		mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
 		if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 		#pragma omp parallel num_threads(2)
@@ -1148,7 +1148,7 @@ int main(int argc, char* argv[]){
 
 	
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
-		
+
 		PIVOT_1: 
 
 		last_pivot = 1;
