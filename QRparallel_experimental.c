@@ -229,13 +229,13 @@ int main(int argc, char* argv[]){
 		// ------------------------ find pivot_sigma ------------------------
 
 		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
-		if ((M-k)/D == 0) nthreads = 1;
+		if (nthreads == 0) nthreads = 1;
 
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-		if ((N-k)/D == 0) nthreads = 1;
+		if (nthreads == 0) nthreads = 1;
 
 		#pragma omp parallel for reduction(max:pivot_sigma) num_threads( nthreads ) 
 		for(i = k; i < N; ++i){
@@ -285,6 +285,7 @@ int main(int argc, char* argv[]){
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
+		printf("tu sam!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
@@ -434,24 +435,6 @@ int main(int argc, char* argv[]){
 
 						mkl_set_num_threads_local(mkl_nthreads);
 
-						// G[p[i], k] destroys G[p[i+offset], k]
-						// first if kth column isnt real, make it real
-
-						/*if( cimag(G[p[i] + M*k]) != 0){
-							double complex scal = conj(G[p[i] + M*k]) / cabs(G[p[i] + M*k]);
-							G[p[i] + M*k] = cabs(G[p[i] + M*k]);
-							int Nk = N - k - 1;
-							zscal(&Nk, &scal, &G[p[i] + M*(k+1)], &M);
-						}
-
-						if( cimag(G[p[i+offset] + M*k]) != 0){
-                            double complex scal = conj(G[p[i+offset] + M*k]) / cabs(G[p[i+offset] + M*k]);
-                            G[p[i+offset] + M*k] = cabs(G[p[i+offset] + M*k]);
-                            int Nk = N - k - 1;
-                            zscal(&Nk, &scal, &G[p[i+offset] + M*(k+1)], &M);
-                        }*/
-
-
 						double c;
 						double complex s;
 						double complex eliminator = G[p[i] + M*k];
@@ -464,13 +447,6 @@ int main(int argc, char* argv[]){
 						G[p[i + offset] + M*k] = 0;
 					}
 				}
-
-				/*if(np == 1 && cimag(G[p[0] + M*k]) != 0){
-					double complex scal = conj(G[p[0] + M*k]) / cabs(G[p[0] + M*k]);
-					G[p[0] + M*k] = cabs(G[p[0] + M*k]);
-					int Nk = N - k - 1;
-					zscal(&Nk, &scal, &G[p[0] + M*(k+1)], &M);
-				}*/
 			}
 
 			// second thread kills negatives
@@ -490,23 +466,6 @@ int main(int argc, char* argv[]){
 
 						mkl_set_num_threads_local(mkl_nthreads);
 
-						// G[n[i], k] destroys G[n[i+offset], k]
-						// make them real
-
-						/*if( cimag(G[n[i] + M*k]) != 0){
-							double complex scal = conj(G[n[i] + M*k]) / cabs(G[n[i] + M*k]);
-							G[n[i] + M*k] = cabs(G[n[i] + M*k]);
-							int Nk = N - k - 1;
-							zscal(&Nk, &scal, &G[n[i] + M*(k+1)], &M);
-						}
-
-						if( cimag(G[n[i+offset] + M*k]) != 0){
-							double complex scal = conj(G[n[i+offset] + M*k]) / cabs(G[n[i+offset] + M*k]);
-							G[n[i+offset]+M*k] = cabs(G[n[i+offset]+M*k]);
-							int Nk = N - k - 1;
-							zscal(&Nk, &scal, &G[n[i+offset] + M*(k+1)], &M);
-						}*/
-
 						double c;
 						double complex s;
 						double complex eliminator = G[n[i] + M*k];
@@ -518,14 +477,7 @@ int main(int argc, char* argv[]){
 						zrot(&Nk, &G[n[i] + M*k], &M, &G[n[i + offset] + M*k], &M, &c, &s);
 						G[n[i + offset] + M*k] = 0;
 					}
-				}
-
-				/*if(nn == 1 && cimag(G[n[0] + M*k]) != 0){
-					double complex scal = conj(G[n[0] + M*k]) / cabs(G[n[0] + M*k]);
-					G[n[0] + M*k] = cabs(G[n[0] + M*k]);
-					int Nk = N - k - 1;
-					zscal(&Nk, &scal, &G[n[0] + M*(k+1)], &M);
-				}*/
+				}	
 			}
 		}
 		mkl_set_num_threads_local(0);	//return global value
