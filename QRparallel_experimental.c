@@ -167,11 +167,89 @@ int main(int argc, char* argv[]){
 
 	int i, j, k, nthreads;
 
+
+	// first compute J-norms of matrix G
+
+	nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
+	if (N/D == 0) nthreads = 1;
+	double norm_time = omp_get_wtime();
+
+	#pragma omp parallel for num_threads( nthreads )
+	for(j = 0; j < N; ++j){
+		norm[j] = 0;
+		for(i = 0; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+	}
+	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
+
+
 	for(k = 0; k < N; ++k){
 
 		//printf("k = %d\n", k);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
+
+		// ------------------------ update J-norms of columns ------------------------
+
+		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
+
+			#pragma omp parallel num_threads( nthreads )
+			{
+				#pragma omp for nowait
+				for( j = k; j < N; ++j){
+
+					// pivot 1 was last
+					if( last_pivot == 1 ){
+
+						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
+						double frac = cabs(norm[j]) / cabs(denomi);
+
+						// not a case of catastrophic cancellation
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
+							norm[j] -= denomi;
+
+						// else compute the norm again 
+						else{
+							norm[j] = 0;
+							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						}
+					}
+
+					// pivot 2 was last
+					else if( last_pivot == 2 ){
+
+						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
+						double frac = cabs(norm[j]) / cabs(denomi);
+						
+						// not a case of catastrophic cancellation
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
+							norm[j] -= denomi;
+
+						// else compute the norm again 
+						else{
+							norm[j] = 0;
+							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						}
+					}
+				}
+			}
+		}
+
+		// refresh norms
+		else{
+
+			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+			if ((N-k)/D == 0) nthreads = 1;
+
+			#pragma omp parallel for num_threads( nthreads )
+			for(j = k; j < N; ++j){
+				norm[j] = 0;
+				for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+			}
+		}
+
+
+
+		// ------------------------ start the pivoting strategy ------------------------
 		
 		double pp = omp_get_wtime();
 		double pivot_lambda = 0;
@@ -179,15 +257,7 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double complex akk;
-		int Mk = M - k;
-		int inc = 1;
-		int mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
-
-		double Akk = (double) akk;
+		double Akk = (double) norm[k];
 
 		goto PIVOT_1;
 
@@ -258,15 +328,8 @@ int main(int argc, char* argv[]){
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
-		double complex arr;
-		Mk = M - k;
-		inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-		zdotc(&akk, &Mk, &G[k+M*pivot_r], &inc, &f[k], &inc);
 
-		double Arr = (double) arr;
+		double Arr = (double) norm[pivot_r];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
 			// gr is the pivot column 
@@ -802,7 +865,7 @@ int main(int argc, char* argv[]){
 
 		//make rows real which need to be
 
-		mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
+		int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
 		if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 		#pragma omp parallel num_threads(2)
@@ -1223,8 +1286,8 @@ int main(int argc, char* argv[]){
 		// and do f(k:M) = f(k:M) - g(k:M)
 
 		double complex alpha = -1;
-		inc = 1;
-		Mk = M - k;
+		int inc = 1;
+		int Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
