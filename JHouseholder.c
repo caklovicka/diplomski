@@ -358,7 +358,7 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 
 		last_pivot = 2;
-
+		k += 1;
 		goto LOOP_END;
 
 		// do a column swap pivot_r <-> k+1 if needed
