@@ -495,7 +495,6 @@ int main(int argc, char* argv[]){
 	mkl_free(G);
 	mkl_free(J);
 	mkl_free(f);
-	mkl_free(v);
 
 	printf("\n-------------------------------------------------------------------------------\n\n");
 	return(0);
