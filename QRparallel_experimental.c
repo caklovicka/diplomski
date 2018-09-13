@@ -167,89 +167,11 @@ int main(int argc, char* argv[]){
 
 	int i, j, k, nthreads;
 
-
-	// first compute J-norms of matrix G
-
-	nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
-	if (N/D == 0) nthreads = 1;
-	double norm_time = omp_get_wtime();
-
-	#pragma omp parallel for num_threads( nthreads )
-	for(j = 0; j < N; ++j){
-		norm[j] = 0;
-		for(i = 0; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-	}
-	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
-
-
 	for(k = 0; k < N; ++k){
 
 		//printf("k = %d\n", k);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
-
-		// ------------------------ update J-norms of columns ------------------------
-
-		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
-
-			#pragma omp parallel num_threads( nthreads )
-			{
-				#pragma omp for nowait
-				for( j = k; j < N; ++j){
-
-					// pivot 1 was last
-					if( last_pivot == 1 ){
-
-						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
-						double frac = cabs(norm[j]) / cabs(denomi);
-
-						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
-							norm[j] -= denomi;
-
-						// else compute the norm again 
-						else{
-							norm[j] = 0;
-							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-						}
-					}
-
-					// pivot 2 was last
-					else if( last_pivot == 2 ){
-
-						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
-						double frac = cabs(norm[j]) / cabs(denomi);
-						
-						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
-							norm[j] -= denomi;
-
-						// else compute the norm again 
-						else{
-							norm[j] = 0;
-							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-						}
-					}
-				}
-			}
-		}
-
-		// refresh norms
-		else{
-
-			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-			if ((N-k)/D == 0) nthreads = 1;
-
-			#pragma omp parallel for num_threads( nthreads )
-			for(j = k; j < N; ++j){
-				norm[j] = 0;
-				for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
-			}
-		}
-
-
-
-		// ------------------------ start the pivoting strategy ------------------------
 		
 		double pp = omp_get_wtime();
 		double pivot_lambda = 0;
@@ -257,20 +179,33 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-		double Akk = (double) norm[k];
-
-		if(k == N-1) goto PIVOT_1;
-
-		// ------------------------ find pivot_lambda ------------------------
 
 		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
 		if ((M-k)/D == 0) nthreads = 1;
 
 		#pragma omp parallel for num_threads( nthreads )
-		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*k];
 
-		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-		if ((N-k)/D == 0) nthreads = 1;
+		double complex akk;
+		int Mk = M - k;
+		int inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
+
+		double Akk = (double) akk;
+
+		// DELETE
+		goto PIVOT_1;
+
+		if(k == N-1) goto PIVOT_1;
+
+		// ------------------------ find pivot_lambda ------------------------
+
+
+		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
+		if ((N-k-1)/D == 0) nthreads = 1;
 
 		#pragma omp parallel num_threads( nthreads )
 		{
@@ -280,7 +215,7 @@ int main(int argc, char* argv[]){
 				double complex Aik = 0;
 				int Mk = M-k;
 				int inc = 1;
-				int mkl_nthreads = mkl_get_max_threads() / nthreads;
+				mkl_nthreads = mkl_get_max_threads() / nthreads;
 				if(mkl_nthreads == 0) mkl_nthreads = 1;
 				mkl_set_num_threads_local( mkl_nthreads );
 				zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
@@ -292,7 +227,8 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);	//return global value
+		mkl_set_num_threads_local(0);
+
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 
@@ -302,7 +238,7 @@ int main(int argc, char* argv[]){
 		if ((M-k)/D == 0) nthreads = 1;
 
 		#pragma omp parallel for num_threads( nthreads )
-		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -315,7 +251,7 @@ int main(int argc, char* argv[]){
 			double complex Air = 0;
 			int Mk = M-k;
 			int inc = 1;
-			int mkl_nthreads = mkl_get_max_threads() / nthreads;
+			mkl_nthreads = mkl_get_max_threads() / nthreads;
 			if(mkl_nthreads == 0) mkl_nthreads = 1;
 			mkl_set_num_threads_local( mkl_nthreads );
 			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
@@ -326,25 +262,24 @@ int main(int argc, char* argv[]){
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
+		double complex arr;
+		Mk = M - k;
+		inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+		zdotc(&akk, &Mk, &G[k+M*pivot_r], &inc, &f[k], &inc);
 
-		double Arr = (double) norm[pivot_r];
+		double Arr = (double) arr;
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
-			// gr is the pivot column 
-			// swap columns k <-> r
-			// then do PIVOT_1 with Householder
 
 			long int itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k];
 			Pcol[k] = itemp;
 
-			double complex ctemp = norm[pivot_r];
-			norm[pivot_r] = norm[k];
-			norm[k] = ctemp;
-
-
 			int inc = 1;
-			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
+			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
