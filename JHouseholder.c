@@ -78,8 +78,6 @@ int main(int argc, char* argv[]){
 
 	// allocate memory
 	double complex *G = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
-	double complex *v = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// reflector vectors
-	double complex *vJv = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// reflector vector J norms
 	double *J = (double*) mkl_malloc(M*sizeof(double), 64);
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
@@ -95,7 +93,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || v == NULL || t == 0 || vJv == NULL || J == NULL || Pcol == NULL || Prow == NULL || f == NULL ){
+	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || f == NULL ){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
