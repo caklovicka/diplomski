@@ -1223,8 +1223,8 @@ int main(int argc, char* argv[]){
 		// and do f(k:M) = f(k:M) - g(k:M)
 
 		double complex alpha = -1;
-		int inc = 1;
-		int Mk = M - k;
+		inc = 1;
+		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
