@@ -1212,21 +1212,19 @@ int main(int argc, char* argv[]){
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 		PIVOT_1: 
 
+		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
-
 		pivot_1_count += 1;
 		double start1 = omp_get_wtime();
+
 
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
 
-		//printf("PIVOT_1, k = %d\n", k);
-
 		if( Akk > 0 && J[k] < 0){
 
 			int i;
-			for(i = k+1; i < M; ++i)
-				if(J[i] > 0) break;
+			for(i = k+1; i < M; ++i) if(J[i] > 0) break;
 
 			J[k] = 1.0;
 			J[i] = -1.0;
@@ -1238,7 +1236,7 @@ int main(int argc, char* argv[]){
 
 			// swap rows in G 
 			int Nk = N - k;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
@@ -1246,8 +1244,7 @@ int main(int argc, char* argv[]){
 
 		else if( Akk < 0 && J[k] > 0){
 
-			for(i = k+1; i < M; ++i)
-				if(J[i] < 0) break;
+			for(i = k+1; i < M; ++i) if(J[i] < 0) break;
 
 			J[k] = -1.0;
 			J[i] = 1.0;
@@ -1260,7 +1257,7 @@ int main(int argc, char* argv[]){
 
 			// swap rows in G 
 			int Nk = N - k;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
@@ -1273,81 +1270,60 @@ int main(int argc, char* argv[]){
 
 		double complex H_sigma = 1;
 		if(cabs(G[k+M*k]) >= EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
-		f[k] = csqrt(cabs(Akk)) * H_sigma;
+		double complex gkk = csqrt(cabs(Akk)) * H_sigma;
 
-		#pragma omp parallel for num_threads(nthreads)
-		for(i = k+1; i < M; ++i) f[i] = 0;
+		// save the J norm of the vector
+		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
 
-		// make the vector f(k:M)
-		// copy f into tempf, so we dont need tu multyply the first column of G with H
-		// and do f(k:M) = f(k:M) - g(k:M)
-
+		// make the reflector vector and save it
 		double complex alpha = -1;
-		int inc = 1;
-		int Mk = M - k;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-		zcopy(&Mk, &f[k], &inc, &tempf[k], &inc);	// copy f into tempf
-		zaxpy(&Mk, &alpha, &G[k+M*k], &inc, &f[k], &inc);	// f(k:M) = f(k:M) - g(k:M)
-
-
-		// constant needed to make the reflector H
-		double complex wJw = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
-
-
-		// make the reflector
-		
-		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
-		if((M-k)/D == 0) nthreads = 1;
-		#pragma omp parallel for collapse(2) num_threads(nthreads)
-		for(j = k; j < M; ++j){
-			for(i = k; i < M; ++i){
-				H[i+M*j] = -2 * f[i] * conj(f[j]) * J[j] / wJw;
-				if(i == j) H[i+M*j] += 1;
-			}
-		}
-
-		// apply the reflector on a submatrix
-
-		char non_trans = 'N';
-		alpha = 1.0;
-		double complex beta = 0;
-		int Nk = N - k - 1;
-
-		//mkl_nthreads = (M*N)/DD > mkl_get_max_threads() ? (M*N)/DD : mkl_get_max_threads();
-		//if((M*N)/DD == 0) mkl_nthreads = 1;
-		//mkl_set_num_threads(mkl_nthreads);
-		mkl_set_dynamic(1);
-		double a = omp_get_wtime();
-		zgemm(&non_trans, &non_trans, &Mk, &Nk, &Mk, &alpha, &H[k+M*k], &M, &G[k+M*(k+1)], &M, &beta, T, &Mk);	// T = HG(k:M, k+1:N)
-		mnozenjetime = mnozenjetime + omp_get_wtime() - a;
-		mkl_set_dynamic(0);
-
-
-		// copy back things from T to G
-
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
-		zcopy(&Mk, &tempf[k], &inc, &G[k+M*k], &inc);
 
-		// G = T (copy columns)
-		nthreads = Nk/D > omp_get_max_threads() ? Nk/D : omp_get_max_threads();
-		if(Nk/D == 0) nthreads = 1;
-		mkl_set_num_threads((int)csqrt(mkl_nthreads));
-		#pragma omp parallel for num_threads((int)csqrt(nthreads))
-		for(j = 0; j < Nk; ++j) zcopy(&Mk, &T[j*Mk], &inc, &G[k + M*(j+k+1)], &inc);	
+		zcopy(&Mk, &G[k+M*k], &inc, &f[k], &inc);
+		f[k] -= gkk;
+
+		// update G
+		G[k + M*k] = gkk;
+
+		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
+		if ( (Mk-1)/D == 0) nthreads = 1;
+
+		#pragma omp parallel for num_threads(nthreads)
+		for(i = k+1; i < M; ++i) G[i + M*k] = 0;
+
+
+		// apply the rotation on the rest of the matrix
+		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+		if (nthreads == 0) nthreads = 1;
+
+		#pragma omp parallel for num_threads( nthreads )
+		for(j = k+1; j < N; ++j){
+
+			double complex alpha = 0;
+			for(i = k; i < M; ++i) alpha += conj(f[i]) * J[i] * G[i+M*j];
+
+			int inc = 1;
+			alpha = - 2 * alpha / fJf;
+
+			int Mk = M - k;
+			mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+			if (mkl_nthreads == 0) mkl_nthreads = 1;
+
+			mkl_set_num_threads_local(mkl_nthreads);
+
+			zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);	// G[k + M*j] = alpha * f[k] + G[k + M*k]
+		}
+		mkl_set_num_threads_local(0);
 	
-		double end1 = omp_get_wtime();
-		pivot1time += (double)(end1 - start1);
-
-		last_pivot = 1;
+		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
-	}
+
+	}	// END OF MAIN LOOP
 
 	end = omp_get_wtime();
 	seconds = (double)(end - start);
