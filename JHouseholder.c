@@ -368,7 +368,7 @@ int main(int argc, char* argv[]){
 		double complex gkk = csqrt(cabs(Akk)) * H_sigma;
 
 		// save the J norm of the vector
-		double vJv = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
+		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
 
 		// make the reflector vector and save it
@@ -406,10 +406,10 @@ int main(int argc, char* argv[]){
 			double complex alpha = 0;
 
 			#pragma omp parallel for reduction(+:alpha) num_threads( mkl_nthreads )
-			for(i = k; i < M; ++i) alpha += f[i] * J[i] * G[i+M*j];
+			for(i = k; i < M; ++i) alpha += conj(f[i]) * J[i] * G[i+M*j];
 
 			int inc = 1;
-			alpha = - 2 * alpha / vJv;
+			alpha = - 2 * alpha / fJf;
 
 			zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);	// G[k + M*j] = alpha * f[k] + G[k + M*k]
 		}
