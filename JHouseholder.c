@@ -400,7 +400,7 @@ int main(int argc, char* argv[]){
 		for(j = k+1; j < N; ++j){
 
 			int Mk = M - k;
-			mkl_nthreads = Mk/D > omp_get_max_threads()/nthreads ? Mk/D : omp_get_max_threads()/nthreads;
+			mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
 			if (mkl_nthreads == 0) mkl_nthreads = 1;
 
 			double complex alpha = 0;
