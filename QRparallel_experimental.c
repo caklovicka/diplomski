@@ -189,7 +189,7 @@ int main(int argc, char* argv[]){
 		double complex akk;
 		int Mk = M - k;
 		int inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		int mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
@@ -1219,8 +1219,8 @@ int main(int argc, char* argv[]){
 		// and do f(k:M) = f(k:M) - g(k:M)
 
 		double complex alpha = -1;
-		int inc = 1;
-		int Mk = M - k;
+		inc = 1;
+		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
