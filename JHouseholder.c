@@ -31,7 +31,9 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
+#define eps 1e-1
 #define D 64
+#define refresh 30
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -86,6 +88,7 @@ int main(int argc, char* argv[]){
 	int *n = (int*) mkl_malloc(M*sizeof(int), 64);  // for location of -1 in J for givens reduction
 	double complex *U = (double complex*) mkl_malloc(16*sizeof(double complex), 64);	// matrix of rotatoins
 	double complex *T = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 
 
 	// check if files are opened
