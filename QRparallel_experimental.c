@@ -32,6 +32,7 @@
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
 #define eps 1e-1
+#define refresh 30
 
 #define D 64
 
@@ -164,11 +165,91 @@ int main(int argc, char* argv[]){
 	int last_pivot = -1;
 	start = omp_get_wtime();
 
-	int i, j, k, nthreads, mkl_nthreads;
+	int i, j, k, nthreads;
+
+
+	// first compute J-norms of matrix G
+
+	nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
+	if (N/D == 0) nthreads = 1;
+	double norm_time = omp_get_wtime();
+
+	#pragma omp parallel for num_threads( nthreads )
+	for(j = 0; j < N; ++j){
+		norm[j] = 0;
+		for(i = 0; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+	}
+	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
+
 
 	for(k = 0; k < N; ++k){
 
+		//printf("k = %d\n", k);
+
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
+
+		// ------------------------ update J-norms of columns ------------------------
+
+		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
+
+			#pragma omp parallel num_threads( nthreads )
+			{
+				#pragma omp for nowait
+				for( j = k; j < N; ++j){
+
+					// pivot 1 was last
+					if( last_pivot == 1 ){
+
+						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
+						double frac = cabs(norm[j]) / cabs(denomi);
+
+						// not a case of catastrophic cancellation
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
+							norm[j] -= denomi;
+
+						// else compute the norm again 
+						else{
+							norm[j] = 0;
+							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						}
+					}
+
+					// pivot 2 was last
+					else if( last_pivot == 2 ){
+
+						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
+						double frac = cabs(norm[j]) / cabs(denomi);
+						
+						// not a case of catastrophic cancellation
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
+							norm[j] -= denomi;
+
+						// else compute the norm again 
+						else{
+							norm[j] = 0;
+							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+						}
+					}
+				}
+			}
+		}
+
+		// refresh norms
+		else{
+
+			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+			if ((N-k)/D == 0) nthreads = 1;
+
+			#pragma omp parallel for num_threads( nthreads )
+			for(j = k; j < N; ++j){
+				norm[j] = 0;
+				for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
+			}
+		}
+
+
+
+		// ------------------------ start the pivoting strategy ------------------------
 		
 		double pp = omp_get_wtime();
 		double pivot_lambda = 0;
@@ -176,30 +257,20 @@ int main(int argc, char* argv[]){
 		int pivot_r = -1;	// 2nd column for partial pivoting
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
-
-		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
-		if ((M-k)/D == 0) nthreads = 1;
-
-		#pragma omp parallel for num_threads( nthreads )
-		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*k];
-
-		double complex akk;
-		int Mk = M - k;
-		int inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-		zdotc(&akk, &Mk, &G[k+M*k], &inc, &f[k], &inc);
-
-		double Akk = (double) akk;
+		double Akk = (double) norm[k];
 
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
 
+		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
+		if ((M-k)/D == 0) nthreads = 1;
 
-		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
-		if ((N-k-1)/D == 0) nthreads = 1;
+		#pragma omp parallel for num_threads( nthreads )
+		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*k];
+
+		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+		if ((N-k)/D == 0) nthreads = 1;
 
 		#pragma omp parallel num_threads( nthreads )
 		{
@@ -209,7 +280,7 @@ int main(int argc, char* argv[]){
 				double complex Aik = 0;
 				int Mk = M-k;
 				int inc = 1;
-				mkl_nthreads = mkl_get_max_threads() / nthreads;
+				int mkl_nthreads = mkl_get_max_threads() / nthreads;
 				if(mkl_nthreads == 0) mkl_nthreads = 1;
 				mkl_set_num_threads_local( mkl_nthreads );
 				zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
@@ -221,21 +292,20 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);
-
+		mkl_set_num_threads_local(0);	//return global value
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 
 		// ------------------------ find pivot_sigma ------------------------
 
 		nthreads = (M-k)/D > omp_get_max_threads() ? (M-k)/D : omp_get_max_threads();
-		if (nthreads == 0) nthreads = 1;
+		if ((M-k)/D == 0) nthreads = 1;
 
 		#pragma omp parallel for num_threads( nthreads )
-		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*pivot_r];
+		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-		if (nthreads == 0) nthreads = 1;
+		if ((N-k)/D == 0) nthreads = 1;
 
 		#pragma omp parallel for reduction(max:pivot_sigma) num_threads( nthreads ) 
 		for(i = k; i < N; ++i){
@@ -245,7 +315,7 @@ int main(int argc, char* argv[]){
 			double complex Air = 0;
 			int Mk = M-k;
 			int inc = 1;
-			mkl_nthreads = mkl_get_max_threads() / nthreads;
+			int mkl_nthreads = mkl_get_max_threads() / nthreads;
 			if(mkl_nthreads == 0) mkl_nthreads = 1;
 			mkl_set_num_threads_local( mkl_nthreads );
 			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
@@ -256,24 +326,25 @@ int main(int argc, char* argv[]){
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
-		double complex arr;
-		Mk = M - k;
-		inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-		zdotc(&akk, &Mk, &G[k+M*pivot_r], &inc, &f[k], &inc);
 
-		double Arr = (double) arr;
+		double Arr = (double) norm[pivot_r];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
+			// gr is the pivot column 
+			// swap columns k <-> r
+			// then do PIVOT_1 with Householder
 
 			long int itemp = Pcol[pivot_r];
 			Pcol[pivot_r] = Pcol[k];
 			Pcol[k] = itemp;
 
+			double complex ctemp = norm[pivot_r];
+			norm[pivot_r] = norm[k];
+			norm[k] = ctemp;
+
+
 			int inc = 1;
-			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
+			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
@@ -285,7 +356,6 @@ int main(int argc, char* argv[]){
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
-		printf("tu sam!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n");
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
@@ -305,7 +375,7 @@ int main(int argc, char* argv[]){
 			norm[k+1] = ctemp;
 
 			int inc = 1;
-			mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
+			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
@@ -341,7 +411,7 @@ int main(int argc, char* argv[]){
 			J[k] = dtemp;
 
 			int Nk = N - k;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[first_non_zero_idx + M*k], &M);
@@ -381,7 +451,7 @@ int main(int argc, char* argv[]){
 			J[k+1] = dtemp;
 
 			int Nk = N-k;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[i + M*k], &M);
@@ -427,13 +497,31 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
 
 						mkl_set_num_threads_local(mkl_nthreads);
+
+						// G[p[i], k] destroys G[p[i+offset], k]
+						// first if kth column isnt real, make it real
+
+						/*if( cimag(G[p[i] + M*k]) != 0){
+							double complex scal = conj(G[p[i] + M*k]) / cabs(G[p[i] + M*k]);
+							G[p[i] + M*k] = cabs(G[p[i] + M*k]);
+							int Nk = N - k - 1;
+							zscal(&Nk, &scal, &G[p[i] + M*(k+1)], &M);
+						}
+
+						if( cimag(G[p[i+offset] + M*k]) != 0){
+                            double complex scal = conj(G[p[i+offset] + M*k]) / cabs(G[p[i+offset] + M*k]);
+                            G[p[i+offset] + M*k] = cabs(G[p[i+offset] + M*k]);
+                            int Nk = N - k - 1;
+                            zscal(&Nk, &scal, &G[p[i+offset] + M*(k+1)], &M);
+                        }*/
+
 
 						double c;
 						double complex s;
@@ -447,6 +535,13 @@ int main(int argc, char* argv[]){
 						G[p[i + offset] + M*k] = 0;
 					}
 				}
+
+				/*if(np == 1 && cimag(G[p[0] + M*k]) != 0){
+					double complex scal = conj(G[p[0] + M*k]) / cabs(G[p[0] + M*k]);
+					G[p[0] + M*k] = cabs(G[p[0] + M*k]);
+					int Nk = N - k - 1;
+					zscal(&Nk, &scal, &G[p[0] + M*(k+1)], &M);
+				}*/
 			}
 
 			// second thread kills negatives
@@ -458,13 +553,30 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < nn - offset; i += 2*offset){
 
 						mkl_set_num_threads_local(mkl_nthreads);
+
+						// G[n[i], k] destroys G[n[i+offset], k]
+						// make them real
+
+						/*if( cimag(G[n[i] + M*k]) != 0){
+							double complex scal = conj(G[n[i] + M*k]) / cabs(G[n[i] + M*k]);
+							G[n[i] + M*k] = cabs(G[n[i] + M*k]);
+							int Nk = N - k - 1;
+							zscal(&Nk, &scal, &G[n[i] + M*(k+1)], &M);
+						}
+
+						if( cimag(G[n[i+offset] + M*k]) != 0){
+							double complex scal = conj(G[n[i+offset] + M*k]) / cabs(G[n[i+offset] + M*k]);
+							G[n[i+offset]+M*k] = cabs(G[n[i+offset]+M*k]);
+							int Nk = N - k - 1;
+							zscal(&Nk, &scal, &G[n[i+offset] + M*(k+1)], &M);
+						}*/
 
 						double c;
 						double complex s;
@@ -477,7 +589,14 @@ int main(int argc, char* argv[]){
 						zrot(&Nk, &G[n[i] + M*k], &M, &G[n[i + offset] + M*k], &M, &c, &s);
 						G[n[i + offset] + M*k] = 0;
 					}
-				}	
+				}
+
+				/*if(nn == 1 && cimag(G[n[0] + M*k]) != 0){
+					double complex scal = conj(G[n[0] + M*k]) / cabs(G[n[0] + M*k]);
+					G[n[0] + M*k] = cabs(G[n[0] + M*k]);
+					int Nk = N - k - 1;
+					zscal(&Nk, &scal, &G[n[0] + M*(k+1)], &M);
+				}*/
 			}
 		}
 		mkl_set_num_threads_local(0);	//return global value
@@ -531,7 +650,7 @@ int main(int argc, char* argv[]){
 			J[k + kth_nonzeros] = dtemp;
 
 			int Nk = N - k - 1;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
@@ -571,7 +690,7 @@ int main(int argc, char* argv[]){
 			J[k + kth_nonzeros + 1] = dtemp;
 
 			int Nk = N-k-1;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i + M*(k+1)], &M);
@@ -622,7 +741,7 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
@@ -677,7 +796,7 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
+					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
 					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
@@ -744,7 +863,7 @@ int main(int argc, char* argv[]){
 
 		//make rows real which need to be
 
-		mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
+		int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
 		if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
 
 		#pragma omp parallel num_threads(2)
@@ -805,7 +924,7 @@ int main(int argc, char* argv[]){
 
 				int n_ = k + 4;
 				int inc = 1;
-				mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
+				int mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
 				if(n_/D == 0) mkl_nthreads = 1;
 
 				mkl_set_num_threads(mkl_nthreads);
@@ -913,7 +1032,7 @@ int main(int argc, char* argv[]){
 			double complex alpha = 1;
 			double complex beta = 0;
 
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
@@ -972,7 +1091,7 @@ int main(int argc, char* argv[]){
 
 				int n_ = k + 3;
 				int inc = 1;
-				mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
+				int mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
 				if(n_/D == 0) mkl_nthreads = 1;
 				mkl_set_num_threads(mkl_nthreads);
 				zswap(&n_, &G[M*k], &inc, &G[M*(k+1)], &inc);
@@ -1055,7 +1174,7 @@ int main(int argc, char* argv[]){
 			double complex alpha = 1;
 			double complex beta = 0;
 
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zgemm_(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*(k+1)], &M, &beta, T, &n_);
@@ -1159,7 +1278,7 @@ int main(int argc, char* argv[]){
 
 		// make the reflector vector and save it
 		double complex alpha = -1;
-		inc = 1;
+		int inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
