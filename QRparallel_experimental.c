@@ -293,7 +293,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);	//return global value
-		
+
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 
@@ -362,6 +362,8 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 
 		last_pivot = 2;
+
+		goto LOOP_END;
 
 		// do a column swap pivot_r <-> k+1 if needed
 

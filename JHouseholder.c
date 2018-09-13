@@ -359,6 +359,8 @@ int main(int argc, char* argv[]){
 
 		last_pivot = 2;
 
+		goto LOOP_END;
+
 		// do a column swap pivot_r <-> k+1 if needed
 
 		if(pivot_r != k+1){
