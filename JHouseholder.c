@@ -425,8 +425,6 @@ int main(int argc, char* argv[]){
 		K[2] *= J[k];
 		K[3] *= J[k+1];
 
-		printMatrix(K, 2, 2);
-
 		// sqrt(M) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
@@ -443,6 +441,7 @@ int main(int argc, char* argv[]){
 		}
 		else{
 			double complex a = csqrt(2 * trK);
+			printf("a = %lg + i %lg\n", creal(a), cimag(a));
 			if( cabs(cimag(a)) > EPSILON ) a = csqrt(-2 * trK);
 			T[0] = (K[0] + 0.5 * trK) / a;
 			T[1] = K[1] / a;
