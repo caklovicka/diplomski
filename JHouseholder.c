@@ -414,6 +414,8 @@ int main(int argc, char* argv[]){
 		K[2] = -conj(Akr) / detA;
 		K[3] = Akk / detA;
 
+		printMatrix(K, 2, 2);
+
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
