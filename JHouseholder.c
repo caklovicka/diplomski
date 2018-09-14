@@ -438,7 +438,7 @@ int main(int argc, char* argv[]){
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double a;
-			if(trK + 2 * csqrt(detK) < 0) a = csqrt(trK - 2 * csqrt(detK));
+			if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt(trK - 2 * csqrt(detK));
 			else a = csqrt(trK + 2 * csqrt(detK));
 
 			T[0] = (K[0] + csqrt(detK)) / a;
@@ -447,7 +447,7 @@ int main(int argc, char* argv[]){
 			T[4] = (K[4] + csqrt(detK)) / a;
 		}
 		else{
-			
+
 			double a;
 			if(trK < 0) a = csqrt(- 2 * trK);
 			else a = csqrt(2*trK);
