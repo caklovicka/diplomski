@@ -450,7 +450,7 @@ int main(int argc, char* argv[]){
 			T[0] = (K[0] + (double)csqrt(detK)) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
-			T[4] = (K[3] + (double)csqrt(detK)) / a;
+			T[3] = (K[3] + (double)csqrt(detK)) / a;
 		}
 		else{
 
