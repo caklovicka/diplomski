@@ -460,7 +460,31 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		printMatrix(T, 2, 2);
+		// make diagonal of T real
+		if( cimag(T[0]) > EPSILON ){
+			double complex ii = 1.0*I;
+			K[0] *= ii;
+			K[1] *= ii;
+			K[2] *= ii;
+			K[3] *= ii;
+		} 
+
+		// make trace of T positive
+		if( creal(T[0] + T[3]) < 0){
+			double ii = -1.0;
+			K[0] *= ii;
+			K[1] *= ii;
+			K[2] *= ii;
+			K[3] *= ii;
+		}
+
+		//compute F1
+		// K = T^(-1)
+
+		double trT = creal(T[0] + T[3]);
+		double complex detT = T[0]*T[3] - T[2]*T[1];
+		printf("detT = %ld + i %lg\n", creal(detT), cimag(detT));
+		
 		break;
 
 
