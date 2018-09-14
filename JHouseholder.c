@@ -425,32 +425,31 @@ int main(int argc, char* argv[]){
 		K[2] *= J[k];
 		K[3] *= J[k+1];
 
-		K[0] = creal(K[0]);
-		K[3] = creal(K[3]);
+		printf("K = \n");
+		printMatrix(K, 2, 2);
 
 		// sqrt(M) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
-		double detK = (double)(K[0]*K[3] - K[1]*K[2]);
-		double trK = (double) (K[0] + K[3]);
+		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
+		double trK = (double) (K[0] + K[3]);	// trK != 0
 
 		printf("trK = %lg, detK = %lg\n", trK, detK);
-		printMatrix(K, 2, 2);
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
-			double a;
+			double complex a;
 
 			printf("trK + 2 * cabs(csqrt(detK)) = %lg\n", trK + 2 * cabs(csqrt(detK)));
 			printf("trK - 2 * cabs(csqrt(detK)) = %lg\n", trK - 2 * cabs(csqrt(detK)));
 
-			if( trK + 2 * cabs(csqrt(detK)) < 0) a = (double) csqrt( trK - 2 * csqrt(detK) );
-			else a = (double) csqrt(trK + 2 * csqrt(detK));
+			if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
+			else a = csqrt(trK + 2 * csqrt(detK));
 
-			T[0] = (K[0] + (double)csqrt(detK)) / a;
+			T[0] = (K[0] + (double) csqrt(detK)) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
-			T[3] = (K[3] + (double)csqrt(detK)) / a;
+			T[3] = (K[3] + (double) csqrt(detK)) / a;
 		}
 		else{
 
