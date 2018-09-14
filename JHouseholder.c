@@ -402,8 +402,8 @@ int main(int argc, char* argv[]){
 
 
 		double complex Akr;
-		Mk = M - k;
-		inc = 1;
+		int Mk = M - k;
+		int inc = 1;
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * G[r]
 
 		// M = inverse of A2
@@ -536,7 +536,7 @@ int main(int argc, char* argv[]){
 
 
 		// make the reflector vector and save it
-		double complex alpha = -1;
+		complex alpha = -1;
 		int inc = 1;
 		int Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
