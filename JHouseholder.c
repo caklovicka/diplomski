@@ -414,18 +414,18 @@ int main(int argc, char* argv[]){
 		K[2] = -conj(Akr) / detA;
 		K[3] = Akk / detA;
 
-		printMatrix(K, 2, 2);
-
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
 		char trans = 'H';
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &Mk, K, &n, &beta, T, &n);	// T = G1 * M
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &Mk, &beta, K, &n);	// M = T * G1^H
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &Mk, K, &n, &beta, T, &n);	// T = G1 * K
+		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &Mk, &beta, K, &n);	// K = T * G1^H
 		K[0] *= J[k];
 		K[1] *= J[k+1];
 		K[2] *= J[k];
 		K[3] *= J[k+1];
+
+		printMatrix(K, 2, 2);
 
 		// sqrt(M) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
