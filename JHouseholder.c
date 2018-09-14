@@ -417,7 +417,7 @@ int main(int argc, char* argv[]){
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
-		char trans = 'H';
+		char trans = 'C';
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &Mk, K, &n, &beta, T, &n);	// T = G1 * K
 		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &Mk, &beta, K, &n);	// K = T * G1^H
 		K[0] *= J[k];
