@@ -89,7 +89,7 @@ int main(int argc, char* argv[]){
 	double complex *U = (double complex*) mkl_malloc(16*sizeof(double complex), 64);	// matrix of rotatoins
 	double complex *T = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	double complex *M = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *K = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -409,41 +409,41 @@ int main(int argc, char* argv[]){
 		// M = inverse of A2
 
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
-		M[0] = Arr / detA;
-		M[1] = -Akr / detA;
-		M[2] = -conj(Akr) / detA;
-		M[3] = Akk / detA;
+		K[0] = Arr / detA;
+		K[1] = -Akr / detA;
+		K[2] = -conj(Akr) / detA;
+		K[3] = Akk / detA;
 
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
 		char trans = 'H';
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &Mk, M, &n, &beta, T, &n);	// T = G1 * M
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &Mk, &beta, M, &n);	// M = T * G1^H
-		M[0] *= J[k];
-		M[1] *= J[k+1];
-		M[2] *= J[k];
-		M[3] *= J[k+1];
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &Mk, K, &n, &beta, T, &n);	// T = G1 * M
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &Mk, &beta, K, &n);	// M = T * G1^H
+		K[0] *= J[k];
+		K[1] *= J[k+1];
+		K[2] *= J[k];
+		K[3] *= J[k+1];
 
 		// sqrt(M) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
-		double complex detM = M[0]*M[3] - M[1]*M[2];
-		double complex trM = M[0] + M[3];
+		double complex detK = K[0]*K[3] - K[1]*K[2];
+		double complex trK = K[0] + K[3];
 
-		if( cabs(trM * trM - 4 * detM) > EPSILON ){
-			double complex a = csqrt(trM + 2 * csqrt(detM));
-			T[0] = (M[0] + csqrt(detM)) / a;
-			T[1] = M[1] / a;
-			T[2] = M[2] / a;
-			T[4] = (M[4] + csqrt(detM)) / a;
+		if( cabs(trK * trK - 4 * detK) > EPSILON ){
+			double complex a = csqrt(trK + 2 * csqrt(detK));
+			T[0] = (K[0] + csqrt(detK)) / a;
+			T[1] = K[1] / a;
+			T[2] = K[2] / a;
+			T[4] = (K[4] + csqrt(detK)) / a;
 		}
 		else{
-			double complex a = csqrt(2 * trM);
-			T[0] = (M[0] + 0.5 * trM) / a;
-			T[1] = M[1] / a;
-			T[2] = M[2] / a;
-			T[3] = (M[3] + 0.5 * trM) / a;
+			double complex a = csqrt(2 * trK);
+			T[0] = (K[0] + 0.5 * trK) / a;
+			T[1] = K[1] / a;
+			T[2] = K[2] / a;
+			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
 		printMatrix(T, 2, 2);
