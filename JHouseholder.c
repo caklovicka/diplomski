@@ -425,10 +425,10 @@ int main(int argc, char* argv[]){
 		K[2] *= J[k];
 		K[3] *= J[k+1];
 
-		printf("K = \n");
-		printMatrix(K, 2, 2);
+		K[0] = creal(K[0]);
+		K[3] = creal(K[3]);
 
-		// sqrt(M) = T
+		// sqrt(K) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
@@ -439,9 +439,6 @@ int main(int argc, char* argv[]){
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double complex a;
-
-			printf("trK + 2 * cabs(csqrt(detK)) = %lg\n", trK + 2 * cabs(csqrt(detK)));
-			printf("trK - 2 * cabs(csqrt(detK)) = %lg\n", trK - 2 * cabs(csqrt(detK)));
 
 			if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
 			else a = csqrt(trK + 2 * csqrt(detK));
