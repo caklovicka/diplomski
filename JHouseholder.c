@@ -434,8 +434,6 @@ int main(int argc, char* argv[]){
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
 		double trK = (double) (K[0] + K[3]);	// trK != 0
 
-		printf("trK = %lg, detK = %lg\n", trK, detK);
-
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double complex a;
@@ -484,6 +482,7 @@ int main(int argc, char* argv[]){
 		double trT = creal(T[0] + T[3]);
 		double complex detT = T[0]*T[3] - T[2]*T[1];
 		printf("detT = %ld + i %lg\n", creal(detT), cimag(detT));
+		printf("trT = %ld + i %lg\n", creal(trT), cimag(trT));
 		
 		break;
 
