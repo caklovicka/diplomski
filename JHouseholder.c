@@ -434,6 +434,7 @@ int main(int argc, char* argv[]){
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 			double complex a = csqrt(trK + 2 * csqrt(detK));
 			if( cabs(cimag(a)) > EPSILON ) a = csqrt(trK - 2 * csqrt(detK));
+			printf("a = %lg + i %lg\n", creal(a), cimag(a));
 			T[0] = (K[0] + csqrt(detK)) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
@@ -441,8 +442,8 @@ int main(int argc, char* argv[]){
 		}
 		else{
 			double complex a = csqrt(2 * trK);
-			printf("a = %lg + i %lg\n", creal(a), cimag(a));
 			if( cabs(cimag(a)) > EPSILON ) a = csqrt(-2 * trK);
+			printf("a = %lg + i %lg\n", creal(a), cimag(a));
 			T[0] = (K[0] + 0.5 * trK) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
