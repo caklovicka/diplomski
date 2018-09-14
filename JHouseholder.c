@@ -440,13 +440,17 @@ int main(int argc, char* argv[]){
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double a;
+
+			printf("trK + 2 * cabs(csqrt(detK)) = %lg\n", trK + 2 * cabs(csqrt(detK)));
+			printf("trK - 2 * cabs(csqrt(detK)) = %lg\n", trK - 2 * cabs(csqrt(detK)));
+
 			if( trK + 2 * cabs(csqrt(detK)) < 0) a = (double) csqrt( trK - 2 * csqrt(detK) );
 			else a = (double) csqrt(trK + 2 * csqrt(detK));
 
 			T[0] = (K[0] + (double)csqrt(detK)) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
-			T[4] = (K[4] + (double)csqrt(detK)) / a;
+			T[4] = (K[3] + (double)csqrt(detK)) / a;
 		}
 		else{
 
