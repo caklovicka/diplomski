@@ -431,9 +431,11 @@ int main(int argc, char* argv[]){
 		// sqrt(M) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
-		double detK = K[0]*K[3] + cabs(K[1]*K[2]);
-		double trK = K[0] + K[3];
+		double detK = (double)(K[0]*K[3] - K[1]*K[2]);
+		double trK = (double) (K[0] + K[3]);
 
+		printf("trK = %lg, detK = %lg\n", trK, detK);
+		printMatrix(K, 2, 2);
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
