@@ -431,7 +431,8 @@ int main(int argc, char* argv[]){
 		double complex detK = K[0]*K[3] - K[1]*K[2];
 		double complex trK = K[0] + K[3];
 
-		printMatrix(K, 2, 2, );
+		printf("K = \n");
+		printMatrix(K, 2, 2);
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
