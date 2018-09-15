@@ -548,7 +548,7 @@ int main(int argc, char* argv[]){
 
 		// apply the reflector
 		Nk = (N - k - 2)/2;
-		threads = Nk/D > omp_get_max_threads()/2 ? Nk/D : omp_get_max_threads()/2;
+		nthreads = Nk/D > omp_get_max_threads()/2 ? Nk/D : omp_get_max_threads()/2;
 		if(nthreads == 0) nthreads = 1;
 
 		Mk = M - k;
