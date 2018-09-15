@@ -483,6 +483,9 @@ int main(int argc, char* argv[]){
 		printf("T = \n");
 		printMatrix(T, 2, 2);
 
+		printf("J = \n");
+		printJ(J, M);
+
 		double trT = creal(T[0] + T[3]);
 		double complex detT = T[0]*T[3] - T[2]*T[1];
 		printf("detT = %ld + i %lg\n", creal(detT), cimag(detT));
