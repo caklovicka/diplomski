@@ -390,6 +390,8 @@ int main(int argc, char* argv[]){
 		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
 		// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
+		double complex a;
+		double detK, trK;
 		int idx = k+1;
 		while(idx < M){
 
@@ -419,12 +421,10 @@ int main(int argc, char* argv[]){
 			K[0] = creal(K[0]);
 			K[3] = creal(K[3]);
 
-			double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
-			double trK = (double) (K[0] + K[3]);	// trK != 0
+			detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
+			trK = (double) (K[0] + K[3]);	// trK != 0
 
 			printf("detK = %lg, trK = %lg\n", detK, trK);
-
-			double complex a;
 
 			if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
@@ -575,7 +575,7 @@ int main(int argc, char* argv[]){
 
 
 		// make the reflector vector and save it
-		alpha = -1;
+		double complex alpha = -1;
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
