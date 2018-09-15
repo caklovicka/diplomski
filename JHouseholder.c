@@ -84,9 +84,6 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
-	int *p = (int*) mkl_malloc(M*sizeof(int), 64);	// for location of +1 in J for givens reduction
-	int *n = (int*) mkl_malloc(M*sizeof(int), 64);  // for location of -1 in J for givens reduction
-	double complex *G1 = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// matrix of rotatoins
 	double complex *T = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *K = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
@@ -374,9 +371,37 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
+		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
+
+		int idx = k+1;
+		while(J[k] == J[idx] && cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) ++idx;
+
+		if( idx != k+1 ){
+
+			double dtemp = J[idx];
+			J[idx] = J[k+1];
+			J[k+1] = dtemp;
+
+			// update Prow
+			long int itemp = Prow[idx];
+			Prow[idx] = Prow[k+1];
+			Prow[k+1] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
+		}
+
+
 		double complex Akr;
 		int Mk = M - k;
 		int inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(mkl_nthreads == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * G[r]
 
 		// K = inverse of A2
@@ -387,104 +412,115 @@ int main(int argc, char* argv[]){
 		K[2] = -conj(Akr) / detA;
 		K[3] = Akk / detA;
 
-		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
-		// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
+		int n = 2;
+		double complex alpha = 1, beta = 0;
+		char nontrans = 'N';
+		char trans = 'C';
 
-		double complex a;
-		double detK, trK;
-		int idx = k+1;
-		while(idx < M){
+		mkl_set_num_threads(1);
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, K, &n, &beta, T, &n);	// T = G1 * K
+		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, K, &n);	// K = T * G1^H
+		K[0] *= J[k];
+		K[1] *= J[k+1];
+		K[2] *= J[k];
+		K[3] *= J[k+1];
 
-			if(cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON || J[k] == J[idx]){
-				++idx;
-				continue;
-			}
-
-			int n = 2;
-			double complex alpha = 1, beta = 0;
-			char nontrans = 'N';
-			char trans = 'C';
-
-			G1[0] = G[k+M*k];
-			G1[1] = G[k+M*(k+1)];
-			G1[2] = G[idx+M*k];
-			G1[3] = G[idx+M*(k+1)];
-
-			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, G1, &n, K, &n, &beta, T, &n);	// T = G1 * K
-			zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, G1, &n, &beta, K, &n);	// K = T * G1^H
-
-			K[0] *= J[k];
-			K[1] *= J[idx];
-			K[2] *= J[k];
-			K[3] *= J[idx];
-
-			K[0] = creal(K[0]);
-			K[3] = creal(K[3]);
-
-			detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
-			trK = (double) (K[0] + K[3]);	// trK != 0
-
-			printf("detK = %lg, trK = %lg\n", detK, trK);
-			printf("K = \n");
-			printMatrix(K, 2, 2);
-
-			if( cabs(trK * trK - 4 * detK) > EPSILON ) a = csqrt( trK + 2 * csqrt(detK) );
-			else{ 
-
-				if(trK < 0) a = csqrt(- 2 * trK);
-				else a = csqrt(2*trK);
-			}
-
-			if( cabs(cimag(a)) > EPSILON ){
-				++idx;
-				continue;
-			}
-			// do row swap and break;
-			else{
-
-				double dtemp = J[idx];
-				J[idx] = J[k+1];
-				J[k+1] = dtemp;
-
-				// update Prow
-				long int itemp = Prow[idx];
-				Prow[idx] = Prow[k+1];
-				Prow[k+1] = itemp;
-
-				// swap rows in G 
-				int Nk = N - k;
-				mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-				if(Nk/D == 0) mkl_nthreads = 1;
-				mkl_set_num_threads(mkl_nthreads);
-				zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
-				break;
-			}
-		}
+		K[0] = creal(K[0]);
+		K[3] = creal(K[3]);
 
 		// sqrt(K) = T
+		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
-		printf("a = %lg + i%lg\n", creal(a), cimag(a));
+		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
+		double trK = (double) (K[0] + K[3]);	// trK != 0
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
-			T[0] = (K[0] + (double) csqrt(detK)) / creal(a);
-			T[1] = K[1] / creal(a);
-			T[2] = K[2] / creal(a);
-			T[3] = (K[3] + (double) csqrt(detK)) / creal(a);
+			double complex a;
+
+			if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
+			else a = csqrt(trK + 2 * csqrt(detK));
+
+			T[0] = (K[0] + (double) csqrt(detK)) / a;
+			T[1] = K[1] / a;
+			T[2] = K[2] / a;
+			T[3] = (K[3] + (double) csqrt(detK)) / a;
 		}
 		else{
 
-			T[0] = (K[0] + 0.5 * trK) / creal(a);
-			T[1] = K[1] / creal(a);
-			T[2] = K[2] / creal(a);
-			T[3] = (K[3] + 0.5 * trK) / creal(a);
+			double a;
+			if(trK < 0) a = (double) csqrt(- 2 * trK);
+			else a = (double) csqrt(2*trK);
+			
+			T[0] = (K[0] + 0.5 * trK) / a;
+			T[1] = K[1] / a;
+			T[2] = K[2] / a;
+			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		printf("T = \n");
-		printMatrix(T, 2, 2);
+		// if K has imaginary diagonal solve iT = G1 F1^(-1)
+		// in other words, just make the diagonal of T real, and trace negative
 
-		printf("J = \n");
-		printJ(J, M);
+		if( cabs(cimag(T[0])) > EPSILON){
+			T[0] *= 1.0 * I;
+			T[1] *= 1.0 * I;
+			T[2] *= 1.0 * I;
+			T[3] *= 1.0 * I;
+		}
+
+		if( creal(T[0] + T[3]) < 0){
+			T[0] *= -1.0;
+			T[1] *= -1.0;
+			T[2] *= -1.0;
+			T[3] *= -1.0;
+		}
+
+		// find T^(-1) = K
+		T[0] = creal(T[0]);
+		T[3] = creal(T[3]);
+
+		double complex detT = T[0] * T[3] - T[1] * T[2];
+		K[0] = T[3] / detT;
+		K[1] = -T[1] / detT;
+		K[2] = -T[2] / detT;
+		K[3] = T[0] / detT;
+
+		int n = 2;
+		double complex alpha = 1, beta = 0;
+		char nontrans = 'N';
+		mkl_set_num_threads(1);
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K * G1
+
+
+		// make the matrix for the basic reflector
+		Mk = M-k;
+		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
+		if(mkl_nthreads <= 0) mkl_nthreads = 1;
+
+		#pragma omp parallel num_threads(2)
+		{
+			mkl_set_num_threads_local(mkl_nthreads);
+			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
+			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
+		}
+
+		// K = the difference operator for tje J Householder
+		K[k] -= T[0];
+		K[k+1] -= T[1];
+		K[k + M] -= T[2];
+		K[k+1 + M] -= T[3];
+
+		
+
+
+
+
+
+
+
+
+
+		printMatrix(T, 2, 2);
 
 		double trT = creal(T[0] + T[3]);
 		double complex detT = T[0]*T[3] - T[2]*T[1];
@@ -580,7 +616,7 @@ int main(int argc, char* argv[]){
 
 
 		// make the reflector vector and save it
-		double complex alpha = -1;
+		alpha = -1;
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
