@@ -486,7 +486,7 @@ int main(int argc, char* argv[]){
 		K[3] = T[0] / detT;
 
 		n = 2;
-		complex alpha = 1, beta = 0;
+		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K * G1
