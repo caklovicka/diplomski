@@ -425,6 +425,8 @@ int main(int argc, char* argv[]){
 			trK = (double) (K[0] + K[3]);	// trK != 0
 
 			printf("detK = %lg, trK = %lg\n", detK, trK);
+			printf("K = \n");
+			printMatrix(K, 2, 2);
 
 			if( cabs(trK * trK - 4 * detK) > EPSILON ) a = csqrt( trK + 2 * csqrt(detK) );
 			else{ 
@@ -461,22 +463,24 @@ int main(int argc, char* argv[]){
 
 		// sqrt(K) = T
 
+		printf("a = %lg + i%lg\n", creal(a), cimag(a));
+
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
-			T[0] = (K[0] + (double) csqrt(detK)) / a;
-			T[1] = K[1] / a;
-			T[2] = K[2] / a;
-			T[3] = (K[3] + (double) csqrt(detK)) / a;
+			T[0] = (K[0] + (double) csqrt(detK)) / creal(a);
+			T[1] = K[1] / creal(a);
+			T[2] = K[2] / creal(a);
+			T[3] = (K[3] + (double) csqrt(detK)) / creal(a);
 		}
 		else{
 
-			T[0] = (K[0] + 0.5 * trK) / a;
-			T[1] = K[1] / a;
-			T[2] = K[2] / a;
-			T[3] = (K[3] + 0.5 * trK) / a;
+			T[0] = (K[0] + 0.5 * trK) / creal(a);
+			T[1] = K[1] / creal(a);
+			T[2] = K[2] / creal(a);
+			T[3] = (K[3] + 0.5 * trK) / creal(a);
 		}
 
-
+		printf("T = \n");
 		printMatrix(T, 2, 2);
 
 		double trT = creal(T[0] + T[3]);
