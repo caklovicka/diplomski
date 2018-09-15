@@ -426,17 +426,14 @@ int main(int argc, char* argv[]){
 
 			printf("detK = %lg, trK = %lg\n", detK, trK);
 
-			if( cabs(trK * trK - 4 * detK) > EPSILON ){
+			if( cabs(trK * trK - 4 * detK) > EPSILON ) a = csqrt( trK + 2 * csqrt(detK) );
+			else{ 
 
-				if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
-				else a = csqrt(trK + 2 * csqrt(detK));
-			}
-			else{
-				if(trK < 0) a = (double) csqrt(- 2 * trK);
-				else a = (double) csqrt(2*trK);
+				if(trK < 0) a = csqrt(- 2 * trK);
+				else a = csqrt(2*trK);
 			}
 
-			if(cabs(cimag(a)) > EPSILON){
+			if( cabs(cimag(a)) > EPSILON ){
 				++idx;
 				continue;
 			}
@@ -458,6 +455,7 @@ int main(int argc, char* argv[]){
 				if(Nk/D == 0) mkl_nthreads = 1;
 				mkl_set_num_threads(mkl_nthreads);
 				zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
+				break;
 			}
 		}
 
