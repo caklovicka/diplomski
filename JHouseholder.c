@@ -485,9 +485,9 @@ int main(int argc, char* argv[]){
 		K[2] = -T[2] / detT;
 		K[3] = T[0] / detT;
 
-		int n = 2;
-		double complex alpha = 1, beta = 0;
-		char nontrans = 'N';
+		n = 2;
+		complex alpha = 1, beta = 0;
+		nontrans = 'N';
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K * G1
 
@@ -510,32 +510,10 @@ int main(int argc, char* argv[]){
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
 
-		
 
 
-
-
-
-
-
-
-
-		printMatrix(T, 2, 2);
-
-		double trT = creal(T[0] + T[3]);
-		double complex detT = T[0]*T[3] - T[2]*T[1];
-		printf("detT = %ld + i %lg\n", creal(detT), cimag(detT));
-		printf("trT = %ld + i %lg\n", creal(trT), cimag(trT));
 		
 		break;
-
-
-
-
-
-
-
-
 
 
 
