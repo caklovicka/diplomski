@@ -84,9 +84,11 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
-	double complex *T = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *T = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	double complex *K = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *K = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *D = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
+	double complex *B = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -495,7 +497,7 @@ int main(int argc, char* argv[]){
 		// make the matrix for the basic reflector
 		Mk = M-k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
-		if(mkl_nthreads <= 0) mkl_nthreads = 1;
+		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
 		#pragma omp parallel num_threads(2)
 		{
@@ -503,6 +505,7 @@ int main(int argc, char* argv[]){
 			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
 			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
 		}
+		mkl_set_num_threads_local(0);
 
 		// K = the difference operator for tje J Householder
 		K[k] -= T[0];
@@ -510,15 +513,74 @@ int main(int argc, char* argv[]){
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
 
+		// fill first two columns of G
+		G[k+M*k] = T[0];
+		G[k+1+M*k] = T[1];
+		G[k+M*(k+1)] = T[2];
+		G[k+1+M*(k+1)] = T[3];
 
+		// compute K*JK
+		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
+		if(nthreads == 0) nthreads = 1;
+		#pragma omp parallel for num_threads( nthreads )
+		for(i = k; i < M; ++i){
+			T[i] = J[i] * K[i];
+			T[i+M] = J[i] * K[i+M];
+			if( i >= k+2){
+				G[i+M*k] = 0;
+				G[i+M*(k+1)] = 0;
+			}
+		}
 
-		
-		break;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(mkl_nthreads == 0) mkl_nthreads = 1;
+		mkl_set_num_threads( mkl_nthreads );
+		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, D, &n);	// D = K*T
 
+		// T = D^(-1)
+		double complex detD = D[0]*D[3] - D[1]*D[2];
+		if(cabs(detD) < EPSILON) printf("|detD| = %lg\n", cabs(detD));
 
+		T[0] = D[3] / detD;
+		T[1] = -D[1] / detD;
+		T[2] = -D[2] / detD;
+		T[3] = D[1] / detD;
 
+		// apply the reflector
+		Nk = (N - k - 2)/2;
+		threads = Nk/D > omp_get_max_threads()/2 ? Nk/D : omp_get_max_threads()/2;
+		if(nthreads == 0) nthreads = 1;
 
+		Mk = M - k;
+		mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
+		// zasada radi ako je parno redaka ostalo.... POPRAVI
+
+		#pragma omp parallel num_threads( nthreads )
+		{
+			mkl_set_num_threads_local(mkl_nthreads);
+
+			#pragma omp for nowait
+			for(j = k+2; j < N; j += 2){
+
+				// compute TK*JG
+				for(i = k; i < M; ++i){
+					B[i] = J[i] * G[i + M*j];
+					B[i+M] = J[i] * G[i + M*(j+1)];
+				}
+
+			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &B[k], &M, &beta, D, &n);	// D = K*B
+			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, D, &M, &beta, B, &n);	// B = TD
+
+			// compute G - 2KB
+			alpha = -2;
+			beta = 1;
+			zgemm(&nontrans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, B, &n, &beta, &G[k+M*j], &M);
+		}
+		mkl_set_num_threads_local(0);
+
+	
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
@@ -615,7 +677,7 @@ int main(int argc, char* argv[]){
 
 
 		// apply the rotation on the rest of the matrix
-		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
 		if (nthreads == 0) nthreads = 1;
 
 		#pragma omp parallel num_threads( nthreads )
