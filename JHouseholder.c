@@ -86,7 +86,7 @@ int main(int argc, char* argv[]){
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
 	int *p = (int*) mkl_malloc(M*sizeof(int), 64);	// for location of +1 in J for givens reduction
 	int *n = (int*) mkl_malloc(M*sizeof(int), 64);  // for location of -1 in J for givens reduction
-	double complex *U = (double complex*) mkl_malloc(16*sizeof(double complex), 64);	// matrix of rotatoins
+	double complex *G1 = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// matrix of rotatoins
 	double complex *T = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *K = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// temporary matrix
@@ -359,8 +359,6 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 		last_pivot = 2;
 
-		printf("PIVOT22222222222222222\n");
-
 		// do a column swap pivot_r <-> k+1 if needed
 
 		if(pivot_r != k+1){
@@ -376,37 +374,12 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
-		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
-
-		int idx = k+1;
-		while(J[k] == J[idx] && cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) ++idx;
-
-		if( idx != k+1 ){
-
-			double dtemp = J[idx];
-			J[idx] = J[k+1];
-			J[k+1] = dtemp;
-
-			// update Prow
-			long int itemp = Prow[idx];
-			Prow[idx] = Prow[k+1];
-			Prow[k+1] = itemp;
-
-			// swap rows in G 
-			int Nk = N - k;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
-		}
-
-
 		double complex Akr;
 		int Mk = M - k;
 		int inc = 1;
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * G[r]
 
-		// M = inverse of A2
+		// K = inverse of A2
 
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		K[0] = Arr / detA;
@@ -414,32 +387,83 @@ int main(int argc, char* argv[]){
 		K[2] = -conj(Akr) / detA;
 		K[3] = Akk / detA;
 
-		int n = 2;
-		double complex alpha = 1, beta = 0;
-		char nontrans = 'N';
-		char trans = 'C';
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &Mk, K, &n, &beta, T, &n);	// T = G1 * K
-		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &Mk, &beta, K, &n);	// K = T * G1^H
-		K[0] *= J[k];
-		K[1] *= J[k+1];
-		K[2] *= J[k];
-		K[3] *= J[k+1];
+		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
+		// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
-		K[0] = creal(K[0]);
-		K[3] = creal(K[3]);
+		int idx = k+1;
+		while(idx < M){
 
-		// sqrt(K) = T
-		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
+			if(cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON || J[k] == J[idx]){
+				++idx;
+				continue;
+			}
 
-		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
-		double trK = (double) (K[0] + K[3]);	// trK != 0
+			int n = 2;
+			double complex alpha = 1, beta = 0;
+			char nontrans = 'N';
+			char trans = 'C';
 
-		if( cabs(trK * trK - 4 * detK) > EPSILON ){
+			G1[0] = G[k+M*k];
+			G1[1] = G[k+M*(k+1)];
+			G1[2] = G[idx+M*k];
+			G1[3] = G[idx+M*(k+1)];
+
+			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, G1, &n, K, &n, &beta, T, &n);	// T = G1 * K
+			zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, G1, &n, &beta, K, &n);	// K = T * G1^H
+
+			K[0] *= J[k];
+			K[1] *= J[idx];
+			K[2] *= J[k];
+			K[3] *= J[idx];
+
+			K[0] = creal(K[0]);
+			K[3] = creal(K[3]);
+
+			double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
+			double trK = (double) (K[0] + K[3]);	// trK != 0
+
+			printf("detK = %lg, trK = %lg\n", detK, trK);
 
 			double complex a;
 
-			if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
-			else a = csqrt(trK + 2 * csqrt(detK));
+			if( cabs(trK * trK - 4 * detK) > EPSILON ){
+
+				if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
+				else a = csqrt(trK + 2 * csqrt(detK));
+			}
+			else{
+				if(trK < 0) a = (double) csqrt(- 2 * trK);
+				else a = (double) csqrt(2*trK);
+			}
+
+			if(cabs(cimag(a)) > EPSILON){
+				++idx;
+				continue;
+			}
+			// do row swap and break;
+			else{
+
+				double dtemp = J[idx];
+				J[idx] = J[k+1];
+				J[k+1] = dtemp;
+
+				// update Prow
+				long int itemp = Prow[idx];
+				Prow[idx] = Prow[k+1];
+				Prow[k+1] = itemp;
+
+				// swap rows in G 
+				int Nk = N - k;
+				mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+				if(Nk/D == 0) mkl_nthreads = 1;
+				mkl_set_num_threads(mkl_nthreads);
+				zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
+			}
+		}
+
+		// sqrt(K) = T
+
+		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			T[0] = (K[0] + (double) csqrt(detK)) / a;
 			T[1] = K[1] / a;
@@ -448,36 +472,12 @@ int main(int argc, char* argv[]){
 		}
 		else{
 
-			double a;
-			if(trK < 0) a = (double) csqrt(- 2 * trK);
-			else a = (double) csqrt(2*trK);
-			
 			T[0] = (K[0] + 0.5 * trK) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		// make diagonal of T real
-		if( cimag(T[0]) > EPSILON ){
-			double complex ii = 1.0*I;
-			T[0] *= ii;
-			T[1] *= ii;
-			T[2] *= ii;
-			T[3] *= ii;
-		} 
-
-		// make trace of T positive
-		if( creal(T[0] + T[3]) < 0){
-			double ii = -1.0;
-			T[0] *= ii;
-			T[1] *= ii;
-			T[2] *= ii;
-			T[3] *= ii;
-		}
-
-		//compute F1
-		// K = T^(-1)
 
 		printMatrix(T, 2, 2);
 
