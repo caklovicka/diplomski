@@ -426,10 +426,6 @@ int main(int argc, char* argv[]){
 		char trans = 'C';
 
 		mkl_set_num_threads(1);
-		B[0] = conj(G[k+M*k]);
-		B[2] = conj(G[k+1+M*k]);
-		B[1] = conj(G[k+M*(k+1)]);
-		B[3] = conj(G[k+1+M*(k+1)]);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, K, &n, &beta, T, &n);	// T = G1 K
 		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, K, &n);	// K = T G1^H
 
@@ -441,16 +437,11 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		// HERE OK---------------------------------------------------
-
 		// sqrt(K) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
 		double trK = (double) (K[0] + K[3]);	// trK != 0
-
-		printf("K = \n");
-		printMatrix(K, 2, 2);
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
@@ -486,17 +477,6 @@ int main(int argc, char* argv[]){
 			T[3] *= 1.0 * I;
 		}*/
 
-		printf("matrica korijena T (raw)\n");
-		printMatrix(T, 2, 2);
-
-		B[0] = T[0] * T[0] + T[1] * T[2];
-		B[1] = T[0] * T[1] + T[1] * T[3];
-		B[2] = T[0] * T[2] + T[3] * T[2];
-		B[3] = T[1] * T[2] + T[3] * T[3];
-
-		printf("provjera je li T^2 (raw) = K\nT^2=\n");
-		printMatrix(B, 2, 2);
-
 		T[0] = creal(T[0]);
 		T[3] = creal(T[3]);
 
@@ -507,19 +487,9 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
-		printf("matrica korijena T t.d. trT < 0\n");
-		printMatrix(T, 2, 2);
+		// HERE OK---------------------------------------------------
 
-
-		B[0] = T[0] * T[0] + T[1] * T[2];
-		B[1] = T[0] * T[1] + T[1] * T[3];
-		B[2] = T[0] * T[2] + T[3] * T[2];
-		B[3] = T[1] * T[2] + T[3] * T[3];
-
-		printf("provjera je li T^2 = K\nT^2=\n");
-		printMatrix(B, 2, 2);
-
-		/*double detT = creal(T[0]*T[3] - T[1]*T[2]);
+		double detT = creal(T[0]*T[3] - T[1]*T[2]);
 		printf("detT = %lg", detT);
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
@@ -530,11 +500,24 @@ int main(int argc, char* argv[]){
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
-		B[0] = G[k+M*k];
-		B[1] = G[k+1+M*k];
-		B[2] = G[k+M*(k+1)];
-		B[3] = G[k+1+M*(k+1)];
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, B, &n, &beta, T, &n);	// T = K G1
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
+
+
+
+
+		printf("k = %d, J[k] = %lg, J[k+1] = %lg\n", k, J[k], J[k+1]);
+
+		printf("F1 = \n");
+		printMatrix(T, 2, 2);
+
+		printf("F1 * J F1 = \n");
+
+		C[0] = J[k] * T[0] * conj(T[0]) + J[k+1] * T[1] * conj(T[1]);
+		C[1] = J[k] * T[0] * conj(T[2]) + J[k+1] * T[1] * conj(T[3]);
+		C[2] = J[k] * T[2] * conj(T[0]) + J[k+1] * T[3] * conj(T[1]);
+		C[3] = J[k] * T[2] * conj(T[2]) + J[k+1] * T[3] * conj(T[3]);
+
+		printMatrix(C, 2, 2);
 
 
 
@@ -563,27 +546,6 @@ int main(int argc, char* argv[]){
 		G[k+1+M*k] = T[1];
 		G[k+M*(k+1)] = T[2];
 		G[k+1+M*(k+1)] = T[3];*/
-
-
-		/*printf("J = \n");
-		printJ(J, M);
-		printf("k = %d, J[k] = %lg, J[k+1] = %lg\n", k, J[k], J[k+1]);
-
-		printf("F1 = \n");
-		printMatrix(T, 2, 2);
-
-		printf("A2 = \n");
-		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
-		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
-
-		printf("F1 * J F1 = \n");
-
-		C[0] = J[k] * T[0] * conj(T[0]) + J[k+1] * T[1] * conj(T[1]);
-		C[1] = J[k] * T[0] * conj(T[2]) + J[k+1] * T[1] * conj(T[3]);
-		C[2] = J[k] * T[2] * conj(T[0]) + J[k+1] * T[3] * conj(T[1]);
-		C[3] = J[k] * T[2] * conj(T[2]) + J[k+1] * T[3] * conj(T[3]);
-
-		printMatrix(C, 2, 2);*/
 
 		break;
 
