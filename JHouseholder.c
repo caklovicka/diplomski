@@ -444,7 +444,7 @@ int main(int argc, char* argv[]){
 
 		printf("G1 K (manual) = \n");
 		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T0), cimag(T0), creal(T2), cimag(T2));
-		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T1), cimag(T1, creal(T3), cimag(T3));
+		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T1), cimag(T1), creal(T3), cimag(T3));
 
 
 		/*zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, B, &n, &beta, K, &n);	// K = T G1^H
@@ -739,7 +739,7 @@ int main(int argc, char* argv[]){
 
 
 		// make the reflector vector and save it
-		double complex alpha = -1;
+		alpha = -1;
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
