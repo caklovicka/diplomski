@@ -84,11 +84,11 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
-	double complex *T = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *T = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	double complex *K = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *B = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *B = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -534,11 +534,9 @@ int main(int argc, char* argv[]){
 		G[k+M*(k+1)] = T[2];
 		G[k+1+M*(k+1)] = T[3];
 
-		break;
 
-
-		/*
 		// compute K*JK
+		// fill the rest of the G with zeros
 		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
 		if(nthreads == 0) nthreads = 1;
 		#pragma omp parallel for num_threads( nthreads )
@@ -551,7 +549,9 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		Mk = M - k;
+		break;
+
+		/*Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
