@@ -409,19 +409,6 @@ int main(int argc, char* argv[]){
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * G[r]
 
 		// K = inverse of A2
-
-		B[0] = 0;
-		B[1] = 0;
-		B[2] = 0;
-		B[3] = 0;
-		for(i = k; i < M; ++i) B[0] += conj(G[i+M*k]) * J[i] * G[i+M*k];
-		for(i = k; i < M; ++i) B[1] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*k];
-		for(i = k; i < M; ++i) B[2] += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		for(i = k; i < M; ++i) B[3] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
-
-		printf("A2 = \n");
-		printMatrix(B, 2, 2);
-
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		printf("detA2 = %lg\n", detA);
 		K[0] = Arr / detA;
@@ -429,19 +416,13 @@ int main(int argc, char* argv[]){
 		K[2] = -Akr / detA;
 		K[3] = Akk / detA;
 
-		T[0] = K[0]*B[0] + K[2]*B[1];
-		T[2] = K[0]*B[2] + K[2]*B[3];
-		T[1] = K[1]*B[0] + K[3]*B[1];
-		T[3] = K[1]*B[2] + K[3]*B[3];
-		printf("is K really inverse of A2?\nK*A2\n");
-		printMatrix(T, 2, 2);
-
-		printf("A2 (from which we compute the invers) = \n");
-		printf("%15.10lg + i%15.10lg       %115.10lg + %15.10lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
+		printf("A2 = \n");
+		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
 		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
 
+		// HERE OK---------------------------------------------------
 
-		/*int n = 2;
+		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
 		char trans = 'C';
@@ -452,7 +433,21 @@ int main(int argc, char* argv[]){
 		B[2] = G[k+M*(k+1)];
 		B[3] = G[k+1+M*(k+1)];
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, B, &n, K, &n, &beta, T, &n);	// T = G1 K
-		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, B, &n, &beta, K, &n);	// K = T G1^H
+
+		double complex T0 = K[0]*B[0] + K[1]*B[2];
+		double complex T2 = K[2]*B[0] + K[3]*B[2];
+		double complex T1 = K[0]*B[1] + K[1]*B[3];
+		double complex T3 = K[2]*B[1] + K[3]*B[3];
+
+		printf("G1 K (zgemm) = \n");
+		printMatrix(T, 2, 2);
+
+		printf("G1 K (manual) = \n");
+		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T0), cimag(T0), creal(T2), cimag(T2));
+		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T1), cimag(T1, creal(T3), cimag(T3));
+
+
+		/*zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, B, &n, &beta, K, &n);	// K = T G1^H
 		K[0] *= J[k];
 		K[1] *= J[k];
 		K[2] *= J[k+1];
