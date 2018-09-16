@@ -162,8 +162,8 @@ int main(int argc, char* argv[]){
 	
 	// ------------------------------------------ residual ------------------------------------------
 
-	//printf("\nA (izracunata) = \n");
-	//printMatrix(A, N, N);
+	printf("\nA (izracunata) = \n");
+	printMatrix(A, N, N);
 	
 	printf("\nPA (permutirana, izracunata) = \n");
 	printMatrix(PA, N, N);
