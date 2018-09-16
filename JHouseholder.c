@@ -554,7 +554,7 @@ int main(int argc, char* argv[]){
 		// T = C^(-1) = (K*JK)^+
 		double complex detC = C[0]*C[3] - C[1]*C[2];
 		//if(cabs(detC) < EPSILON) 
-		printf("|detC| = %lg\n", cabs(detC));
+		printf("detC = %lg + i%lg\n", creal(detC), cimag(detC));
 
 		/*T[0] = C[3] / detC;
 		T[1] = -C[1] / detC;
