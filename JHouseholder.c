@@ -540,8 +540,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		break;
-
 		// HERE OK---------------------------------------------------
 
 		// compute K*T, where T = JK
@@ -553,7 +551,7 @@ int main(int argc, char* argv[]){
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
 		// T = C^(-1) = (K*JK)^+
-		double complex detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);	// C is Hermitian
+		double complex detC = C[0]*C[3] - C[1]*C[2];	// C is Hermitian
 		//if(cabs(detC) < EPSILON) 
 		printf("detC = %lg + i%lg\n", creal(detC), cimag(detC));
 
@@ -600,12 +598,11 @@ int main(int argc, char* argv[]){
 			zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, B, &n, &beta, &G[k+M*j], &M);
 		}
 		mkl_set_num_threads_local(0);
-
+		*/
 	
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
-		*/
 
 		goto LOOP_END;
 	
