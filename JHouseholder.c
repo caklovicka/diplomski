@@ -552,7 +552,7 @@ int main(int argc, char* argv[]){
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
 		// T = C^(-1) = (K*JK)^+
-		double complex detC = C[0]*C[3] - C[1]*C[2];
+		double complex detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);	// C is Hermitian
 		//if(cabs(detC) < EPSILON) 
 		printf("detC = %lg + i%lg\n", creal(detC), cimag(detC));
 
