@@ -438,6 +438,9 @@ int main(int argc, char* argv[]){
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
 		double trK = (double) (K[0] + K[3]);	// trK != 0
 
+		printf("K = \n");
+		printMatrix(K, 2, 2);
+
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double complex a;
@@ -464,6 +467,14 @@ int main(int argc, char* argv[]){
 
 		printf("Matrica korijena = \n");
 		printMatrix(T, 2, 2);
+
+		B[0] = T[0] * T[0] + T[1] * T[2];
+		B[1] = T[0] * T[1] + T[1] * T[3];
+		B[2] = T[0] * T[2] + T[3] * T[2];
+		B[3] = T[1] * T[2] + T[3] * T[3];
+
+		printf("provjera je li T^2 = K\nT^2=\n");
+		printMatrix(B, 2, 2);
 
 		// if K has imaginary diagonal solve iT = G1 F1^(-1)
 		// in other words, just make the diagonal of T real, and trace negative
