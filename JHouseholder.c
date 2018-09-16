@@ -501,10 +501,13 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
+		printf("T t.d. trT < 0\n");
+		printMatrix(T, 2, 2);
+
 		// find T^(-1) = K
 
 		double detT = creal(T[0]*T[3] - T[1]*T[2]);
-		printf("detT = %lg + i%lg\n", creal(detT), cimag(detT));
+		printf("detT = %lg", detT);
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
 		K[2] = -T[2] / detT;
