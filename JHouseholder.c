@@ -534,7 +534,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		Mk = M - k;
+		/*Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
@@ -592,6 +592,7 @@ int main(int argc, char* argv[]){
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
+		*/
 
 		goto LOOP_END;
 	
