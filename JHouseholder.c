@@ -569,6 +569,7 @@ int main(int argc, char* argv[]){
 					B[i] = J[i] * G[i + M*j];
 					B[i+M] = J[i] * G[i + M*(j+1)];
 				}
+			}
 
 			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &B[k], &M, &beta, C, &n);	// C = K*B
 			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, C, &M, &beta, B, &n);	// B = TC
