@@ -436,6 +436,11 @@ int main(int argc, char* argv[]){
 		printf("is K really inverse of A2?\nK*A2\n");
 		printMatrix(T, 2, 2);
 
+		printf("A2 (from which we compute the invers) = \n");
+		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
+		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
+
+
 		/*int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
