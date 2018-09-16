@@ -411,6 +411,7 @@ int main(int argc, char* argv[]){
 		// K = inverse of A2
 
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
+		printf("detA2 = %lg\n", detA);
 		K[0] = Arr / detA;
 		K[1] = -conj(Akr) / detA;
 		K[2] = -Akr / detA;
@@ -422,11 +423,15 @@ int main(int argc, char* argv[]){
 		char trans = 'C';
 
 		mkl_set_num_threads(1);
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, K, &n, &beta, T, &n);	// T = G1 * K
-		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, K, &n);	// K = T * G1^H
+		B[0] = G[k+M*k];
+		B[1] = G[k+1+M*k];
+		B[2] = G[k+M*(k+1)];
+		B[3] = G[k+1+M*(k+1)];
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, B, &n, K, &n, &beta, T, &n);	// T = G1 K
+		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, B, &n, &beta, K, &n);	// K = T G1^H
 		K[0] *= J[k];
-		K[1] *= J[k+1];
-		K[2] *= J[k];
+		K[1] *= J[k];
+		K[2] *= J[k+1];
 		K[3] *= J[k+1];
 
 		K[0] = creal(K[0]);
@@ -498,7 +503,7 @@ int main(int argc, char* argv[]){
 
 		// find T^(-1) = K
 
-		double complex detT = T[0]*T[3] - T[1]*T[2];
+		double detT = creal(T[0]*T[3] - T[1]*T[2]);
 		printf("detT = %lg + i%lg\n", creal(detT), cimag(detT));
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
@@ -517,7 +522,7 @@ int main(int argc, char* argv[]){
 
 
 		// make the matrix for the basic reflector
-		Mk = M-k;
+		/*Mk = M-k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
@@ -539,7 +544,7 @@ int main(int argc, char* argv[]){
 		G[k+M*k] = T[0];
 		G[k+1+M*k] = T[1];
 		G[k+M*(k+1)] = T[2];
-		G[k+1+M*(k+1)] = T[3];
+		G[k+1+M*(k+1)] = T[3];*/
 
 
 		printf("J = \n");
