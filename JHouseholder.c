@@ -470,12 +470,15 @@ int main(int argc, char* argv[]){
 		// if K has imaginary diagonal solve iT = G1 F1^(-1)
 		// in other words, just make the diagonal of T real, and trace negative
 
-		/*if( cabs(cimag(T[0])) > EPSILON){
-			T[0] *= 1.0 * I;
+		if( cabs(cimag(T[0])) > EPSILON){
+
+			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
+			/*T[0] *= 1.0 * I;
 			T[1] *= 1.0 * I;
 			T[2] *= 1.0 * I;
 			T[3] *= 1.0 * I;
-		}*/
+			*/
+		}
 
 		T[0] = creal(T[0]);
 		T[3] = creal(T[3]);
@@ -487,7 +490,6 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
-		// HERE OK---------------------------------------------------
 
 		double detT = creal(T[0]*T[3] - T[1]*T[2]);
 		printf("detT = %lg", detT);
@@ -503,27 +505,12 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
+		// HERE OK---------------------------------------------------
 
 
-		printf("k = %d, J[k] = %lg, J[k+1] = %lg\n", k, J[k], J[k+1]);
-
-		printf("F1 = \n");
-		printMatrix(T, 2, 2);
-
-		printf("F1 * J F1 = \n");
-
-		C[0] = J[k] * T[0] * conj(T[0]) + J[k+1] * T[1] * conj(T[1]);
-		C[1] = J[k] * T[0] * conj(T[2]) + J[k+1] * T[1] * conj(T[3]);
-		C[2] = J[k] * T[2] * conj(T[0]) + J[k+1] * T[3] * conj(T[1]);
-		C[3] = J[k] * T[2] * conj(T[2]) + J[k+1] * T[3] * conj(T[3]);
-
-		printMatrix(C, 2, 2);
-
-
-
-
-		// make the matrix for the basic reflector
-		/*Mk = M-k;
+		// copy tcolumns of G into K
+		Mk = M-k;
+		inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
@@ -535,7 +522,7 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
-		// K = the difference operator for tje J Householder
+		// K = the difference operator for the J Householder
 		K[k] -= T[0];
 		K[k+1] -= T[1];
 		K[k + M] -= T[2];
@@ -545,7 +532,7 @@ int main(int argc, char* argv[]){
 		G[k+M*k] = T[0];
 		G[k+1+M*k] = T[1];
 		G[k+M*(k+1)] = T[2];
-		G[k+1+M*(k+1)] = T[3];*/
+		G[k+1+M*(k+1)] = T[3];
 
 		break;
 
