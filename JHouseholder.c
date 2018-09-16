@@ -494,7 +494,7 @@ int main(int argc, char* argv[]){
 		B[2] = T[0] * T[2] + T[3] * T[2];
 		B[3] = T[1] * T[2] + T[3] * T[3];
 
-		printf("provjera je li T^2 = K\nT^2=\n");
+		printf("provjera je li T^2 (raw) = K\nT^2=\n");
 		printMatrix(B, 2, 2);
 
 		T[0] = creal(T[0]);
@@ -510,7 +510,6 @@ int main(int argc, char* argv[]){
 		printf("matrica korijena T t.d. trT < 0\n");
 		printMatrix(T, 2, 2);
 
-		// find T^(-1) = K
 
 		B[0] = T[0] * T[0] + T[1] * T[2];
 		B[1] = T[0] * T[1] + T[1] * T[3];
