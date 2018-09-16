@@ -596,27 +596,27 @@ int main(int argc, char* argv[]){
 					alpha = -2;
 					beta = 1;
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
-
-					continue;
 				}
 
 
 				// case when we have 2 columns of G to work with
+				else{
 
-				// T = JG
-				for(i = k; i < M; ++i){
-					T[i] = J[i] * G[i + M*j];
-					T[i+M] = J[i] * G[i + M*(j+1)];
+					// T = JG
+					for(i = k; i < M; ++i){
+						T[i] = J[i] * G[i + M*j];
+						T[i+M] = J[i] * G[i + M*(j+1)];
+					}
+
+					alpha = 1;
+					beta = 0;
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T, T = JG
+
+					// compute G - 2EC
+					alpha = -2;
+					beta = 1;
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}
-
-				alpha = 1;
-				beta = 0;
-				zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T, T = JG
-
-				// compute G - 2EC
-				alpha = -2;
-				beta = 1;
-				zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 			}
 		}
 		mkl_set_num_threads_local(0);
