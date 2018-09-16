@@ -376,7 +376,7 @@ int main(int argc, char* argv[]){
 		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
 
 		int idx = k+1;
-		while(J[k] == J[idx] && cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k] && idx < M) < EPSILON) ++idx;
+		while(J[k] == J[idx] && (cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) && idx < M) ++idx;
 
 		if(idx == M) printf("idx = M, no more altering signs in J.\n");
 
@@ -394,7 +394,7 @@ int main(int argc, char* argv[]){
 			// swap rows in G 
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
+			if(mkl_nthreads == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
 		}
@@ -462,15 +462,18 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
+		printf("Matrica korijena = \n");
+		printMatrix(T, 2, 2);
+
 		// if K has imaginary diagonal solve iT = G1 F1^(-1)
 		// in other words, just make the diagonal of T real, and trace negative
 
-		if( cabs(cimag(T[0])) > EPSILON){
+		/*if( cabs(cimag(T[0])) > EPSILON){
 			T[0] *= 1.0 * I;
 			T[1] *= 1.0 * I;
 			T[2] *= 1.0 * I;
 			T[3] *= 1.0 * I;
-		}
+		}*/
 
 		if( creal(T[0] + T[3]) > 0){
 			T[0] *= -1.0;
@@ -480,8 +483,8 @@ int main(int argc, char* argv[]){
 		}
 
 		// find T^(-1) = K
-		T[0] = creal(T[0]);
-		T[3] = creal(T[3]);
+		//T[0] = creal(T[0]);
+		//T[3] = creal(T[3]);
 
 		double complex detT = T[0] * T[3] - T[1] * T[2];
 		K[0] = T[3] / detT;
@@ -523,6 +526,7 @@ int main(int argc, char* argv[]){
 
 
 
+		printf("J[k] = %d, J[k+1] = %d\n", J[k], J[k+1]);
 
 		printf("F1 = \n");
 		printMatrix(T, 2, 2);
