@@ -87,7 +87,7 @@ int main(int argc, char* argv[]){
 	double complex *T = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *K = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
-	double complex *D = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
+	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	double complex *B = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
 
 
@@ -535,19 +535,19 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
-		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, D, &n);	// D = K*T
+		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// D = K*T
 
-		// T = D^(-1)
-		double complex detD = D[0]*D[3] - D[1]*D[2];
-		if(cabs(detD) < EPSILON) printf("|detD| = %lg\n", cabs(detD));
+		// T = C^(-1)
+		double complex detC = C[0]*C[3] - C[1]*C[2];
+		if(cabs(detC) < EPSILON) printf("|detC| = %lg\n", cabs(detC));
 
-		T[0] = D[3] / detD;
-		T[1] = -D[1] / detD;
-		T[2] = -D[2] / detD;
-		T[3] = D[1] / detD;
+		T[0] = C[3] / detC;
+		T[1] = -C[1] / detC;
+		T[2] = -C[2] / detC;
+		T[3] = C[1] / detC;
 
 		// apply the reflector
-		Nk = (N - k - 2)/2;
+		int Nk = (N - k - 2)/2;
 		nthreads = Nk/D > omp_get_max_threads()/2 ? Nk/D : omp_get_max_threads()/2;
 		if(nthreads == 0) nthreads = 1;
 
@@ -570,8 +570,8 @@ int main(int argc, char* argv[]){
 					B[i+M] = J[i] * G[i + M*(j+1)];
 				}
 
-			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &B[k], &M, &beta, D, &n);	// D = K*B
-			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, D, &M, &beta, B, &n);	// B = TD
+			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &B[k], &M, &beta, C, &n);	// C = K*B
+			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, C, &M, &beta, B, &n);	// B = TC
 
 			// compute G - 2KB
 			alpha = -2;
