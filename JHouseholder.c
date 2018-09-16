@@ -410,6 +410,18 @@ int main(int argc, char* argv[]){
 
 		// K = inverse of A2
 
+		B[0] = 0;
+		B[1] = 0;
+		B[2] = 0;
+		B[3] = 0;
+		for(i = k; i < M; ++i) B[0] += conj(G[i+M*k]) * J[i] * G[i+M*k];
+		for(i = k; i < M; ++i) B[1] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*k];
+		for(i = k; i < M; ++i) B[2] += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+		for(i = k; i < M; ++i) B[0] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
+
+		printf("A2 = \n");
+		printMatrix(B, 2, 2);
+
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		printf("detA2 = %lg\n", detA);
 		K[0] = Arr / detA;
@@ -417,7 +429,14 @@ int main(int argc, char* argv[]){
 		K[2] = -Akr / detA;
 		K[3] = Akk / detA;
 
-		int n = 2;
+		T[0] = K[0]*B[0] + K[2]*B[1];
+		T[0] = K[0]*B[2] + K[2]*B[3];
+		T[0] = K[1]*B[0] + K[3]*B[1];
+		T[0] = K[1]*B[2] + K[3]*B[3];
+		printf("is K really inverse of A2?\nK*A2\n");
+		printMatrix(T, 2, 2);
+
+		/*int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
 		char trans = 'C';
@@ -491,7 +510,7 @@ int main(int argc, char* argv[]){
 			T[3] *= 1.0 * I;
 		}*/
 
-		T[0] = creal(T[0]);
+		/*T[0] = creal(T[0]);
 		T[3] = creal(T[0]);
 
 		if( creal(T[0] + T[3]) > 0){
@@ -523,19 +542,6 @@ int main(int argc, char* argv[]){
 		B[3] = G[k+1+M*(k+1)];
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, B, &n, &beta, T, &n);	// T = K G1
 
-		// matrix A2, other way
-		B[0] = 0;
-		B[1] = 0;
-		B[2] = 0;
-		B[3] = 0;
-		for(i = k; i < M; ++i) B[0] += conj(G[i+M*k]) * J[i] * G[i+M*k];
-		for(i = k; i < M; ++i) B[1] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*k];
-		for(i = k; i < M; ++i) B[2] += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		for(i = k; i < M; ++i) B[0] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
-
-		printf("A2 = \n");
-		printMatrix(B, 2, 2);
-
 
 
 
@@ -565,7 +571,7 @@ int main(int argc, char* argv[]){
 		G[k+1+M*(k+1)] = T[3];*/
 
 
-		printf("J = \n");
+		/*printf("J = \n");
 		printJ(J, M);
 		printf("k = %d, J[k] = %lg, J[k+1] = %lg\n", k, J[k], J[k+1]);
 
@@ -583,7 +589,7 @@ int main(int argc, char* argv[]){
 		C[2] = J[k] * T[2] * conj(T[0]) + J[k+1] * T[3] * conj(T[1]);
 		C[3] = J[k] * T[2] * conj(T[2]) + J[k+1] * T[3] * conj(T[3]);
 
-		printMatrix(C, 2, 2);
+		printMatrix(C, 2, 2);*/
 
 		break;
 
