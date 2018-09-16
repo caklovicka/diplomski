@@ -416,10 +416,6 @@ int main(int argc, char* argv[]){
 		K[2] = -Akr / detA;
 		K[3] = Akk / detA;
 
-		printf("A2 = \n");
-		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
-		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
-
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
@@ -492,7 +488,6 @@ int main(int argc, char* argv[]){
 
 
 		double detT = creal(T[0]*T[3] - T[1]*T[2]);
-		printf("detT = %lg", detT);
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
 		K[2] = -T[2] / detT;
@@ -558,7 +553,8 @@ int main(int argc, char* argv[]){
 
 		// T = C^(-1) = (K*JK)^+
 		double complex detC = C[0]*C[3] - C[1]*C[2];
-		if(cabs(detC) < EPSILON) printf("|detC| = %lg\n", cabs(detC));
+		//if(cabs(detC) < EPSILON) 
+		printf("|detC| = %lg\n", cabs(detC));
 
 		/*T[0] = C[3] / detC;
 		T[1] = -C[1] / detC;
