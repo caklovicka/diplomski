@@ -376,7 +376,9 @@ int main(int argc, char* argv[]){
 		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
 
 		int idx = k+1;
-		while(J[k] == J[idx] && cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) ++idx;
+		while(J[k] == J[idx] && cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k] && idx < M) < EPSILON) ++idx;
+
+		if(idx == M) printf("idx = M, no more altering signs in J.\n");
 
 		if( idx != k+1 ){
 
@@ -410,8 +412,8 @@ int main(int argc, char* argv[]){
 
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		K[0] = Arr / detA;
-		K[1] = -Akr / detA;
-		K[2] = -conj(Akr) / detA;
+		K[1] = -conj(Akr) / detA;
+		K[2] = -Akr / detA;
 		K[3] = Akk / detA;
 
 		int n = 2;
@@ -470,7 +472,7 @@ int main(int argc, char* argv[]){
 			T[3] *= 1.0 * I;
 		}
 
-		if( creal(T[0] + T[3]) < 0){
+		if( creal(T[0] + T[3]) > 0){
 			T[0] *= -1.0;
 			T[1] *= -1.0;
 			T[2] *= -1.0;
@@ -491,7 +493,7 @@ int main(int argc, char* argv[]){
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K * G1
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K * G1
 
 
 		// make the matrix for the basic reflector
@@ -526,16 +528,17 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
 			T[i+M] = J[i] * K[i+M];
-			if( i >= k+2){
+			if( i >= k+2 ){
 				G[i+M*k] = 0;
 				G[i+M*(k+1)] = 0;
 			}
 		}
 
+		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
-		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// D = K*T
+		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T
 
 		// T = C^(-1)
 		double complex detC = C[0]*C[3] - C[1]*C[2];
@@ -544,11 +547,11 @@ int main(int argc, char* argv[]){
 		T[0] = C[3] / detC;
 		T[1] = -C[1] / detC;
 		T[2] = -C[2] / detC;
-		T[3] = C[1] / detC;
+		T[3] = C[0] / detC;
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
-		nthreads = Nk/D > omp_get_max_threads()/2 ? Nk/D : omp_get_max_threads()/2;
+		nthreads = Nk/D > omp_get_max_threads() ? Nk/D : omp_get_max_threads();
 		if(nthreads == 0) nthreads = 1;
 
 		Mk = M - k;
@@ -556,6 +559,8 @@ int main(int argc, char* argv[]){
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
 		// zasada radi ako je parno redaka ostalo.... POPRAVI
+		// K = W
+		// T = (W*JW)^+
 
 		#pragma omp parallel num_threads( nthreads )
 		{
@@ -564,20 +569,22 @@ int main(int argc, char* argv[]){
 			#pragma omp for nowait
 			for(j = k+2; j < N; j += 2){
 
-				// compute TK*JG
+				// B = JG
 				for(i = k; i < M; ++i){
 					B[i] = J[i] * G[i + M*j];
 					B[i+M] = J[i] * G[i + M*(j+1)];
 				}
 			}
 
+			alpha = 1;
+			beta = 0;
 			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &B[k], &M, &beta, C, &n);	// C = K*B
-			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, C, &M, &beta, B, &n);	// B = TC
+			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, C, &n, &beta, B, &n);	// B = TC
 
 			// compute G - 2KB
 			alpha = -2;
 			beta = 1;
-			zgemm(&nontrans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, B, &n, &beta, &G[k+M*j], &M);
+			zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, B, &n, &beta, &G[k+M*j], &M);
 		}
 		mkl_set_num_threads_local(0);
 
