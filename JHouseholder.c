@@ -378,8 +378,6 @@ int main(int argc, char* argv[]){
 		int idx = k+1;
 		while(J[k] == J[idx] && (cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) && idx < M) ++idx;
 
-		printf("Idx = %d\n", idx);
-
 		if(idx == M) printf("idx = M, no more altering signs in J.\n");
 
 		if( idx != k+1 ){
@@ -527,8 +525,9 @@ int main(int argc, char* argv[]){
 		G[k+1+M*(k+1)] = T[3];
 
 
-
-		printf("J[%d] = %d, J[%d] = %d\n", k, J[k], k+1, J[k+1]);
+		printf("J = \n");
+		printJ(J, M);
+		printf("k = %d, J[k] = %d, J[k+1] = %d\n", k, J[k], J[k+1]);
 
 		printf("F1 = \n");
 		printMatrix(T, 2, 2);
