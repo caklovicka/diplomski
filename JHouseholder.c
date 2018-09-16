@@ -486,6 +486,9 @@ int main(int argc, char* argv[]){
 			T[3] *= 1.0 * I;
 		}*/
 
+		T[0] = creal(T[0]);
+		T[3] = creal(T[0]);
+
 		if( creal(T[0] + T[3]) > 0){
 			T[0] *= -1.0;
 			T[1] *= -1.0;
@@ -494,10 +497,9 @@ int main(int argc, char* argv[]){
 		}
 
 		// find T^(-1) = K
-		//T[0] = creal(T[0]);
-		//T[3] = creal(T[3]);
 
-		double complex detT = T[0] * T[3] - T[1] * T[2];
+		double complex detT = T[0]*T[3] - T[1]*T[2];
+		printf("detT = %lg + i%lg\n", creal(detT), cimag(detT));
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
 		K[2] = -T[2] / detT;
@@ -507,7 +509,11 @@ int main(int argc, char* argv[]){
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
+		B[0] = G[k+M*k];
+		B[1] = G[k+1+M*k];
+		B[2] = G[k+M*(k+1)];
+		B[3] = G[k+1+M*(k+1)];
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, B, &n, &beta, T, &n);	// T = K G1
 
 
 		// make the matrix for the basic reflector
