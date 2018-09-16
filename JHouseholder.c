@@ -432,7 +432,7 @@ int main(int argc, char* argv[]){
 		B[1] = G[k+1+M*k];
 		B[2] = G[k+M*(k+1)];
 		B[3] = G[k+1+M*(k+1)];
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, B, &n, K, &n, &beta, T, &n);	// T = G1 K
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, K, &n, &beta, T, &n);	// T = G1 K
 
 		double complex T0 = K[0]*B[0] + K[1]*B[2];
 		double complex T2 = K[2]*B[0] + K[3]*B[2];
