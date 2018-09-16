@@ -582,14 +582,14 @@ int main(int argc, char* argv[]){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
-				if(j == N-1){
+				if( j+2 >= N ){
 
 					// T = Jg
 					for(i = k; i < M; ++i) T[i] = J[i] * G[i + M*j];
 					// C = K*T, T = Jg (2 x 1)
 					alpha = 1;
 					beta = 0;
-					zgemv(&trans, &n, &Mk, &alpha, &K[k], &M, &T[k], &inc, &beta, C, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &K[k], &M, &T[k], &inc, &beta, C, &inc);
 					// g = g - 2EC
 					alpha = -2;
 					beta = 1;
