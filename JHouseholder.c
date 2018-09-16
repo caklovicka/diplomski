@@ -378,6 +378,8 @@ int main(int argc, char* argv[]){
 		int idx = k+1;
 		while(J[k] == J[idx] && (cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) && idx < M) ++idx;
 
+		printf("Idx = %d\n", idx);
+
 		if(idx == M) printf("idx = M, no more altering signs in J.\n");
 
 		if( idx != k+1 ){
