@@ -544,6 +544,7 @@ int main(int argc, char* argv[]){
 
 		printMatrix(C, 2, 2);
 
+		break;
 
 
 		/*
