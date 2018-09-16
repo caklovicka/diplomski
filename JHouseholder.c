@@ -358,6 +358,8 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 		last_pivot = 2;
 
+		printf("PIVOT_2 for k = %d\n", k);
+
 		// do a column swap pivot_r <-> k+1 if needed
 
 		if(pivot_r != k+1){
