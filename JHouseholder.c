@@ -527,7 +527,7 @@ int main(int argc, char* argv[]){
 
 		printf("J = \n");
 		printJ(J, M);
-		printf("k = %d, J[k] = %d, J[k+1] = %d\n", k, J[k], J[k+1]);
+		printf("k = %d, J[k] = %lg, J[k+1] = %lg\n", k, J[k], J[k+1]);
 
 		printf("F1 = \n");
 		printMatrix(T, 2, 2);
