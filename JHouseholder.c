@@ -739,7 +739,7 @@ int main(int argc, char* argv[]){
 
 
 		// make the reflector vector and save it
-		alpha = -1;
+		double complex alpha = -1;
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
