@@ -589,7 +589,7 @@ int main(int argc, char* argv[]){
 					// C = K*T, T = Jg (2 x 1)
 					alpha = 1;
 					beta = 0;
-					zgemv(&trans, &Mk, &n, &alpha, &K[k], &M, &T[k], &inc, &beta, C, &inc);
+					zgemv(&trans, &n, &Mk, &alpha, &K[k], &M, &T[k], &inc, &beta, C, &inc);
 					// g = g - 2EC
 					alpha = -2;
 					beta = 1;
