@@ -417,7 +417,7 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i) B[0] += conj(G[i+M*k]) * J[i] * G[i+M*k];
 		for(i = k; i < M; ++i) B[1] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*k];
 		for(i = k; i < M; ++i) B[2] += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		for(i = k; i < M; ++i) B[0] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
+		for(i = k; i < M; ++i) B[3] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
 
 		printf("A2 = \n");
 		printMatrix(B, 2, 2);
@@ -437,8 +437,8 @@ int main(int argc, char* argv[]){
 		printMatrix(T, 2, 2);
 
 		printf("A2 (from which we compute the invers) = \n");
-		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
-		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
+		printf("%10.5lg + i%10.5lg       %10.5lg + %10.5lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
+		printf("%10.5lg + i%10.5lg       %10.5lg + %10.5lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
 
 
 		/*int n = 2;
