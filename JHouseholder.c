@@ -570,6 +570,8 @@ int main(int argc, char* argv[]){
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
 		// compute E = KC
+		alpha = 1;
+		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, T, &n, &beta, &E[k], &M);
 
 		// K = W (Mk x 2 matrix)
@@ -620,7 +622,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 
-
+		printMatrix(G, M, N);
 
 
 		break;
