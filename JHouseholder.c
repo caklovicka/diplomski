@@ -582,7 +582,7 @@ int main(int argc, char* argv[]){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
-				if( j+2 >= N ){
+				if(j == N-1){
 
 					// T = Jg
 					for(i = k; i < M; ++i) T[i] = J[i] * G[i + M*j];
