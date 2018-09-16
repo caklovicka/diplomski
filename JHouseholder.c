@@ -505,9 +505,6 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
-		// HERE OK---------------------------------------------------
-
-
 		// copy tcolumns of G into K
 		Mk = M-k;
 		inc = 1;
@@ -535,7 +532,7 @@ int main(int argc, char* argv[]){
 		G[k+1+M*(k+1)] = T[3];
 
 
-		// compute K*JK
+		// compute K*JK, first we need T = JK
 		// fill the rest of the G with zeros
 		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
 		if(nthreads == 0) nthreads = 1;
@@ -549,19 +546,21 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		break;
+		// HERE OK---------------------------------------------------
 
-		/*Mk = M - k;
+		// compute K*T, where T = JK
+		// C = K*JK
+		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
-		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T
+		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
-		// T = C^(-1)
+		// T = C^(-1) = (K*JK)^+
 		double complex detC = C[0]*C[3] - C[1]*C[2];
 		if(cabs(detC) < EPSILON) printf("|detC| = %lg\n", cabs(detC));
 
-		T[0] = C[3] / detC;
+		/*T[0] = C[3] / detC;
 		T[1] = -C[1] / detC;
 		T[2] = -C[2] / detC;
 		T[3] = C[0] / detC;
@@ -578,7 +577,7 @@ int main(int argc, char* argv[]){
 		// zasada radi ako je parno redaka ostalo.... POPRAVI
 		// K = W
 		// T = (W*JW)^+
-
+/*
 		#pragma omp parallel num_threads( nthreads )
 		{
 			mkl_set_num_threads_local(mkl_nthreads);
