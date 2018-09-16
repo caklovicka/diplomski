@@ -89,7 +89,6 @@ int main(int argc, char* argv[]){
 	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
-	double complex *B = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -559,12 +558,6 @@ int main(int argc, char* argv[]){
 		T[2] = -C[2] / detC;
 		T[3] = C[0] / detC;
 
-		// copy back T into C. T is a bigger array, will be used later
-
-		C[0] = T[0];
-		C[1] = T[1];
-		C[2] = T[2];
-		C[3] = T[3];
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
@@ -576,7 +569,7 @@ int main(int argc, char* argv[]){
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
 		// compute E = KC
-		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
+		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, T, &n, &beta, &E[k], &M);
 
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
@@ -612,16 +605,16 @@ int main(int argc, char* argv[]){
 					T[i] = J[i] * G[i + M*j];
 					T[i+M] = J[i] * G[i + M*(j+1)];
 				}
+
+				alpha = 1;
+				beta = 0;
+				zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T, T = JG
+
+				// compute G - 2EC
+				alpha = -2;
+				beta = 1;
+				zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 			}
-
-			alpha = 1;
-			beta = 0;
-			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T, T = JG
-
-			// compute G - 2EC
-			alpha = -2;
-			beta = 1;
-			zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 		}
 		mkl_set_num_threads_local(0);
 		
