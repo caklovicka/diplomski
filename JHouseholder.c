@@ -430,15 +430,15 @@ int main(int argc, char* argv[]){
 		K[3] = Akk / detA;
 
 		T[0] = K[0]*B[0] + K[2]*B[1];
-		T[0] = K[0]*B[2] + K[2]*B[3];
-		T[0] = K[1]*B[0] + K[3]*B[1];
-		T[0] = K[1]*B[2] + K[3]*B[3];
+		T[2] = K[0]*B[2] + K[2]*B[3];
+		T[1] = K[1]*B[0] + K[3]*B[1];
+		T[3] = K[1]*B[2] + K[3]*B[3];
 		printf("is K really inverse of A2?\nK*A2\n");
 		printMatrix(T, 2, 2);
 
 		printf("A2 (from which we compute the invers) = \n");
-		printf("%10.5lg + i%10.5lg       %10.5lg + %10.5lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
-		printf("%10.5lg + i%10.5lg       %10.5lg + %10.5lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
+		printf("%15.10lg + i%15.10lg       %115.10lg + %15.10lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
+		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
 
 
 		/*int n = 2;
