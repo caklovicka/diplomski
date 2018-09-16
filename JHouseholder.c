@@ -420,8 +420,6 @@ int main(int argc, char* argv[]){
 		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
 		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
 
-		// HERE OK---------------------------------------------------
-
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
@@ -435,22 +433,6 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, K, &n, &beta, T, &n);	// T = G1 K
 		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, K, &n);	// K = T G1^H
 
-
-		// T = T * G1^H
-		double complex T0 = T[0]*B[0] + T[2]*B[1];
-		double complex T2 = T[0]*B[2] + T[2]*B[3];
-		double complex T1 = T[1]*B[0] + T[3]*B[1];
-		double complex T3 = T[1]*B[2] + T[3]*B[3];
-
-		printf("G1 K G1* (zgemm) = \n");
-		printMatrix(K, 2, 2);
-
-		printf("G1 K G1* (manual) = \n");
-		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T0), cimag(T0), creal(T2), cimag(T2));
-		printf("%15.10lg + i%15.10lg       %15.10lg + %15.10lg\n", creal(T1), cimag(T1), creal(T3), cimag(T3));
-
-
-
 		K[0] *= J[k];
 		K[1] *= J[k];
 		K[2] *= J[k+1];
@@ -458,6 +440,8 @@ int main(int argc, char* argv[]){
 
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
+
+		// HERE OK---------------------------------------------------
 
 		// sqrt(K) = T
 		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
@@ -492,17 +476,6 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		printf("Matrica korijena = \n");
-		printMatrix(T, 2, 2);
-
-		B[0] = T[0] * T[0] + T[1] * T[2];
-		B[1] = T[0] * T[1] + T[1] * T[3];
-		B[2] = T[0] * T[2] + T[3] * T[2];
-		B[3] = T[1] * T[2] + T[3] * T[3];
-
-		printf("provjera je li T^2 = K\nT^2=\n");
-		printMatrix(B, 2, 2);
-
 		// if K has imaginary diagonal solve iT = G1 F1^(-1)
 		// in other words, just make the diagonal of T real, and trace negative
 
@@ -513,7 +486,7 @@ int main(int argc, char* argv[]){
 			T[3] *= 1.0 * I;
 		}*/
 
-		/*T[0] = creal(T[0]);
+		T[0] = creal(T[0]);
 		T[3] = creal(T[0]);
 
 		if( creal(T[0] + T[3]) > 0){
@@ -523,12 +496,20 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
-		printf("T t.d. trT < 0\n");
+		printf("matrica korijena T t.d. trT < 0\n");
 		printMatrix(T, 2, 2);
 
 		// find T^(-1) = K
 
-		double detT = creal(T[0]*T[3] - T[1]*T[2]);
+		B[0] = T[0] * T[0] + T[1] * T[2];
+		B[1] = T[0] * T[1] + T[1] * T[3];
+		B[2] = T[0] * T[2] + T[3] * T[2];
+		B[3] = T[1] * T[2] + T[3] * T[3];
+
+		printf("provjera je li T^2 = K\nT^2=\n");
+		printMatrix(B, 2, 2);
+
+		/*double detT = creal(T[0]*T[3] - T[1]*T[2]);
 		printf("detT = %lg", detT);
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
