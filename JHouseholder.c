@@ -88,7 +88,8 @@ int main(int argc, char* argv[]){
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *B = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
+	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
+	double complex *B = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -551,14 +552,19 @@ int main(int argc, char* argv[]){
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
 		// T = C^(-1) = (K*JK)^+
-		double detC = creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]);	// C is Hermitian
-		//if(cabs(detC) < EPSILON) 
-		printf("detC = %lg\n", creal(detC));
+		double detC = creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]);
 
-		/*T[0] = C[3] / detC;
+		T[0] = C[3] / detC;
 		T[1] = -C[1] / detC;
 		T[2] = -C[2] / detC;
 		T[3] = C[0] / detC;
+
+		// copy back T into C. T is a bigger array, will be used later
+
+		C[0] = T[0];
+		C[1] = T[1];
+		C[2] = T[2];
+		C[3] = T[3];
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
@@ -569,36 +575,56 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 
-		// zasada radi ako je parno redaka ostalo.... POPRAVI
-		// K = W
-		// T = (W*JW)^+
-/*
+		// compute E = KC
+		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
+
+		// K = W (Mk x 2 matrix)
+		// C = (W*JW)^+ (2x2 matrix)
+
 		#pragma omp parallel num_threads( nthreads )
 		{
-			mkl_set_num_threads_local(mkl_nthreads);
-
 			#pragma omp for nowait
 			for(j = k+2; j < N; j += 2){
 
-				// B = JG
+				mkl_set_num_threads_local(mkl_nthreads);
+
+				if(j == N-1){
+
+					// T = Jg
+					for(i = k; i < M; ++i) T[i] = J[i] * G[i + M*j];
+					// C = K*T, T = Jg (2 x 1)
+					alpha = 1;
+					beta = 0;
+					zgemv(&trans, &Mk, &n, &alpha, &K[k], &M, &T[k], &inc, &beta, C, &inc);
+					// g = g - 2EC
+					alpha = -2;
+					beta = 1;
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
+
+					continue;
+				}
+
+
+				// case when we have 2 columns of G to work with
+
+				// T = JG
 				for(i = k; i < M; ++i){
-					B[i] = J[i] * G[i + M*j];
-					B[i+M] = J[i] * G[i + M*(j+1)];
+					T[i] = J[i] * G[i + M*j];
+					T[i+M] = J[i] * G[i + M*(j+1)];
 				}
 			}
 
 			alpha = 1;
 			beta = 0;
-			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &B[k], &M, &beta, C, &n);	// C = K*B
-			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, T, &M, C, &n, &beta, B, &n);	// B = TC
+			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T, T = JG
 
-			// compute G - 2KB
+			// compute G - 2EC
 			alpha = -2;
 			beta = 1;
-			zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, B, &n, &beta, &G[k+M*j], &M);
+			zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 		}
 		mkl_set_num_threads_local(0);
-		*/
+		
 	
 		k = k+1;
 		double end2 = omp_get_wtime();
@@ -704,6 +730,7 @@ int main(int argc, char* argv[]){
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){
 
+				// TODO: mozda tu popraviti. spremiti f*J u poseban vektor, pa koristiti zdoc. (T moze posluziti za spremanje)
 				double complex alpha = 0;
 				for(i = k; i < M; ++i) alpha += conj(f[i]) * J[i] * G[i+M*j];
 
