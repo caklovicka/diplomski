@@ -410,7 +410,6 @@ int main(int argc, char* argv[]){
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
-		printf("detA2 = %lg\n", detA);
 		K[0] = Arr / detA;
 		K[1] = -conj(Akr) / detA;
 		K[2] = -Akr / detA;
@@ -540,6 +539,8 @@ int main(int argc, char* argv[]){
 				G[i+M*(k+1)] = 0;
 			}
 		}
+
+		break;
 
 		// HERE OK---------------------------------------------------
 
