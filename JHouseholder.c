@@ -493,7 +493,7 @@ int main(int argc, char* argv[]){
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K * G1
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
 		// make the matrix for the basic reflector
@@ -521,6 +521,28 @@ int main(int argc, char* argv[]){
 		G[k+M*(k+1)] = T[2];
 		G[k+1+M*(k+1)] = T[3];
 
+
+
+
+		printf("F1 = \n");
+		printMatrix(T, 2, 2);
+
+		printf("A2 = \n");
+		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(Akk), cimag(Akk), creal(Akr), cimag(Akr));
+		printf("%6lg + i%6lg           %6lg + %6lg\n", creal(conj(Akr)), cimag(conj(Akr)), creal(Arr), cimag(Arr));
+
+		printf("F1 * J F1 = \n");
+
+		C[0] = J[k] * T[0] * conj(T[0]) + J[k+1] * T[1] * conj(T[1]);
+		C[1] = J[k] * T[0] * conj(T[2]) + J[k+1] * T[1] * conj(T[3]);
+		C[2] = J[k] * T[2] * conj(T[0]) + J[k+1] * T[3] * conj(T[1]);
+		C[3] = J[k] * T[2] * conj(T[2]) + J[k+1] * T[3] * conj(T[3]);
+
+		printMatrix(C, 2, 2);
+
+
+
+		/*
 		// compute K*JK
 		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
 		if(nthreads == 0) nthreads = 1;
@@ -534,7 +556,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		/*Mk = M - k;
+		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
