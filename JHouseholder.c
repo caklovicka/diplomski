@@ -486,6 +486,9 @@ int main(int argc, char* argv[]){
 			T[3] *= 1.0 * I;
 		}*/
 
+		printf("matrica korijena T (raw)\n");
+		printMatrix(T, 2, 2);
+
 		B[0] = T[0] * T[0] + T[1] * T[2];
 		B[1] = T[0] * T[1] + T[1] * T[3];
 		B[2] = T[0] * T[2] + T[3] * T[2];
