@@ -523,6 +523,21 @@ int main(int argc, char* argv[]){
 		B[3] = G[k+1+M*(k+1)];
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, B, &n, &beta, T, &n);	// T = K G1
 
+		// matrix A2, other way
+		B[0] = 0;
+		B[1] = 0;
+		B[2] = 0;
+		B[3] = 0;
+		for(i = k; i < M; ++i) B[0] += conj(G[i+M*k]) * J[i] * G[i+M*k];
+		for(i = k; i < M; ++i) B[1] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*k];
+		for(i = k; i < M; ++i) B[2] += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+		for(i = k; i < M; ++i) B[0] += conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
+
+		printf("A2 = \n");
+		printMatrix(B, 2, 2);
+
+
+
 
 		// make the matrix for the basic reflector
 		/*Mk = M-k;
