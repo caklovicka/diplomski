@@ -377,10 +377,17 @@ int main(int argc, char* argv[]){
 
 		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
 
-		int idx = k+1;
-		while(J[k] == J[idx] && (cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) && idx < M) ++idx;
+		int idx = -1;
+		for(i = k+1; i < M; ++i){
+			If(J[k] == J[i] || cabs(G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k]) < EPSILON ) continue;
+			idx = i;
+			break;
+		}
 
-		if(idx == M) printf("idx = M, no more altering signs in J.\n");
+		if(idx == -1){
+			printf("No more altering signs in J, but in pivot 2. Exiting\n");
+			exit(-5);
+		}
 
 		if( idx != k+1 ){
 
