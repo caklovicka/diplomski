@@ -608,7 +608,7 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel num_threads( nthreads ) private(C)
 		{
 			#pragma omp for nowait
-			for(j = k+1; j <= k+1 ; ++j){
+			for(j = 1; j <= 1 ; ++j){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
