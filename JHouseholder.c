@@ -625,6 +625,9 @@ int main(int argc, char* argv[]){
 		C[2] = C2;
 		C[3] = C3;
 
+		printf("(D*JD)^+ = \n");
+		printMatrix(C, 2, 2);
+
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
 		nthreads = Nk/D > omp_get_max_threads() ? Nk/D : omp_get_max_threads();
