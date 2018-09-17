@@ -613,7 +613,7 @@ int main(int argc, char* argv[]){
 				mkl_set_num_threads_local(mkl_nthreads);
 
 				// case when we have 2 columns of G to work with
-				/*if(j != N-1){
+				if(j != N-1){
 
 					// C  = T*G
 					alpha = 1;
@@ -624,10 +624,10 @@ int main(int argc, char* argv[]){
 					alpha = -2;
 					beta = 1;
 					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
-				}*/
+				}
 
 				// case when we are in the last column
-				if(1){
+				else{
 					
 					// C = T*g
 					alpha = 1;
