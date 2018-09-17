@@ -469,7 +469,7 @@ int main(int argc, char* argv[]){
 
 		if( cabs(cimag(T[0])) > EPSILON ){
 
-			T[0] = cimag(T[0]);
+			/*T[0] = cimag(T[0]);
 			T[3] = cimag(T[3]);
 
 			if(cimag(T[0] + T[3]) > 0){
@@ -477,12 +477,12 @@ int main(int argc, char* argv[]){
 				T[1] *= -1.0*I;
 				T[2] *= -1.0*I;
 				T[3] *= -1.0*I;
-			}
+			}*/
 
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 		}
 
-		else if( creal(T[0] + T[3]) > 0){
+		if( creal(T[0] + T[3]) > 0){
 			T[0] = creal(T[0]);
 			T[3] = creal(T[3]);
 			T[0] *= -1.0;
