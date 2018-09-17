@@ -467,8 +467,9 @@ int main(int argc, char* argv[]){
 		// if K has imaginary diagonal???
 		// in other words, just make the diagonal of T real, and trace negative
 
-		if( cabs(cimag(T[0])) > EPSILON ){
+		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
 
+			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			/*T[0] = cimag(T[0]);
 			T[3] = cimag(T[3]);
 
@@ -478,8 +479,6 @@ int main(int argc, char* argv[]){
 				T[2] *= -1.0*I;
 				T[3] *= -1.0*I;
 			}*/
-
-			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 		}
 
 		if( creal(T[0] + T[3]) > 0){
@@ -493,6 +492,7 @@ int main(int argc, char* argv[]){
 
 
 		double detT = creal(T[0]*T[3] - T[1]*T[2]);
+		printf("detT = %lg\n", detT);
 		K[0] = T[3] / detT;
 		K[1] = -T[1] / detT;
 		K[2] = -T[2] / detT;
