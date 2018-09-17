@@ -553,6 +553,8 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
+		printMatrix(K, M, 2);
+
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
 		K[k+1] -= T[1];
@@ -581,6 +583,8 @@ int main(int argc, char* argv[]){
 			//}
 		}
 
+		printMatrix(T, M, 2);
+
 		// HERE OK---------------------------------------------------
 
 		// compute K*T, where T = JK
@@ -595,7 +599,6 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]);
-		printf("detC = %lg\n", detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
