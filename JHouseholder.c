@@ -607,11 +607,11 @@ int main(int argc, char* argv[]){
 
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			#pragma omp parallel for num_threads( 2 )
+			#pragma omp parallel for num_threads( 2 ) shared(C)
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
-				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				double complex *CC = C;	//(double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(j != N-1){
