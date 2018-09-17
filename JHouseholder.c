@@ -470,8 +470,11 @@ int main(int argc, char* argv[]){
 
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
+
+			printf("trk = %lg, detT = %lg\n", trT, detT);
 			printf("K = \n");
 			printMatrix(K, 2, 2);
+
 			printf("T^2 = \n");
 			C[0] = T[0]*T[0] + T[2]*T[1];
 			C[1] = T[0]*T[1] + T[3]*T[1];
