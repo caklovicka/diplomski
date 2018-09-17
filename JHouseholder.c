@@ -534,17 +534,12 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
-		printMatrix(G, M, N);
-		printMatrix(K, M, 2);
-
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
 		K[k+1] -= T[1];
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
 
-		printMatrix(K, M, 2);
-		break;
 
 		// fill first two columns of G
 		//G[k+M*k] = T[0];
@@ -575,16 +570,22 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(mkl_nthreads == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
+		alpha = 1;
+		beta = 0;
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
-		// T = C^(-1) = (K*JK)^+
+		// C = C^(-1) = (K*JK)^+
 		double detC = creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]);
 
-		T[0] = C[3] / detC;
-		T[1] = -C[1] / detC;
-		T[2] = -C[2] / detC;
-		T[3] = C[0] / detC;
+		double complex C0 = C[3] / detC;
+		double complex C1 = -C[1] / detC;
+		double complex C2 = -C[2] / detC;
+		double complex C3 = C[0] / detC;
 
+		C[0] = C0;
+		C[1] = C1;
+		C[2] = C2;
+		C[3] = C3;
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
@@ -598,10 +599,11 @@ int main(int argc, char* argv[]){
 		// compute E = KC
 		alpha = 1;
 		beta = 0;
-		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, T, &n, &beta, &E[k], &M);
+		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
+		// T = JK
 
 		#pragma omp parallel num_threads( nthreads )
 		{
@@ -610,38 +612,32 @@ int main(int argc, char* argv[]){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
-				if(j == N-1){
+				// case when we have 2 columns of G to work with
+				if(j != N-1){
 
-					// T = Jg
-					for(i = k; i < M; ++i) T[i] = J[i] * G[i + M*j];
-					// C = K*T, T = Jg (2 x 1)
+					// C  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemv(&trans, &Mk, &n, &alpha, &K[k], &M, &T[k], &inc, &beta, C, &inc);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
+
+					// G = G - 2EC
+					alpha = -2;
+					beta = 1;
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
+				}
+
+				// case when we are in the last column
+				else{
+
+					// C = T*g
+					alpha = 1;
+					beta = 0;
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
+					
 					// g = g - 2EC
 					alpha = -2;
 					beta = 1;
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
-				}
-
-
-				// case when we have 2 columns of G to work with
-				else{
-
-					// T = JG
-					for(i = k; i < M; ++i){
-						T[i] = J[i] * G[i + M*j];
-						T[i+M] = J[i] * G[i + M*(j+1)];
-					}
-
-					alpha = 1;
-					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T, T = JG
-
-					// compute G - 2EC
-					alpha = -2;
-					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}
 			}
 		}
