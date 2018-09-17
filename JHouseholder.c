@@ -607,39 +607,42 @@ int main(int argc, char* argv[]){
 
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			#pragma omp parallel for num_threads( 2 ) private(C)
+			#pragma omp parallel for num_threads( 2 )
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
+				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(j != N-1){
 
-					// C  = T*G
+					// CC  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, CC, &n);
 
-					// G = G - 2EC
+					// G = G - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, CC, &n, &beta, &G[k+M*j], &M);
 				}
 
 				// case when we are in the last column
 				else{
 					
-					// C = T*g
+					// CC = T*g
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
 
-					// g = g - 2EC
+					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
+
+				mkl_free(CC);
 			}
 		//}
 		mkl_set_num_threads_local(0);
