@@ -611,7 +611,7 @@ int main(int argc, char* argv[]){
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
-				double complex *CC = C;	//(double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(j != N-1){
@@ -646,17 +646,6 @@ int main(int argc, char* argv[]){
 			}
 		//}
 		mkl_set_num_threads_local(0);
-
-
-		printMatrix(G, M, N);
-
-
-		break;
-
-
-
-
-		
 	
 		k = k+1;
 		double end2 = omp_get_wtime();
