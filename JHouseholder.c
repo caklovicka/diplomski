@@ -396,7 +396,7 @@ int main(int argc, char* argv[]){
 			// swap rows in G 
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(mkl_nthreads == 0) mkl_nthreads = 1;
+			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
 		}
@@ -406,7 +406,7 @@ int main(int argc, char* argv[]){
 		int Mk = M - k;
 		int inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(mkl_nthreads == 0) mkl_nthreads = 1;
+		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * G[r]
 
@@ -524,7 +524,7 @@ int main(int argc, char* argv[]){
 		Mk = M-k;
 		inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
-		if(mkl_nthreads == 0) mkl_nthreads = 1;
+		if(Mk/D == 0) mkl_nthreads = 1;
 
 		#pragma omp parallel num_threads(2)
 		{
@@ -551,7 +551,7 @@ int main(int argc, char* argv[]){
 		// compute K*JK, first we need T = JK
 		// fill the rest of the G with zeros
 		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
-		if(nthreads == 0) nthreads = 1;
+		if(Mk/D == 0) nthreads = 1;
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
@@ -568,7 +568,7 @@ int main(int argc, char* argv[]){
 		// C = K*JK
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(mkl_nthreads == 0) mkl_nthreads = 1;
+		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
 		alpha = 1;
 		beta = 0;
@@ -590,11 +590,11 @@ int main(int argc, char* argv[]){
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
 		nthreads = Nk/D > omp_get_max_threads() ? Nk/D : omp_get_max_threads();
-		if(nthreads == 0) nthreads = 1;
+		if(Nk/D == 0) nthreads = 1;
 
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
-		if(mkl_nthreads == 0) mkl_nthreads = 1;
+		if(Mk/D == 0) mkl_nthreads = 1;
 
 		// compute E = KC
 		alpha = 1;
@@ -756,7 +756,7 @@ int main(int argc, char* argv[]){
 
 		// apply the rotation on the rest of the matrix
 		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
-		if (nthreads == 0) nthreads = 1;
+		if ((N-k-1)/D == 0) nthreads = 1;
 
 		#pragma omp parallel num_threads( nthreads )
 		{
@@ -772,7 +772,7 @@ int main(int argc, char* argv[]){
 
 				int Mk = M - k;
 				mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
-				if (mkl_nthreads == 0) mkl_nthreads = 1;
+				if (Mk/D == 0) mkl_nthreads = 1;
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
