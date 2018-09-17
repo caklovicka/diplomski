@@ -379,7 +379,7 @@ int main(int argc, char* argv[]){
 
 		int idx = -1;
 		for(i = k+1; i < M; ++i){
-			//If( J[k] == J[i] || cabs(G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k]) < EPSILON ) continue;
+			if( J[k] == J[i] || cabs(G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k]) < EPSILON ) continue;
 			idx = i;
 			break;
 		}
