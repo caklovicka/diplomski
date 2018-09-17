@@ -400,6 +400,11 @@ int main(int argc, char* argv[]){
 			Prow[idx] = Prow[k+1];
 			Prow[k+1] = itemp;
 
+			//swap in f = J G[pivot_r]
+			double complex ctemp = f[idx];
+			f[idx] = f[k+1];
+			f[k+1] = ctemp;
+
 			// swap rows in G 
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
@@ -416,10 +421,6 @@ int main(int argc, char* argv[]){
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 
-		printMatrix(f, M, 1);
-
-		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
-		printMatrix(f, M, 1);
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * Gr
 
 		// K = inverse of A2
