@@ -418,7 +418,8 @@ int main(int argc, char* argv[]){
 
 		printMatrix(f, M, 1);
 
-		//for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
+		printMatrix(f, M, 1);
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * Gr
 
 		// K = inverse of A2
