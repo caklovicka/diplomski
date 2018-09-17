@@ -743,8 +743,12 @@ int main(int argc, char* argv[]){
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
 
+		T[k] = J[k] * f[k];
 		#pragma omp parallel for num_threads(nthreads)
-		for(i = k+1; i < M; ++i) G[i + M*k] = 0;
+		for(i = k+1; i < M; ++i){
+			G[i + M*k] = 0;
+			T[i] = J[i] * f[i];
+		}
 
 
 		// apply the rotation on the rest of the matrix
@@ -756,19 +760,17 @@ int main(int argc, char* argv[]){
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){
 
-				// TODO: mozda tu popraviti. spremiti f*J u poseban vektor, pa koristiti zdoc. (T moze posluziti za spremanje)
-				double complex alpha = 0;
-				for(i = k; i < M; ++i) alpha += conj(f[i]) * J[i] * G[i+M*j];
-
-				int inc = 1;
-				alpha = - 2 * alpha / fJf;
-
-				int Mk = M - k;
 				mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
 				if (Mk/D == 0) mkl_nthreads = 1;
-
 				mkl_set_num_threads_local(mkl_nthreads);
 
+				// T = Jf
+				// alpha = f*Jg
+				int Mk = M - k;
+				int inc = 1;
+				double complex alpha;
+				zdotc(&alpha, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+				alpha = - 2 * alpha / fJf;
 				zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);	// G[k + M*j] = alpha * f[k] + G[k + M*k]
 			}
 		}
