@@ -518,7 +518,7 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
-		printf("F1 = \n");
+		/*printf("F1 = \n");
 		printMatrix(T, 2, 2);
 
 		printf("F1* J F1 = \n");
@@ -534,7 +534,7 @@ int main(int argc, char* argv[]){
 		C[2] = Akr;
 		C[3] = Arr;
 		printMatrix(C, 2, 2);
-		
+		*/
 
 
 
@@ -552,8 +552,6 @@ int main(int argc, char* argv[]){
 			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
 		}
 		mkl_set_num_threads_local(0);
-
-		printMatrix(K, M, 2);
 
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
@@ -582,8 +580,6 @@ int main(int argc, char* argv[]){
 			//	G[i+M*(k+1)] = 0;
 			//}
 		}
-
-		printMatrix(T, M, 2);
 
 		// HERE OK---------------------------------------------------
 
@@ -633,13 +629,13 @@ int main(int argc, char* argv[]){
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//#pragma omp for nowait
-			for(j = k; j < N ; j += 1){
+			for(j = k; j < N; j += 2){
 
-				mkl_set_num_threads_local(mkl_nthreads);
-				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				//mkl_set_num_threads_local(mkl_nthreads);
+				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
-				if(0){//j != N-1
+				if(j != N-1){
 
 					// CC  = T*G
 					alpha = 1;
@@ -667,7 +663,7 @@ int main(int argc, char* argv[]){
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				mkl_free(CC);
+				//mkl_free(CC);
 			}
 		//}
 		mkl_set_num_threads_local(0);
