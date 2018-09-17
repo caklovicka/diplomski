@@ -299,6 +299,8 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
+		printMatrix(f, M, 1);
+
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
@@ -413,6 +415,9 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
+
+		printMatrix(f, M, 1);
+		
 		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * Gr
 
