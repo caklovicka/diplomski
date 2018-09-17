@@ -361,6 +361,12 @@ int main(int argc, char* argv[]){
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
 
+		double detA;
+		double complex Akr = 0;
+		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+		detA = Akk*Arr - cabs(Akr)*cabs(Akr);
+		printf("detA = %lg\n", detA);
+
 		last_pivot = 2;
 		
 		// do a column swap pivot_r <-> k+1 if needed

@@ -146,8 +146,6 @@ int main(int argc, char* argv[]){
 	double seconds = (double)(omp_get_wtime() - start);
 	printf("reading time = %lg s\n", seconds);
 
-	// TODO: ODMAH APLICIRAJ v!!!
-
 
 	// ---------------------------------------------------------- ALGORITHM ----------------------------------------------------------
 
