@@ -476,7 +476,8 @@ int main(int argc, char* argv[]){
 			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
 			printf("K = \n");
 			printMatrix(K, 2, 2);
-			printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
+			printf("J = \n");
+			printJ(J, M);
 
 			printf("T^2 = \n");
 			C[0] = T[0]*T[0] + T[2]*T[1];
