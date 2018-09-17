@@ -472,6 +472,8 @@ int main(int argc, char* argv[]){
 			// check if T^2 = K
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
+			printf("detA = %lg\n", detA);
+			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
 			printf("K = \n");
 			printMatrix(K, 2, 2);
 
