@@ -470,10 +470,10 @@ int main(int argc, char* argv[]){
 		if( cabs(cimag(T[0])) > EPSILON){
 
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
-			T[0] *= -1.0 * I;
-			T[1] *= -1.0 * I;
-			T[2] *= -1.0 * I;
-			T[3] *= -1.0 * I;
+			T[0] *= 1.0 * I;
+			T[1] *= 1.0 * I;
+			T[2] *= 1.0 * I;
+			T[3] *= 1.0 * I;
 		}
 
 		T[0] = creal(T[0]);
@@ -502,7 +502,7 @@ int main(int argc, char* argv[]){
 
 
 
-		/*printf("F1* J F1 = \n");
+		printf("F1* J F1 = \n");
 		C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
 		C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
 		C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
@@ -515,7 +515,7 @@ int main(int argc, char* argv[]){
 		C[2] = Akr;
 		C[3] = Arr;
 		printMatrix(C, 2, 2);
-		*/
+		
 
 
 
@@ -605,7 +605,6 @@ int main(int argc, char* argv[]){
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-		printf("nthreads = %d\n", nthreads);
 		#pragma omp parallel num_threads( nthreads )
 		{
 			#pragma omp for nowait
