@@ -299,8 +299,6 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
-		printMatrix(f, M, 1);
-
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
@@ -484,7 +482,7 @@ int main(int argc, char* argv[]){
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
 
-			printf("trK = %lg, detK = %lg\n", trK, detK);
+			/*printf("trK = %lg, detK = %lg\n", trK, detK);
 			printf("detA = %lg\n", detA);
 			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
 			printf("K = \n");
@@ -497,7 +495,7 @@ int main(int argc, char* argv[]){
 			C[1] = T[0]*T[1] + T[3]*T[1];
 			C[2] = T[0]*T[2] + T[2]*T[3];
 			C[3] = T[1]*T[2] + T[3]*T[3];
-			printMatrix(C, 2, 2);
+			printMatrix(C, 2, 2);*/
 			
 		}
 
@@ -524,7 +522,7 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
-		printf("F1 = \n");
+		/*printf("F1 = \n");
 		printMatrix(T, 2, 2);
 
 		printf("F1* J F1 = \n");
@@ -556,7 +554,7 @@ int main(int argc, char* argv[]){
 		C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
 		C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
 		printMatrix(C, 2, 2);
-
+		*/
 
 
 
@@ -574,10 +572,10 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
-		printf("K = \n");
+		/*printf("K = \n");
 		printMatrix(K, M, 2);
 		printf("T = \n");
-		printMatrix(T, 2, 2);
+		printMatrix(T, 2, 2);*/
 
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
@@ -624,7 +622,7 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
-		printf("detC = %lg\n", detC);
+		//printf("detC = %lg\n", detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
@@ -636,10 +634,10 @@ int main(int argc, char* argv[]){
 		C[2] = C2;
 		C[3] = C3;
 
-		printf("(D*JD)^+ = \n");
+		/*printf("(D*JD)^+ = \n");
 		printMatrix(C, 2, 2);
 		printf("K-T = \n");
-		printMatrix(K, M, 2);
+		printMatrix(K, M, 2);*/
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
@@ -655,32 +653,29 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
-
-		printMatrix(G, M, N);
-
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-		//#pragma omp parallel num_threads( nthreads )
-		//{
-			//#pragma omp for nowait
-			for(j = k; j < N; j += 1){
+		#pragma omp parallel num_threads( nthreads )
+		{
+			#pragma omp for nowait
+			for(j = k; j < N; j += 2){
 
-				//mkl_set_num_threads_local(mkl_nthreads);
-				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				mkl_set_num_threads_local(mkl_nthreads);
+				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
-				if(0){//j != N-1
+				if(j != N-1){
 
 					// CC  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, CC, &n);
 
 					// G = G - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, CC, &n, &beta, &G[k+M*j], &M);
 				}
 
 				// case when we are in the last column
@@ -690,21 +685,21 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				//mkl_free(CC);
+				mkl_free(CC);
 			}
-		//}
+		}
 		mkl_set_num_threads_local(0);
 
 
-		printMatrix(G, M, N);
+		//printMatrix(G, M, N);
 
 
 		k = k+1;
