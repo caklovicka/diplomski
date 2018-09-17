@@ -464,22 +464,29 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		// if K has imaginary diagonal solve -iT = G1 F1^(-1)
+		// if K has imaginary diagonal???
 		// in other words, just make the diagonal of T real, and trace negative
 
-		if( cabs(cimag(T[0])) > EPSILON){
+		if( cabs(cimag(T[0])) > EPSILON && cimag(T[0] + T[3]) > 0){
+
+			T[0] = cimag(T[0]);
+			T[3] = cimag(T[3]);
+			T[0] *= -1.0;
+			T[1] *= -1.0;
+			T[2] *= -1.0;
+			T[3] *= -1.0;
 
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
-			T[0] *= -1.0 * I;
+			/*T[0] *= -1.0 * I;
 			T[1] *= -1.0 * I;
 			T[2] *= -1.0 * I;
 			T[3] *= -1.0 * I;
+			*/
 		}
 
-		T[0] = creal(T[0]);
-		T[3] = creal(T[3]);
-
-		if( creal(T[0] + T[3]) > 0){
+		else if( creal(T[0] + T[3]) > 0){
+			T[0] = creal(T[0]);
+			T[3] = creal(T[3]);
 			T[0] *= -1.0;
 			T[1] *= -1.0;
 			T[2] *= -1.0;
