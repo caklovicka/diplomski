@@ -500,6 +500,26 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
+
+
+		printf("F1* J F1 = \n");
+		C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
+		C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
+		C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
+		C[3] = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
+		printMatrix(C, 2, 2);
+		
+		printf("A2 = \n");
+		C[0] = Akk;
+		C[1] = conj(Akr);
+		C[2] = Akr;
+		C[3] = Arr;
+		printMatrix(C, 2, 2);
+		break;
+
+
+
+
 		// copy tcolumns of G into K
 		Mk = M-k;
 		inc = 1;
