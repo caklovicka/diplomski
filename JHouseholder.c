@@ -605,9 +605,9 @@ int main(int argc, char* argv[]){
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
 
-		#pragma omp parallel num_threads( nthreads )
-		{
-			#pragma omp for nowait private(C)
+		//#pragma omp parallel num_threads( nthreads )
+		//{
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
@@ -641,7 +641,7 @@ int main(int argc, char* argv[]){
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
 				}
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
 
 
