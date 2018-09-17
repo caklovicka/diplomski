@@ -502,7 +502,7 @@ int main(int argc, char* argv[]){
 
 
 
-		printf("F1* J F1 = \n");
+		/*printf("F1* J F1 = \n");
 		C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
 		C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
 		C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
@@ -515,7 +515,7 @@ int main(int argc, char* argv[]){
 		C[2] = Akr;
 		C[3] = Arr;
 		printMatrix(C, 2, 2);
-		break;
+		*/
 
 
 
@@ -534,11 +534,17 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
+		printMatrix(G, M, N);
+		printMatrix(K, M, 2);
+
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
 		K[k+1] -= T[1];
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
+
+		printMatrix(K, M, 2);
+		break;
 
 		// fill first two columns of G
 		//G[k+M*k] = T[0];
