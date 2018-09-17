@@ -619,6 +619,8 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
 
+		printMatrix(G, M, N);
+
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
