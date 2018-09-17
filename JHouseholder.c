@@ -413,7 +413,8 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
-		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * G[r]
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
+		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * Gr
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
