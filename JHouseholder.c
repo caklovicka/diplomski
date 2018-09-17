@@ -469,6 +469,15 @@ int main(int argc, char* argv[]){
 		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
 
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
+			// check if T^2 = K
+			printf("K = \n");
+			printMatrix(K, 2, 2);
+			printf("T^2 = \n");
+			C[0] = T[0]*T[0] + T[2]*T[1];
+			C[1] = T[0]*T[1] + T[3]*T[1];
+			C[2] = T[0]*T[2] + T[2]*T[3];
+			C[3] = T[1]*T[2] + T[3]*T[3];
+			printMatrix(C, 2, 2);
 
 		}
 
