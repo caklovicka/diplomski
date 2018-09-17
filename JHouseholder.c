@@ -613,7 +613,7 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
-		printf("detC = %lg", detC);
+		printf("detC = %lg\n", detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
@@ -627,6 +627,8 @@ int main(int argc, char* argv[]){
 
 		printf("(D*JD)^+ = \n");
 		printMatrix(C, 2, 2);
+		printf("K = \n");
+		printMatrix(K, M, 2);
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
