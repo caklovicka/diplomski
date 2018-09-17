@@ -612,7 +612,7 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double complex detC = C[0]*C[3] - C[1]*C[2];
-		printf("detC = %lg +i%lg\n", creal(detC), cimag(detC);
+		printf("detC = %lg +i%lg\n", creal(detC), cimag(detC));
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
