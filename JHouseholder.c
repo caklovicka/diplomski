@@ -377,10 +377,17 @@ int main(int argc, char* argv[]){
 
 		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
 
-		int idx = k+1;
-		while(J[k] == J[idx] && (cabs(G[k+M*k]*G[idx+M*(k+1)] - G[k+M*(k+1)]*G[idx+M*k]) < EPSILON) && idx < M) ++idx;
+		int idx = -1;
+		for(i = k+1; i < N; ++i){
+			if(J[k] == J[i] || (cabs(G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k]) < EPSILON)) continue;
+			idx = i;
+			break;
+		}
 
-		if(idx == M) printf("idx = M, no more altering signs in J.\n");
+		if(idx == -1){
+			printf("idx = M, no more altering signs in J.\n");
+			exit(-6);
+		}
 
 		if( idx != k+1 ){
 
@@ -472,15 +479,7 @@ int main(int argc, char* argv[]){
 		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
 
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
-			/*T[0] = cimag(T[0]);
-			T[3] = cimag(T[3]);
-
-			if(cimag(T[0] + T[3]) > 0){
-				T[0] *= -1.0*I;
-				T[1] *= -1.0*I;
-				T[2] *= -1.0*I;
-				T[3] *= -1.0*I;
-			}*/
+			exit(-4);
 		}
 
 		if( creal(T[0] + T[3]) > 0){
