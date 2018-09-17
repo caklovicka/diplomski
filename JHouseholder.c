@@ -519,7 +519,7 @@ int main(int argc, char* argv[]){
 
 
 
-		/*printf("F1* J F1 = \n");
+		printf("F1* J F1 = \n");
 		C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
 		C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
 		C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
@@ -531,7 +531,7 @@ int main(int argc, char* argv[]){
 		C[1] = conj(Akr);
 		C[2] = Akr;
 		C[3] = Arr;
-		printMatrix(C, 2, 2);*/
+		printMatrix(C, 2, 2);
 		
 
 
