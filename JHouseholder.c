@@ -646,6 +646,17 @@ int main(int argc, char* argv[]){
 			}
 		//}
 		mkl_set_num_threads_local(0);
+
+
+		printMatrix(G, M, N);
+
+
+		if(k == 2) break;
+
+
+
+
+		
 	
 		k = k+1;
 		double end2 = omp_get_wtime();
