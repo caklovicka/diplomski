@@ -601,13 +601,14 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
+
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
 
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			//#pragma omp parallel for num_threads( nthreads )
+			#pragma omp parallel for num_threads( 2 )
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
