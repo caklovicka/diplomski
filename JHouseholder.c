@@ -518,7 +518,7 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
-		printf("F1 = \n");
+		/*printf("F1 = \n");
 		printMatrix(T, 2, 2);
 
 		printf("F1* J F1 = \n");
@@ -549,7 +549,7 @@ int main(int argc, char* argv[]){
 		C[1] = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
 		C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
 		C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
-		printMatrix(C, 2, 2);
+		printMatrix(C, 2, 2);*/
 
 
 
@@ -608,9 +608,11 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
+		printMatrix(C, 2, 2);
+
 		// C = C^(-1) = (K*JK)^+
-		double detC = creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]);
-		printf("detC = %lg +i%lg\n", creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]), cimag(C[0]*C[3]) - cabs(C[1])*cabs(C[1]));
+		double complex detC = C[0]*C[3] - C[1]*C[2];
+		printf("detC = %lg +i%lg\n", creal(detC), cimag(detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
