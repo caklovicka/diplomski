@@ -534,7 +534,22 @@ int main(int argc, char* argv[]){
 		C[2] = Akr;
 		C[3] = Arr;
 		printMatrix(C, 2, 2);
-		
+		double complex G0 = G[k+M*k];
+		double complex G1 = G[k+1+M*k];
+		double complex G2 = G[k+M*(k+1)];
+		double complex G3 = G[k+1+M*(k+1)];
+		printf("F1* J G1 = \n");
+		C[0] = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
+		C[1] = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
+		C[2] = J[k]*G2*conj(T[0]) + J[k+1]*G3*conj(T[1]);
+		C[3] = J[k]*G2*conj(T[2]) + J[k+1]*G3*conj(T[3]);
+		printMatrix(C, 2, 2);
+		printf("G1* J F1 = \n");
+		C[0] = J[k]*T[0]*conj(G0) + J[k+1]*T[1]*conj(G1);
+		C[1] = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
+		C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
+		C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
+		printMatrix(C, 2, 2);
 
 
 
