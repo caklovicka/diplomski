@@ -595,6 +595,7 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = creal(C[0]*C[3]) - cabs(C[1])*cabs(C[1]);
+		printf("detC = %lg\n", detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
