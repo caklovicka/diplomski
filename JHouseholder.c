@@ -605,10 +605,10 @@ int main(int argc, char* argv[]){
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-
+		printf("nthreads = %d\n", nthreads);
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			#pragma omp parallel for num_threads( 2 )
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
