@@ -622,9 +622,9 @@ int main(int argc, char* argv[]){
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-		#pragma omp parallel num_threads( nthreads )
-		{
-			#pragma omp for nowait
+		//#pragma omp parallel num_threads( nthreads )
+		//{
+			//#pragma omp for nowait
 			for(j = k; j < N ; j += 2){
 
 				mkl_set_num_threads_local(mkl_nthreads);
@@ -661,7 +661,7 @@ int main(int argc, char* argv[]){
 
 				mkl_free(CC);
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
 
 
