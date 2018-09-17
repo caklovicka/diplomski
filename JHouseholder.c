@@ -517,7 +517,8 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 
-
+		printf("F1 = \n");
+		printMatrix(T, 2, 2);
 
 		printf("F1* J F1 = \n");
 		C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
