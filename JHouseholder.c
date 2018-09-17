@@ -608,7 +608,7 @@ int main(int argc, char* argv[]){
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//#pragma omp for nowait
-			//for(j = k; j < N ; ++j){
+			for(j = k; j < N ; ++j){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
@@ -628,7 +628,7 @@ int main(int argc, char* argv[]){
 
 				// case when we are in the last column
 				if(1){
-					j = k+1;
+					
 					// C = T*g
 					alpha = 1;
 					beta = 0;
@@ -640,7 +640,7 @@ int main(int argc, char* argv[]){
 					beta = 1;
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
 				}
-			//}
+			}
 		//}
 		mkl_set_num_threads_local(0);
 
