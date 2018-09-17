@@ -568,6 +568,11 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
+		printf("K = \n");
+		printMatrix(K, M, 2);
+		printf("T = \n");
+		printMatrix(T, 2, 2);
+
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
 		K[k+1] -= T[1];
@@ -627,7 +632,7 @@ int main(int argc, char* argv[]){
 
 		printf("(D*JD)^+ = \n");
 		printMatrix(C, 2, 2);
-		printf("K = \n");
+		printf("K-T = \n");
 		printMatrix(K, M, 2);
 
 		// apply the reflector
