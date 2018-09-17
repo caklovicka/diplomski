@@ -608,11 +608,12 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
 
-		printMatrix(C, 2, 2);
+		C[0] = creal(C[0]);
+		C[3] = creal(C[3]);
 
 		// C = C^(-1) = (K*JK)^+
-		double complex detC = C[0]*C[3] - C[1]*C[2];
-		printf("detC = %lg +i%lg\n", creal(detC), cimag(detC));
+		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
+		printf("detC = %lg", detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
