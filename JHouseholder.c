@@ -451,6 +451,7 @@ int main(int argc, char* argv[]){
 
 		// first solve K^2 = G1 M^(-1) G1* J1
 
+		PONOVI:
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
 		double trK = (double) (K[0] + K[3]);	// trK != 0
 
@@ -484,11 +485,11 @@ int main(int argc, char* argv[]){
 			kontrola = 1;
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
-
-			T[0] *= 1.0*I;
-			T[1] *= 1.0*I;
-			T[2] *= 1.0*I;
-			T[3] *= 1.0*I;
+			K[0] *=-1.0;
+			K[1] *=-1.0;
+			K[2] *=-1.0;
+			K[3] *=-1.0;
+			goto PONOVI;
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
 			printf("detA = %lg\n", detA);
