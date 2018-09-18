@@ -404,6 +404,8 @@ int main(int argc, char* argv[]){
 			double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[k+1] * G[i+M*(k+1)];
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[2] * xJy );
 			double det = -cabs(detG1) * cabs(detG1) / detA;
+
+			printf("k = %d, trace + 2 * creal(csqrt(det)) = %lg \n", trace + 2 * creal(csqrt(det)));
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
