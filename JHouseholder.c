@@ -670,13 +670,13 @@ int main(int argc, char* argv[]){
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//#pragma omp for nowait
-			for(j = k; j < N; j += 2){
+			for(j = k; j < N; j += 1){
 
 				//mkl_set_num_threads_local(mkl_nthreads);
 				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
-				if(j != N-1){//j != N-1
+				if(0){//j != N-1
 
 					// CC  = T*G
 					alpha = 1;
