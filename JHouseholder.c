@@ -455,6 +455,12 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
+		int kontrola = 1;
+		if(kontrola){
+			printf("K = \n");
+			printMatrix(K, 2, 2);
+		}
+
 		// sqrt(K) = T
 		// first solve K^2 = G1 M^(-1) G1* J1
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);
@@ -498,7 +504,6 @@ int main(int argc, char* argv[]){
 		K[2] = -T[2] / detT;
 		K[3] = T[0] / detT;
 
-		int kontrola = 1;
 		if(kontrola){
 			printf("T^2 = \n");
 			C[0] = T[0]*T[0] + T[2]*T[1];
@@ -515,9 +520,6 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
 		if(kontrola){
-
-			printf("K = \n");
-			printMatrix(K, 2, 2);
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
 			printf("detA = %lg\n", detA);
