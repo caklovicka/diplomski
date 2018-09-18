@@ -180,6 +180,7 @@ int main(int argc, char* argv[]){
 
 		printf("k = %d, G = \n", k);
 		printMatrix(G, M, N);
+		if(k == 7) break;
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
