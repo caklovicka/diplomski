@@ -462,7 +462,7 @@ int main(int argc, char* argv[]){
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
-			double a = trK + 2 * csqrt(detK);
+			double a = trK + 2 * creal(csqrt(detK));
 
 			T[0] = (K[0] + (double) csqrt(detK)) / a;
 			T[1] = K[1] / a;
@@ -473,8 +473,8 @@ int main(int argc, char* argv[]){
 
 			double a;
 
-			if(trK < 0) a = (double) csqrt(- 2 * trK);
-			else a = (double) csqrt( 2 * trK );
+			if(trK < 0) a = creal(csqrt(- 2 * trK));
+			else a = creal(csqrt( 2 * trK ));
 			
 			T[0] = (K[0] + 0.5 * trK) / a;
 			T[1] = K[1] / a;
@@ -498,13 +498,22 @@ int main(int argc, char* argv[]){
 		K[2] = -T[2] / detT;
 		K[3] = T[0] / detT;
 
+		int kontrola = 1;
+		if(kontrola){
+			printf("T^2 = \n");
+			C[0] = T[0]*T[0] + T[2]*T[1];
+			C[1] = T[0]*T[1] + T[3]*T[1];
+			C[2] = T[0]*T[2] + T[2]*T[3];
+			C[3] = T[1]*T[2] + T[3]*T[3];
+			printMatrix(C, 2, 2);
+		}
+
 		n = 2;
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
-		int kontrola = 1;
 		if(kontrola){
 
 			printf("K = \n");
@@ -517,13 +526,6 @@ int main(int argc, char* argv[]){
 			printf("K = \n");
 			printMatrix(K, 2, 2);
 			printf("Jk = %lg, jk+1 = %lg\n", J[k], J[k+1]);
-
-			printf("T^2 = \n");
-			C[0] = T[0]*T[0] + T[2]*T[1];
-			C[1] = T[0]*T[1] + T[3]*T[1];
-			C[2] = T[0]*T[2] + T[2]*T[3];
-			C[3] = T[1]*T[2] + T[3]*T[3];
-			printMatrix(C, 2, 2);
 
 			printf("F1 = \n");
 			printMatrix(T, 2, 2);
