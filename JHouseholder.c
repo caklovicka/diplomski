@@ -178,7 +178,8 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		//printf("k = %d\n", k);
+		printf("k = %d, G = \n", k);
+		printMatrix(G, M, N);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
