@@ -451,7 +451,7 @@ int main(int argc, char* argv[]){
 
 		// first solve K^2 = G1 M^(-1) G1* J1
 
-		PONOVI:
+		PONOVI: printf("ponavljam\n");
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
 		double trK = (double) (K[0] + K[3]);	// trK != 0
 
