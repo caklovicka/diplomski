@@ -425,6 +425,7 @@ int main(int argc, char* argv[]){
 			exit(-5);
 		}
 
+		// swap rows
 		if( idx != k+1 ){
 
 			double dtemp = J[idx];
