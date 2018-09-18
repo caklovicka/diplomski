@@ -418,9 +418,8 @@ int main(int argc, char* argv[]){
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
 		//printMatrix(f, M-4, 1);
-		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
+		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		//printMatrix(f, M-4, 1);
-		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * Gr
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
