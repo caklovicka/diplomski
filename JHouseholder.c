@@ -178,8 +178,8 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		printf("k = %d, G = \n", k);
-		printMatrix(G, M, N);
+		//printf("k = %d, G = \n", k);
+		//printMatrix(G, M, N);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
@@ -462,7 +462,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 1;
+		int kontrola = 0;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
