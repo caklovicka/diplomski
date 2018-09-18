@@ -404,10 +404,6 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
-
-			//update f
-			f[idx] = J[idx] * G[idx+M*(k+1)];
-			f[k+1] = J[k+1] * G[k+1+M*(k+1)];
 		}
 
 
@@ -419,9 +415,15 @@ int main(int argc, char* argv[]){
 		//printMatrix(f, M-4, 1);
 		double complex Akr = 0;
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+
+		printf("Akr(rucno) = %lg + i%lg\n", creal(Akr), cimag(Akr));
+
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];//Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);
+		printf("Akr(zdotc) = %lg + i%lg\n", creal(Akr), cimag(Akr));
 		//printMatrix(f, M-4, 1);
 
-		if(k == 10) break;
+		if(k > 10) break;
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
