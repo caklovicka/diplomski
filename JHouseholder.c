@@ -482,7 +482,7 @@ int main(int argc, char* argv[]){
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
 
-			/*printf("trK = %lg, detK = %lg\n", trK, detK);
+			printf("trK = %lg, detK = %lg\n", trK, detK);
 			printf("detA = %lg\n", detA);
 			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
 			printf("K = \n");
@@ -495,7 +495,7 @@ int main(int argc, char* argv[]){
 			C[1] = T[0]*T[1] + T[3]*T[1];
 			C[2] = T[0]*T[2] + T[2]*T[3];
 			C[3] = T[1]*T[2] + T[3]*T[3];
-			printMatrix(C, 2, 2);*/
+			printMatrix(C, 2, 2);
 			
 		}
 
