@@ -641,9 +641,6 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
-
-		//printMatrix(G, M, N);
-
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
@@ -690,7 +687,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 
-		printMatrix(&G[k+M*k], M-k, 1);
+		printMatrix(&G[M*k], M, 2);
 
 
 		k = k+1;
