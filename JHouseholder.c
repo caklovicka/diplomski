@@ -451,7 +451,16 @@ int main(int argc, char* argv[]){
 
 		// first solve K^2 = G1 M^(-1) G1* J1
 
-		PONOVI: printf("ponavljam\n");
+		kontrola = 0;
+		PONOVI: 
+		if(kontrola){
+			K[0] *=-1.0;
+			K[1] *=-1.0;
+			K[2] *=-1.0;
+			K[3] *=-1.0;
+		}
+
+
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
 		double trK = (double) (K[0] + K[3]);	// trK != 0
 
@@ -479,16 +488,10 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-
-		int kontrola = 0;
 		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
 			kontrola = 1;
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
-			K[0] *=-1.0;
-			K[1] *=-1.0;
-			K[2] *=-1.0;
-			K[3] *=-1.0;
 			goto PONOVI;
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
@@ -506,6 +509,13 @@ int main(int argc, char* argv[]){
 			C[3] = T[1]*T[2] + T[3]*T[3];
 			printMatrix(C, 2, 2);
 			
+		}
+
+		if(kontrola){
+			T[0] *= 1.0*I;
+			T[1] *= 1.0*I;
+			T[2] *= 1.0*I;
+			T[3] *= 1.0*I;
 		}
 
 		T[0] = creal(T[0]);
