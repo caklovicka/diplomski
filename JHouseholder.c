@@ -405,7 +405,8 @@ int main(int argc, char* argv[]){
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[2] * xJy );
 
 			double det = -cabs(detG1) * cabs(detG1) / detA;
-			printf("trace + 2 * creal(csqrt(det)) = %lg\n", trace + 2 * creal(csqrt(det)));
+			printf("k = %d, trace + 2 * creal(csqrt(det)) = %lg\n", k, trace + 2 * creal(csqrt(det)));
+			printf("trace = %lg\n", trace);
 
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
