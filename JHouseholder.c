@@ -356,7 +356,7 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 		last_pivot = 2;
 
-		printf("PIVOT_2 for k = %d\n", k);
+		//printf("PIVOT_2 for k = %d\n", k);
 
 		// do a column swap pivot_r <-> k+1 if needed
 
@@ -585,10 +585,10 @@ int main(int argc, char* argv[]){
 
 
 		// fill first two columns of G
-		//G[k+M*k] = T[0];
-		//G[k+1+M*k] = T[1];
-		//G[k+M*(k+1)] = T[2];
-		//G[k+1+M*(k+1)] = T[3];
+		G[k+M*k] = T[0];
+		G[k+1+M*k] = T[1];
+		G[k+M*(k+1)] = T[2];
+		G[k+1+M*(k+1)] = T[3];
 
 
 		// compute K*JK, first we need T = JK
@@ -599,10 +599,10 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
 			T[i+M] = J[i] * K[i+M];
-			//if( i >= k+2 ){
-			//	G[i+M*k] = 0;
-			//	G[i+M*(k+1)] = 0;
-			//}
+			if( i >= k+2 ){
+				G[i+M*k] = 0;
+				G[i+M*(k+1)] = 0;
+			}
 		}
 
 		// HERE OK---------------------------------------------------
