@@ -383,6 +383,7 @@ int main(int argc, char* argv[]){
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		printf("detA = %lg, Akk = %lg, Arr = %lg, Akr = %lg + i %lg\n", detA, Akk, Arr, creal(Akr), cimag(Akr));
+		printMatrix(G, M, N);
 
 		K[0] = Arr / detA;
 		K[1] = -conj(Akr) / detA;
