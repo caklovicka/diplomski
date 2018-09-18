@@ -404,9 +404,9 @@ int main(int argc, char* argv[]){
 			// detK^2 = |detG1|^2 / detA
 			// x is the first column of G1, y is the second
 
-			double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[i+M*k]) * J[k+1] * G[i+M*k];
-			double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*(k+1)]) * J[k+1] * G[i+M*(k+1)];
-			double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[k+1] * G[i+M*(k+1)];
+			double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[i+M*k]) * J[i] * G[i+M*k];
+			double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
+			double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[2] * xJy );
 			double det = -cabs(detG1) * cabs(detG1) / detA;
 
@@ -478,6 +478,7 @@ int main(int argc, char* argv[]){
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double a = creal(csqrt(trK + 2 * csqrt(detK)));
+			printf("a = %lg\n", a);
 
 			T[0] = (K[0] + csqrt(detK)) / a;
 			T[1] = K[1] / a;
