@@ -416,9 +416,6 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		printf("Akk = %lg\n", Akk);
 		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
-		printMatrix(&G[M*k], M, 2);
-
-		if(k > 5) break;
 
 		//for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];//Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		//zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);
