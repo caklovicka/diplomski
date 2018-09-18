@@ -178,9 +178,6 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		printf("k = %d, G =\n", k);
-		printMatrix(G, M, N);
-
 		//printf("k = %d\n", k);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
@@ -385,7 +382,7 @@ int main(int argc, char* argv[]){
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
-		printf("detA = %lg, Akk = %lg, Arr = %lg, Akr = %lg + i %lg\n", detA, Akk, Arr, creal(Akr), cimag(Akr));
+		//printf("detA = %lg, Akk = %lg, Arr = %lg, Akr = %lg + i %lg\n", detA, Akk, Arr, creal(Akr), cimag(Akr));
 
 		K[0] = Arr / detA;
 		K[1] = -conj(Akr) / detA;
@@ -410,7 +407,7 @@ int main(int argc, char* argv[]){
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[1] * xJy );
 			double det = -cabs(detG1) * cabs(detG1) / detA;
 
-			printf("k = %d, trace + 2 * creal(csqrt(det)) = %lg , trace = %lg, det = %lg\n", k, trace + 2 * creal(csqrt(det)), trace, det);
+			//printf("k = %d, trace + 2 * creal(csqrt(det)) = %lg , trace = %lg, det = %lg\n", k, trace + 2 * creal(csqrt(det)), trace, det);
 			//printMatrix(K, 2, 2);
 			//printf("xJx = %lg, yJy = %lg, xJy = %lg + i %lg\n-----------------\n", xJx, yJy, creal(xJy), cimag(xJy));
 		
@@ -464,7 +461,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 1;
+		int kontrola = 0;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
@@ -478,7 +475,6 @@ int main(int argc, char* argv[]){
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double a = creal(csqrt(trK + 2 * csqrt(detK)));
-			printf("a = %lg\n", a);
 
 			T[0] = (K[0] + csqrt(detK)) / a;
 			T[1] = K[1] / a;
@@ -838,8 +834,6 @@ int main(int argc, char* argv[]){
 		LOOP_END: continue;
 
 	}	// END OF MAIN LOOP
-
-	printMatrix(G, M, N);
 
 	// ----------------------------------------- PRINT TIMEs -----------------------------------------
 
