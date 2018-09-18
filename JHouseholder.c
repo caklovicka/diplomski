@@ -693,10 +693,6 @@ int main(int argc, char* argv[]){
 		}
 		mkl_set_num_threads_local(0);
 
-
-		printMatrix(&G[M*k], M, 2);
-
-
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
