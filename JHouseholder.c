@@ -522,7 +522,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
-
+		if(k == 10){
 		printf("F1 = \n");
 		printMatrix(T, 2, 2);
 
@@ -555,7 +555,7 @@ int main(int argc, char* argv[]){
 		C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
 		C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
 		printMatrix(C, 2, 2);
-		
+		}
 
 
 
@@ -703,7 +703,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 
-		//printMatrix(&G[M*k], M, 2);
+		if(k == 10) printMatrix(&G[M*k], M, 2);
 
 
 		k = k+1;
