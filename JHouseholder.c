@@ -464,7 +464,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 0;
+		int kontrola = 1;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
@@ -657,7 +657,6 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
-		if(k == 4) kontrola = 1;
 		if(kontrola){
 			printf("E = \n");
 			printMatrix(E, M, 2);
