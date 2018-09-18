@@ -383,7 +383,6 @@ int main(int argc, char* argv[]){
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
-		//printf("detA = %lg, Akk = %lg, Arr = %lg, Akr = %lg + i %lg\n", detA, Akk, Arr, creal(Akr), cimag(Akr));
 
 		K[0] = Arr / detA;
 		K[1] = -conj(Akr) / detA;
@@ -573,7 +572,7 @@ int main(int argc, char* argv[]){
 			printMatrix(C, 2, 2);
 		}
 
-		// copy tcolumns of G into K
+		// copy columns of G into K
 		Mk = M-k;
 		inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
