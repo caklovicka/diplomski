@@ -415,12 +415,12 @@ int main(int argc, char* argv[]){
 		//printMatrix(f, M-4, 1);
 		double complex Akr = 0;
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+		printf("Akk = %lg\n", Akk);
+		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
 
-		printf("Akr(rucno) = %lg + i%lg\n", creal(Akr), cimag(Akr));
-
-		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];//Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);
-		printf("Akr(zdotc) = %lg + i%lg\n", creal(Akr), cimag(Akr));
+		//for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];//Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+		//zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);
+		//printf("Akr(zdotc) = %lg + i%lg\n", creal(Akr), cimag(Akr));
 		//printMatrix(f, M-4, 1);
 
 		// K = inverse of A2
