@@ -521,7 +521,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
-		if(k == 10){
+		if(k == 48){
 		printf("F1 = \n");
 		printMatrix(T, 2, 2);
 
@@ -702,7 +702,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 
-		if(k == 10) printMatrix(&G[M*k], M, 2);
+		//if(k == 10) printMatrix(&G[M*k], M, 2);
 
 
 		k = k+1;
