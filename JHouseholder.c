@@ -504,7 +504,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
-		int kontrola = 0;
+		int kontrola = 1;
 		if(kontrola){
 
 			printf("K = \n");
