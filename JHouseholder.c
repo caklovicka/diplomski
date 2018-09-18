@@ -468,12 +468,12 @@ int main(int argc, char* argv[]){
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
-			double a = trK + 2 * creal(csqrt(detK));
+			double a = creal(csqrt(trK + 2 * csqrt(detK)));
 
-			T[0] = (K[0] + (double) csqrt(detK)) / a;
+			T[0] = (K[0] + csqrt(detK)) / a;
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
-			T[3] = (K[3] + (double) csqrt(detK)) / a;
+			T[3] = (K[3] + csqrt(detK)) / a;
 		}
 		else{
 
