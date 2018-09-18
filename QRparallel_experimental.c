@@ -373,8 +373,6 @@ int main(int argc, char* argv[]){
 		printf("detA = %lg\n", detA);
 		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
 		printf("Akk = %lg\n", Akk);
-		printMatrix(&G[M*k], M, 2);
-		if(k > 5) break;
 
 
 		last_pivot = 2;
@@ -397,6 +395,9 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
+
+		printMatrix(&G[M*k], M, 2);
+		if(k > 5) break;
 
 
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
