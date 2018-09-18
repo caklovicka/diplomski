@@ -654,6 +654,14 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
+		if(k == 4) kontrola = 1;
+		if(kontrola){
+			printf("E = \n");
+			printMatrix(E, M, 2);
+			printf("JK = \n");
+			printMatrix(T, M, 2);
+		}
+
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
