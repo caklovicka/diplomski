@@ -702,7 +702,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 
-		//printMatrix(G, M, N);
+		printMatrix(&G[M*k], M, 2);
 
 
 		k = k+1;
