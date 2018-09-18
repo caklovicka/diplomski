@@ -371,8 +371,7 @@ int main(int argc, char* argv[]){
 		H[3] = Arr;
 		printf("k = %d\n", k);
 		printf("detA = %lg\n", detA);
-		printf("A2 = \n");
-		printMatrix(H, 2, 2);
+		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
 		
 
 		last_pivot = 2;
