@@ -369,11 +369,11 @@ int main(int argc, char* argv[]){
 		H[1] = conj(Akr);
 		H[2] = Akr;
 		H[3] = Arr;
-		if(k == 48){
-			printf("detA = %lg\n", detA);
-			printf("A2 = \n");
-			printMatrix(H, 2, 2);
-		}
+		printf("k = %d\n", k);
+		printf("detA = %lg\n", detA);
+		printf("A2 = \n");
+		printMatrix(H, 2, 2);
+		
 
 		last_pivot = 2;
 		
