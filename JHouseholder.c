@@ -485,6 +485,11 @@ int main(int argc, char* argv[]){
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
 
+			T[0] *= 1.0*I;
+			T[1] *= 1.0*I;
+			T[2] *= 1.0*I;
+			T[3] *= 1.0*I;
+
 			printf("trK = %lg, detK = %lg\n", trK, detK);
 			printf("detA = %lg\n", detA);
 			double complex detG1 = G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)];
