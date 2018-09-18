@@ -406,8 +406,8 @@ int main(int argc, char* argv[]){
 			double det = -cabs(detG1) * cabs(detG1) / detA;
 
 			printf("k = %d, trace + 2 * creal(csqrt(det)) = %lg , trace = %lg, det = %lg\n", k, trace + 2 * creal(csqrt(det)), trace, det);
-			printMatrix(K, 2, 2);
-			printf("xJx = %lg, yJy = %lg, xJy = %lg + i %lg\n-----------------\n", xJx, yJy, creal(xJy), cimag(xJy));
+			//printMatrix(K, 2, 2);
+			//printf("xJx = %lg, yJy = %lg, xJy = %lg + i %lg\n-----------------\n", xJx, yJy, creal(xJy), cimag(xJy));
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
