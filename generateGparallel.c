@@ -89,8 +89,8 @@ int main(int argc, char* argv[]){
 
 	#pragma omp parallel for shared(G)
 	for( i = 0; i < N*M; ++i ){
-		x = 50.0*rand()/(RAND_MAX) - 5;
-		y = 50.0*rand()/(RAND_MAX) - 5;
+		x = 10.0*rand()/(RAND_MAX) - 5;
+		y = 10.0*rand()/(RAND_MAX) - 5;
 		G[i] = x + I*y;
 	}
  
