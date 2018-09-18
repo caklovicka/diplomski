@@ -373,17 +373,51 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
-		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
+		// compute A2
+		int Mk = M - k;
+		int inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+		double complex Akr = 0;
+		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 
+		// K = inverse of A2
+		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
+		K[0] = Arr / detA;
+		K[1] = -conj(Akr) / detA;
+		K[2] = -Akr / detA;
+		K[3] = Akk / detA;
+
+		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
 		int idx = -1;
 		for(i = k+1; i < M; ++i){
-			if( J[k] == J[i] || cabs(G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k]) < EPSILON ) continue;
-			idx = i;
-			break;
+
+			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
+			if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
+
+			// try finding maximal trace for K^2
+			// trK^2 = K0 x*J1x + K3 y*J1y + 2*Re( conj(K1) x*J1y )
+			// detK^2 = |detG1|^2 / detA
+			// x is the first column of G1, y is the second
+
+			double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[idx+M*k]) * J[k+1] * G[idx+M*k];
+			double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[idx+M*(k+1)]) * J[k+1] * G[idx+M*(k+1)];
+			double xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[idx+M*k]) * J[k+1] * G[idx+M*(k+1)];
+			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[2] * xJy );
+
+			double det = cabs(detG1) * cabs(detG1) / detA;
+
+			// condition that a sqrt exists
+			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
+			if(trace + 2 * csqrt(det) >= 0 ){
+				idx = i;
+				break;
+			}
 		}
 
 		if(idx == -1){
-			printf("No more altering signs in J, but in pivot 2. Exiting\n");
+			printf("No more altering signs in J or no such G1 for finding a sqrt(K^2) ... (in pivot 2) ... Exiting\n");
 			exit(-5);
 		}
 
@@ -406,29 +440,6 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
 		}
 
-
-		int Mk = M - k;
-		int inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-		double complex Akr = 0;
-		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		printf("Akk = %lg\n", Akk);
-		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
-
-		//for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];//Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		//zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);
-		//printf("Akr(zdotc) = %lg + i%lg\n", creal(Akr), cimag(Akr));
-		//printMatrix(f, M-4, 1);
-
-		// K = inverse of A2
-		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
-		K[0] = Arr / detA;
-		K[1] = -conj(Akr) / detA;
-		K[2] = -Akr / detA;
-		K[3] = Akk / detA;
-
 		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
@@ -447,29 +458,13 @@ int main(int argc, char* argv[]){
 		K[3] = creal(K[3]);
 
 		// sqrt(K) = T
-		// dee: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-
 		// first solve K^2 = G1 M^(-1) G1* J1
-
-		kontrola = 0;
-		PONOVI: 
-		if(kontrola){
-			K[0] *=-1.0;
-			K[1] *=-1.0;
-			K[2] *=-1.0;
-			K[3] *=-1.0;
-		}
-
-
-		double detK = (double)(K[0]*K[3] - K[1]*K[2]);	// detK > 0
-		double trK = (double) (K[0] + K[3]);	// trK != 0
+		double detK = (double)(K[0]*K[3] - K[1]*K[2]);
+		double trK = (double) (K[0] + K[3]);
 
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
-			double complex a;
-
-			if( trK + 2 * cabs(csqrt(detK)) < 0) a = csqrt( trK - 2 * csqrt(detK) );
-			else a = csqrt(trK + 2 * csqrt(detK));
+			double a = trK + 2 * csqrt(detK);
 
 			T[0] = (K[0] + (double) csqrt(detK)) / a;
 			T[1] = K[1] / a;
@@ -479,6 +474,7 @@ int main(int argc, char* argv[]){
 		else{
 
 			double a;
+
 			if(trK < 0) a = (double) csqrt(- 2 * trK);
 			else a = (double) csqrt( 2 * trK );
 			
@@ -486,36 +482,6 @@ int main(int argc, char* argv[]){
 			T[1] = K[1] / a;
 			T[2] = K[2] / a;
 			T[3] = (K[3] + 0.5 * trK) / a;
-		}
-
-		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
-			kontrola = 1;
-			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
-			// check if T^2 = K
-			goto PONOVI;
-
-			printf("trK = %lg, detK = %lg\n", trK, detK);
-			printf("detA = %lg\n", detA);
-			double complex detG1 = G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)];
-			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
-			printf("K = \n");
-			printMatrix(K, 2, 2);
-			printf("Jk = %lg, jk+1 = %lg\n", J[k], J[k+1]);
-
-			printf("T^2 = \n");
-			C[0] = T[0]*T[0] + T[2]*T[1];
-			C[1] = T[0]*T[1] + T[3]*T[1];
-			C[2] = T[0]*T[2] + T[2]*T[3];
-			C[3] = T[1]*T[2] + T[3]*T[3];
-			printMatrix(C, 2, 2);
-			
-		}
-
-		if(kontrola){
-			T[0] *= 1.0*I;
-			T[1] *= 1.0*I;
-			T[2] *= 1.0*I;
-			T[3] *= 1.0*I;
 		}
 
 		T[0] = creal(T[0]);
@@ -542,7 +508,25 @@ int main(int argc, char* argv[]){
 
 		printf("K = \n");
 		printMatrix(K, 2, 2);
+
+		int kontrola = 0;
 		if(kontrola){
+
+			printf("trK = %lg, detK = %lg\n", trK, detK);
+			printf("detA = %lg\n", detA);
+			double complex detG1 = G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)];
+			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
+			printf("K = \n");
+			printMatrix(K, 2, 2);
+			printf("Jk = %lg, jk+1 = %lg\n", J[k], J[k+1]);
+
+			printf("T^2 = \n");
+			C[0] = T[0]*T[0] + T[2]*T[1];
+			C[1] = T[0]*T[1] + T[3]*T[1];
+			C[2] = T[0]*T[2] + T[2]*T[3];
+			C[3] = T[1]*T[2] + T[3]*T[3];
+			printMatrix(C, 2, 2);
+
 			printf("F1 = \n");
 			printMatrix(T, 2, 2);
 
@@ -577,8 +561,6 @@ int main(int argc, char* argv[]){
 			printMatrix(C, 2, 2);
 		}
 
-
-
 		// copy tcolumns of G into K
 		Mk = M-k;
 		inc = 1;
@@ -592,11 +574,6 @@ int main(int argc, char* argv[]){
 			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
 		}
 		mkl_set_num_threads_local(0);
-
-		/*printf("K = \n");
-		printMatrix(K, M, 2);
-		printf("T = \n");
-		printMatrix(T, 2, 2);*/
 
 		// K = the difference operator for the J Householder
 		K[k] -= T[0];
@@ -626,8 +603,6 @@ int main(int argc, char* argv[]){
 			//}
 		}
 
-		// HERE OK---------------------------------------------------
-
 		// compute K*T, where T = JK
 		// C = K*JK
 		Mk = M - k;
@@ -643,7 +618,6 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
-		//printf("detC = %lg\n", detC);
 
 		double complex C0 = C[3] / detC;
 		double complex C1 = -C[1] / detC;
@@ -654,11 +628,6 @@ int main(int argc, char* argv[]){
 		C[1] = C1;
 		C[2] = C2;
 		C[3] = C3;
-
-		/*printf("(D*JD)^+ = \n");
-		printMatrix(C, 2, 2);
-		printf("K-T = \n");
-		printMatrix(K, M, 2);*/
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
@@ -680,26 +649,26 @@ int main(int argc, char* argv[]){
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-		//#pragma omp parallel num_threads( nthreads )
-		//{
+		#pragma omp parallel num_threads( nthreads )
+		{
 			//#pragma omp for nowait
-			for(j = k; j < N; j += 1){
+			for(j = k; j < N; j += 2){
 
-				//mkl_set_num_threads_local(mkl_nthreads);
-				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				mkl_set_num_threads_local(mkl_nthreads);
+				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
-				if(0){//j != N-1
+				if(j != N-1){//j != N-1
 
 					// CC  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, CC, &n);
 
 					// G = G - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, CC, &n, &beta, &G[k+M*j], &M);
 				}
 
 				// case when we are in the last column
@@ -709,21 +678,21 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				//mkl_free(CC);
+				mkl_free(CC);
 			}
-		//}
+		}
 		mkl_set_num_threads_local(0);
 
 
-		//if(k == 10) printMatrix(&G[M*k], M, 2);
+		printMatrix(&G[k*M*k], M-k, 1);
 
 
 		k = k+1;
