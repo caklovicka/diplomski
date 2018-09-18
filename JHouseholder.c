@@ -654,14 +654,14 @@ int main(int argc, char* argv[]){
 		alpha = 1;
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
-/*
+
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
 		//#pragma omp parallel num_threads( nthreads )
-		{
+		//{
 			//#pragma omp for nowait
-			for(j = k+2; j < N; j += 1){
+			for(j = k; j < N; j += 1){
 
 				//mkl_set_num_threads_local(mkl_nthreads);
 				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
@@ -697,9 +697,9 @@ int main(int argc, char* argv[]){
 
 				//mkl_free(CC);
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
-*/
+
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
