@@ -653,16 +653,19 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
+
+		//printMatrix(G, M, N);
+
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-		#pragma omp parallel num_threads( nthreads )
-		{
-			#pragma omp for nowait
+		//#pragma omp parallel num_threads( nthreads )
+		//{
+			//#pragma omp for nowait
 			for(j = k; j < N; j += 1){
 
-				mkl_set_num_threads_local(mkl_nthreads);
-				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				//mkl_set_num_threads_local(mkl_nthreads);
+				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(0){//j != N-1
@@ -670,12 +673,12 @@ int main(int argc, char* argv[]){
 					// CC  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, CC, &n);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
 
 					// G = G - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, CC, &n, &beta, &G[k+M*j], &M);
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}
 
 				// case when we are in the last column
@@ -685,7 +688,7 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
@@ -693,13 +696,13 @@ int main(int argc, char* argv[]){
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				mkl_free(CC);
+				//mkl_free(CC);
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
 
 
-		printMatrix(G, M, N);
+		//printMatrix(G, M, N);
 
 
 		k = k+1;
