@@ -901,11 +901,11 @@ int main(int argc, char* argv[]){
 	fclose(writeCol);
 	fclose(writeRow);
 	
-	mkl_free(Prow);
+	/*mkl_free(Prow);
 	mkl_free(Pcol);
 	mkl_free(G);
 	mkl_free(J);
-	mkl_free(f);
+	mkl_free(f);*/
 
 	printf("\n-------------------------------------------------------------------------------\n\n");
 	return(0);
