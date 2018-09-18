@@ -488,6 +488,11 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
+		if(kontrola){
+			printf("T = \n");
+			printMatrix(T, 2, 2);
+		}
+
 		T[0] = creal(T[0]);
 		T[3] = creal(T[3]);
 		if( creal(T[0] + T[3]) > 0){
