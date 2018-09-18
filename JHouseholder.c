@@ -412,11 +412,12 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
-		//printMatrix(f, M-4, 1);
 		double complex Akr = 0;
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		printf("Akk = %lg\n", Akk);
 		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
+
+		if(k > 5) break;
 
 		//for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];//Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		//zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);

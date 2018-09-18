@@ -373,7 +373,9 @@ int main(int argc, char* argv[]){
 		printf("detA = %lg\n", detA);
 		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
 		printf("Akk = %lg\n", Akk);
-		
+		printMatrix(&G[M*k], M, 2);
+		if(k > 5) break;
+
 
 		last_pivot = 2;
 		
