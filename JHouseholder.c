@@ -418,7 +418,9 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
-
+		printMatrix(f, M-4, 1);
+		for(i = k; i < M; ++i) f[i] = J[i] * G[i+M*(k+1)];
+		printMatrix(f, M-4, 1);
 		zdotc(&Akr, &Mk, &G[k+M*k], &inc, &f[k], &inc);	// f = J * Gr
 
 		// K = inverse of A2
