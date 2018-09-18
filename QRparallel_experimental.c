@@ -365,13 +365,15 @@ int main(int argc, char* argv[]){
 		double complex Akr = 0;
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		detA = Akk*Arr - cabs(Akr)*cabs(Akr);
-		printf("detA = %lg\n", detA);
 		H[0] = Akk;
 		H[1] = conj(Akr);
 		H[2] = Akr;
 		H[3] = Arr;
-		printf("H = \n");
-		printMatrix(H, 2, 2);
+		if(k == 4){
+			printf("detA = %lg\n", detA);
+			printf("A2 = \n");
+			printMatrix(H, 2, 2);
+		}
 
 		last_pivot = 2;
 		
