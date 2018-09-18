@@ -252,7 +252,6 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
-		goto PIVOT_1;
 
 		if(k == N-1) goto PIVOT_1;
 
@@ -596,10 +595,10 @@ int main(int argc, char* argv[]){
 
 
 		// fill first two columns of G
-		G[k+M*k] = T[0];
-		G[k+1+M*k] = T[1];
-		G[k+M*(k+1)] = T[2];
-		G[k+1+M*(k+1)] = T[3];
+		//G[k+M*k] = T[0];
+		//G[k+1+M*k] = T[1];
+		//G[k+M*(k+1)] = T[2];
+		//G[k+1+M*(k+1)] = T[3];
 
 
 		// compute K*JK, first we need T = JK
@@ -610,10 +609,10 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
 			T[i+M] = J[i] * K[i+M];
-			if( i >= k+2 ){
-				G[i+M*k] = 0;
-				G[i+M*(k+1)] = 0;
-			}
+			//if( i >= k+2 ){
+			//	G[i+M*k] = 0;
+			//	G[i+M*(k+1)] = 0;
+			//}
 		}
 
 		// compute K*T, where T = JK
@@ -655,7 +654,7 @@ int main(int argc, char* argv[]){
 		alpha = 1;
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
-
+/*
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
@@ -700,7 +699,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
-
+*/
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
