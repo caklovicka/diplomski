@@ -423,8 +423,6 @@ int main(int argc, char* argv[]){
 		printf("Akr(zdotc) = %lg + i%lg\n", creal(Akr), cimag(Akr));
 		//printMatrix(f, M-4, 1);
 
-		if(k > 10) break;
-
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		K[0] = Arr / detA;

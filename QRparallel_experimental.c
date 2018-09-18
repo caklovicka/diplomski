@@ -372,6 +372,7 @@ int main(int argc, char* argv[]){
 		printf("k = %d\n", k);
 		printf("detA = %lg\n", detA);
 		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
+		printf("Akk = %lg\n", Akk);
 		
 
 		last_pivot = 2;
