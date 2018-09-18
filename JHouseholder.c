@@ -41,7 +41,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%10.5g + i%10.5g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%5.2g + i%5.2g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -383,7 +383,6 @@ int main(int argc, char* argv[]){
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		printf("detA = %lg, Akk = %lg, Arr = %lg, Akr = %lg + i %lg\n", detA, Akk, Arr, creal(Akr), cimag(Akr));
-		printMatrix(G, M, N);
 
 		K[0] = Arr / detA;
 		K[1] = -conj(Akr) / detA;
@@ -829,6 +828,7 @@ int main(int argc, char* argv[]){
 
 	}	// END OF MAIN LOOP
 
+	printMatrix(G, M, N);
 
 	// ----------------------------------------- PRINT TIMEs -----------------------------------------
 
@@ -901,11 +901,11 @@ int main(int argc, char* argv[]){
 	fclose(writeCol);
 	fclose(writeRow);
 	
-	/*mkl_free(Prow);
+	mkl_free(Prow);
 	mkl_free(Pcol);
 	mkl_free(G);
 	mkl_free(J);
-	mkl_free(f);*/
+	mkl_free(f);
 
 	printf("\n-------------------------------------------------------------------------------\n\n");
 	return(0);

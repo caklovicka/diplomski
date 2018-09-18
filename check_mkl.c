@@ -208,11 +208,11 @@ int main(int argc, char* argv[]){
 	fclose(readA);
 	fclose(readPcol);
 
-	/*mkl_free(Pcol);
+	mkl_free(Pcol);
 	mkl_free(A);	
 	mkl_free(G);
 	mkl_free(J);
-	mkl_free(T);*/
+	mkl_free(T);
 
 
 	//printf("Finished.\n");
