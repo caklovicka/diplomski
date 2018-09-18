@@ -704,7 +704,6 @@ int main(int argc, char* argv[]){
 
 
 		//printMatrix(&G[M*k], M, 2);
-		if(k == 4) break;
 
 
 		k = k+1;
