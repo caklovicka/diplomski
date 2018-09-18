@@ -421,6 +421,8 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 		//printMatrix(f, M-4, 1);
 
+		if(k == 10) break;
+
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		K[0] = Arr / detA;
