@@ -356,7 +356,7 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 		last_pivot = 2;
 
-		//printf("PIVOT_2 for k = %d\n", k);
+		printf("PIVOT_2 for k = %d\n", k);
 
 		// do a column swap pivot_r <-> k+1 if needed
 
@@ -585,10 +585,10 @@ int main(int argc, char* argv[]){
 
 
 		// fill first two columns of G
-		G[k+M*k] = T[0];
-		G[k+1+M*k] = T[1];
-		G[k+M*(k+1)] = T[2];
-		G[k+1+M*(k+1)] = T[3];
+		//G[k+M*k] = T[0];
+		//G[k+1+M*k] = T[1];
+		//G[k+M*(k+1)] = T[2];
+		//G[k+1+M*(k+1)] = T[3];
 
 
 		// compute K*JK, first we need T = JK
@@ -599,10 +599,10 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
 			T[i+M] = J[i] * K[i+M];
-			if( i >= k+2 ){
-				G[i+M*k] = 0;
-				G[i+M*(k+1)] = 0;
-			}
+			//if( i >= k+2 ){
+			//	G[i+M*k] = 0;
+			//	G[i+M*(k+1)] = 0;
+			//}
 		}
 
 		// HERE OK---------------------------------------------------
@@ -659,13 +659,13 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel num_threads( nthreads )
 		{
 			#pragma omp for nowait
-			for(j = k; j < N; j += 2){
+			for(j = k; j < N; j += 1){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
-				if(j != N-1){
+				if(0){//j != N-1
 
 					// CC  = T*G
 					alpha = 1;
@@ -690,7 +690,7 @@ int main(int argc, char* argv[]){
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
 				}
 
 				mkl_free(CC);
@@ -699,7 +699,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 
-		//printMatrix(G, M, N);
+		printMatrix(G, M, N);
 
 
 		k = k+1;
