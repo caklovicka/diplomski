@@ -178,6 +178,9 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
+		printf("k = %d, G =\n", k);
+		printMatrix(G, M, N);
+
 		//printf("k = %d\n", k);
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
@@ -706,8 +709,6 @@ int main(int argc, char* argv[]){
 			}
 		//}
 		mkl_set_num_threads_local(0);
-
-		printMatrix(G, M, N);
 
 		k = k+1;
 		double end2 = omp_get_wtime();
