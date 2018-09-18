@@ -356,8 +356,6 @@ int main(int argc, char* argv[]){
 		double start2 = omp_get_wtime();
 		last_pivot = 2;
 
-		printf("PIVOT_2 for k = %d\n", k);
-
 		// do a column swap pivot_r <-> k+1 if needed
 
 		if(pivot_r != k+1){
@@ -389,7 +387,7 @@ int main(int argc, char* argv[]){
 		K[2] = -Akr / detA;
 		K[3] = Akk / detA;
 
-		// do a row swap so that J(k) = -J(k+1) and detG1 != 0
+		// find pivot G1
 		int idx = -1;
 		for(i = k+1; i < M; ++i){
 
@@ -401,9 +399,9 @@ int main(int argc, char* argv[]){
 			// detK^2 = |detG1|^2 / detA
 			// x is the first column of G1, y is the second
 
-			double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[idx+M*k]) * J[k+1] * G[idx+M*k];
-			double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[idx+M*(k+1)]) * J[k+1] * G[idx+M*(k+1)];
-			double xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[idx+M*k]) * J[k+1] * G[idx+M*(k+1)];
+			double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[i+M*k]) * J[k+1] * G[i+M*k];
+			double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*(k+1)]) * J[k+1] * G[i+M*(k+1)];
+			double xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[k+1] * G[i+M*(k+1)];
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[2] * xJy );
 
 			double det = -cabs(detG1) * cabs(detG1) / detA;
@@ -506,11 +504,11 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
-		printf("K = \n");
-		printMatrix(K, 2, 2);
-
 		int kontrola = 0;
 		if(kontrola){
+
+			printf("K = \n");
+			printMatrix(K, 2, 2);
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
 			printf("detA = %lg\n", detA);
@@ -649,26 +647,26 @@ int main(int argc, char* argv[]){
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
 		// T = JK
-		#pragma omp parallel num_threads( nthreads )
-		{
+		//#pragma omp parallel num_threads( nthreads )
+		//{
 			//#pragma omp for nowait
-			for(j = k; j < N; j += 2){
+			for(j = k; j < N; j += 1){
 
-				mkl_set_num_threads_local(mkl_nthreads);
-				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				//mkl_set_num_threads_local(mkl_nthreads);
+				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
-				if(j != N-1){//j != N-1
+				if(0){//j != N-1
 
 					// CC  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, CC, &n);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
 
 					// G = G - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, CC, &n, &beta, &G[k+M*j], &M);
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}
 
 				// case when we are in the last column
@@ -678,17 +676,17 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				mkl_free(CC);
+				//mkl_free(CC);
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
 
 
