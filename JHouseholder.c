@@ -477,8 +477,10 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
 
+		int kontrola = 0;
+		if( cabs(cimag(T[0] + T[3])) > EPSILON ){
+			kontrola = 1;
 			printf("\n\n\ndijagonala korijena imaginarna!!!\n\n\n");
 			// check if T^2 = K
 
@@ -487,8 +489,7 @@ int main(int argc, char* argv[]){
 			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
 			printf("K = \n");
 			printMatrix(K, 2, 2);
-			printf("J = \n");
-			printJ(J, M);
+			printf("Jk = %lg, jk+1 = %lg\n", J[k], J[k+1]);
 
 			printf("T^2 = \n");
 			C[0] = T[0]*T[0] + T[2]*T[1];
@@ -521,39 +522,39 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
-		if(k == 48){
-		printf("F1 = \n");
-		printMatrix(T, 2, 2);
+		if(kontrola){
+			printf("F1 = \n");
+			printMatrix(T, 2, 2);
 
-		printf("F1* J F1 = \n");
-		C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
-		C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
-		C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
-		C[3] = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
-		printMatrix(C, 2, 2);
-		
-		printf("A2 = \n");
-		C[0] = Akk;
-		C[1] = conj(Akr);
-		C[2] = Akr;
-		C[3] = Arr;
-		printMatrix(C, 2, 2);
-		double complex G0 = G[k+M*k];
-		double complex G1 = G[k+1+M*k];
-		double complex G2 = G[k+M*(k+1)];
-		double complex G3 = G[k+1+M*(k+1)];
-		printf("F1* J G1 = \n");
-		C[0] = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
-		C[1] = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
-		C[2] = J[k]*G2*conj(T[0]) + J[k+1]*G3*conj(T[1]);
-		C[3] = J[k]*G2*conj(T[2]) + J[k+1]*G3*conj(T[3]);
-		printMatrix(C, 2, 2);
-		printf("G1* J F1 = \n");
-		C[0] = J[k]*T[0]*conj(G0) + J[k+1]*T[1]*conj(G1);
-		C[1] = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
-		C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
-		C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
-		printMatrix(C, 2, 2);
+			printf("F1* J F1 = \n");
+			C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
+			C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
+			C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
+			C[3] = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
+			printMatrix(C, 2, 2);
+			
+			printf("A2 = \n");
+			C[0] = Akk;
+			C[1] = conj(Akr);
+			C[2] = Akr;
+			C[3] = Arr;
+			printMatrix(C, 2, 2);
+			double complex G0 = G[k+M*k];
+			double complex G1 = G[k+1+M*k];
+			double complex G2 = G[k+M*(k+1)];
+			double complex G3 = G[k+1+M*(k+1)];
+			printf("F1* J G1 = \n");
+			C[0] = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
+			C[1] = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
+			C[2] = J[k]*G2*conj(T[0]) + J[k+1]*G3*conj(T[1]);
+			C[3] = J[k]*G2*conj(T[2]) + J[k+1]*G3*conj(T[3]);
+			printMatrix(C, 2, 2);
+			printf("G1* J F1 = \n");
+			C[0] = J[k]*T[0]*conj(G0) + J[k+1]*T[1]*conj(G1);
+			C[1] = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
+			C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
+			C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
+			printMatrix(C, 2, 2);
 		}
 
 
