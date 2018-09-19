@@ -467,7 +467,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 1;
+		int kontrola = 0;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
@@ -542,7 +542,6 @@ int main(int argc, char* argv[]){
 		zgesv(&n, &n, K, &n, E, T, &n, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
-		kontrola = 1;
 		if(kontrola){
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
@@ -781,6 +780,20 @@ int main(int argc, char* argv[]){
 			double d1 = cabs(G[k+1+M*k] - T1);
 			double d2 = cabs(G[k+M*(k+1)]-T2);
 			double d3 = cabs(G[k+1+M*(k+1)]-T3);
+
+			printf("F1 = \n");
+			T[0] = T0;
+			T[1] = T1;
+			T[2] = T2;
+			T[3] = T3;
+			printMatrix(T, 2, 2);
+
+			printf("HG1 = \n");
+			T[0] = G[k+M*k];
+			T[1] = G[k+1+M*k];
+			T[2] = G[k+M*(k+1)];
+			T[3] = G[k+1+M*(k+1)];
+			printMatrix(T, 2, 2);
 
 			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d0*d0);
 			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
