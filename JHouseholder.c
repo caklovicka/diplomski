@@ -603,9 +603,9 @@ int main(int argc, char* argv[]){
 				inc = 1;
 				Mk = M - k;
 				// a = T1*g
-				zdoct(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2*g
-				zdoct(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[k]*a + E[k+M]*b);
 
