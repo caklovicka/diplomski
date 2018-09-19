@@ -89,6 +89,8 @@ int main(int argc, char* argv[]){
 	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
+	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
+	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -391,10 +393,10 @@ int main(int argc, char* argv[]){
 		K[3] = Arr;
 		int info;
 		mkl_set_num_threads(1);
-		zgetrf(&n, &n, K, &n, E, &info);
+		zgetrf(&n, &n, K, &n, ipiv, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
 		int lwork = 4; 
-		zgetri(&n, K, &n, E, C, &lwork, &info);
+		zgetri(&n, K, &n, ipiv, work, &lwork, &info);
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
@@ -467,14 +469,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 0;
-		if(kontrola){
-			printf("K (kvadrat) = \n");
-			printMatrix(K, 2, 2);
-		}
-
 		// sqrt(K) = T
-		// first solve K^2 = G1 M^(-1) G1* J1
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);
 		double trK = (double) (K[0] + K[3]);
 
@@ -500,11 +495,6 @@ int main(int argc, char* argv[]){
 			T[3] = (K[3] + 0.5 * trK) / a;
 		}
 
-		if(kontrola){
-			printf("T = \n");
-			printMatrix(T, 2, 2);
-		}
-
 		T[0] = creal(T[0]);
 		T[3] = creal(T[3]);
 		if( creal(T[0] + T[3]) > 0){
@@ -515,24 +505,12 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
+		// find F1 = T
 		K[0] = T[0];
 		K[1] = T[1];
 		K[2] = T[2];
 		K[3] = T[3];
-
-		if(kontrola){
-			printf("T^2 = \n");
-			C[0] = T[0]*T[0] + T[2]*T[1];
-			C[1] = T[0]*T[1] + T[3]*T[1];
-			C[2] = T[0]*T[2] + T[2]*T[3];
-			C[3] = T[1]*T[2] + T[3]*T[3];
-			printMatrix(C, 2, 2);
-		}
-
-		// find F1
 		n = 2;
-		alpha = 1, beta = 0;
-		nontrans = 'N';
 		mkl_set_num_threads(1);
 		// TODO put G in place of T in zgesv
 		T[0] = G[k+M*k];
@@ -541,48 +519,6 @@ int main(int argc, char* argv[]){
 		T[3] = G[k+1+M*(k+1)];
 		zgesv(&n, &n, K, &n, E, T, &n, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
-
-		if(kontrola){
-
-			printf("trK = %lg, detK = %lg\n", trK, detK);
-			printf("detA = %lg\n", detA);
-			double complex detG1 = G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)];
-			printf("detG1 = %lg + i%lg\n", creal(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]), cimag(G[k+M*k]*G[k+1+M*(k+1)] - G[k+1+M*k]*G[k+M*(k+1)]));
-			printf("Jk = %lg, jk+1 = %lg\n", J[k], J[k+1]);
-
-			printf("F1 = \n");
-			printMatrix(T, 2, 2);
-
-			printf("F1* J F1 = \n");
-			C[0] = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
-			C[1] = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
-			C[2] = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
-			C[3] = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
-			printMatrix(C, 2, 2);
-			
-			printf("A2 = \n");
-			C[0] = Akk;
-			C[1] = conj(Akr);
-			C[2] = Akr;
-			C[3] = Arr;
-			printMatrix(C, 2, 2);
-			double complex G0 = G[k+M*k];
-			double complex G1 = G[k+1+M*k];
-			double complex G2 = G[k+M*(k+1)];
-			double complex G3 = G[k+1+M*(k+1)];
-			printf("F1* J G1 = \n");
-			C[0] = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
-			C[1] = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
-			C[2] = J[k]*G2*conj(T[0]) + J[k+1]*G3*conj(T[1]);
-			C[3] = J[k]*G2*conj(T[2]) + J[k+1]*G3*conj(T[3]);
-			printMatrix(C, 2, 2);
-			printf("G1* J F1 = \n");
-			C[0] = J[k]*T[0]*conj(G0) + J[k+1]*T[1]*conj(G1);
-			C[1] = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
-			C[2] = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
-			C[3] = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
-			printMatrix(C, 2, 2);
-		}
 
 		// copy columns of G into K
 		Mk = M-k;
@@ -636,10 +572,10 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads( mkl_nthreads );
 		alpha = 1;
 		beta = 0;
-		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);	// C = K*T (T = JK)
-
+		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
+
 
 		if(provjera){
 			printf("PIVOT_2, k = %d\n", k);
@@ -690,14 +626,12 @@ int main(int argc, char* argv[]){
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
 
 		mkl_set_num_threads(1);
-		zgetrf(&n, &n, C, &n, E, &info);
+		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
-		zgetri(&n, C, &n, E, T, &n, &info);	// safe to put first 2 places of T here
+		zgetri(&n, C, &n, ipiv, work, &lwork, &info);	// safe to put first 2 places of T here
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
-
-		if(kontrola) printf("detC = %lg\n", detC);
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
@@ -712,13 +646,6 @@ int main(int argc, char* argv[]){
 		alpha = 1;
 		beta = 0;
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
-
-		if(kontrola){
-			printf("E = \n");
-			printMatrix(E, M, 2);
-			printf("JK = \n");
-			printMatrix(T, M, 2);
-		}
 
 		// K = W (Mk x 2 matrix)
 		// C = (W*JW)^+ (2x2 matrix)
