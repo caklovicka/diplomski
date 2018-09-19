@@ -817,6 +817,9 @@ int main(int argc, char* argv[]){
 
 		if(k == 210){
 			printf("Akk = %lg\n", Akk);
+			double complex akk = 0;
+			for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
+			printf("akk = %lg + i %lg\n", creal(akk), cimag(akk));
 			printf("|gkk|^2 * Jk = %lg\n", cabs(gkk)*cabs(gkk)*J[k]);
 			printf("G before = \n");
 			printMatrix(&G[k+M*k], 10, 1);
