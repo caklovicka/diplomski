@@ -614,14 +614,6 @@ int main(int argc, char* argv[]){
 			T3 = T[3];
 		}
 
-
-		// fill first two columns of G
-		//G[k+M*k] = T[0];
-		//G[k+1+M*k] = T[1];
-		//G[k+M*(k+1)] = T[2];
-		//G[k+1+M*(k+1)] = T[3];
-
-
 		// compute K*JK, first we need T = JK
 		// fill the rest of the G with zeros
 		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
@@ -697,17 +689,15 @@ int main(int argc, char* argv[]){
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
 
+		mkl_set_num_threads(1);
+		zgetrf(&n, &n, C, &n, E, &info);
+		if( info ) printf("LU of A2 unstable. Proceeding.\n");
+		zgetri(&n, C, &n, E, T, &n, &info);	// safe to put first 2 places of T here
+		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
+		C[0] = creal(C[0]);
+		C[3] = creal(C[3]);
+
 		if(kontrola) printf("detC = %lg\n", detC);
-
-		double complex C0 = C[3] / detC;
-		double complex C1 = -C[1] / detC;
-		double complex C2 = -C[2] / detC;
-		double complex C3 = C[0] / detC;
-
-		C[0] = C0;
-		C[1] = C1;
-		C[2] = C2;
-		C[3] = C3;
 
 		// apply the reflector
 		int Nk = (N - k - 2)/2;
