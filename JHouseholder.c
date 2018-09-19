@@ -845,7 +845,7 @@ int main(int argc, char* argv[]){
 			printMatrix("G = \n");
 			printMatrix(&G[k+M*k], 10, 1);
 			break;
-	
+		}
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
 
