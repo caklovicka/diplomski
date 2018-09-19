@@ -33,7 +33,7 @@
 #define DIGITS DBL_DIG
 #define eps 1e-1
 #define D 64
-#define refresh 5
+#define refresh 30
 
 
 void printMatrix(double complex *G, int M, int N){
