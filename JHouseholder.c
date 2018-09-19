@@ -462,7 +462,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 1;
+		int kontrola = 0;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
@@ -594,6 +594,14 @@ int main(int argc, char* argv[]){
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
 
+		int provjera = 1;
+		if(provjera){
+			double complex T0 = T[0];
+			double complex T1 = T[1];
+			double complex T2 = T[2];
+			double complex T3 = T[3];
+		}
+
 
 		// fill first two columns of G
 		//G[k+M*k] = T[0];
@@ -630,7 +638,6 @@ int main(int argc, char* argv[]){
 		C[3] = creal(C[3]);
 
 
-		int provjera = 1;
 		if(provjera){
 			printf("PIVOT_2, k = %d\n", k);
 			printf("detA = %lg\n", detA);
@@ -642,16 +649,16 @@ int main(int argc, char* argv[]){
 			double complex G3 = G[k+1+M*(k+1)];
 
 			// F*JG
-			double complex a1 = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
-			double complex a2 = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
-			double complex a3 = J[k]*G2*conj(T[0]) + J[k+1]*G3*conj(T[1]);
-			double complex a4 = J[k]*G2*conj(T[2]) + J[k+1]*G3*conj(T[3]);
+			double complex a1 = J[k]*G0*conj(T0) + J[k+1]*G1*conj(T1);
+			double complex a2 = J[k]*G0*conj(T2) + J[k+1]*G1*conj(T3);
+			double complex a3 = J[k]*G2*conj(T0) + J[k+1]*G3*conj(T1);
+			double complex a4 = J[k]*G2*conj(T2) + J[k+1]*G3*conj(T3);
 		
 			// G*JF
-			double complex b1 = J[k]*T[0]*conj(G0) + J[k+1]*T[1]*conj(G1);
-			double complex b2 = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
-			double complex b3 = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
-			double complex b4 = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
+			double complex b1 = J[k]*T0*conj(G0) + J[k+1]*T1*conj(G1);
+			double complex b2 = J[k]*T0*conj(G2) + J[k+1]*T1*conj(G3);
+			double complex b3 = J[k]*T2*conj(G0) + J[k+1]*T1*conj(G1);
+			double complex b4 = J[k]*T2*conj(G2) + J[k+1]*T1*conj(G3);
 
 			double d1 = cabs(a1-b1);
 			double d2 = cabs(a2-b2);
@@ -756,8 +763,6 @@ int main(int argc, char* argv[]){
 			}
 		//}
 		mkl_set_num_threads_local(0);
-
-		if(k == 0) break;
 
 		k = k+1;
 		double end2 = omp_get_wtime();
