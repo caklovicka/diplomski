@@ -594,12 +594,14 @@ int main(int argc, char* argv[]){
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
 
+
+		double complex T0, T1, T2, T3;
 		int provjera = 1;
 		if(provjera){
-			double complex T0 = T[0];
-			double complex T1 = T[1];
-			double complex T2 = T[2];
-			double complex T3 = T[3];
+			T0 = T[0];
+			T1 = T[1];
+			T2 = T[2];
+			T3 = T[3];
 		}
 
 
