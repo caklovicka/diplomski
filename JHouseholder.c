@@ -388,6 +388,12 @@ int main(int argc, char* argv[]){
 		K[1] = conj(Akr);
 		K[2] = Akr;
 		K[3] = Arr;
+
+		T[0] = K[3] / detA;
+		T[1] = -T[2] / detA;
+		T[2] = -T[1] / detA;
+		T[3] = T[0] / detA;
+
 		int info;
 		zgetrf(&n, &n, K, &n, E, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
@@ -396,11 +402,6 @@ int main(int argc, char* argv[]){
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
-
-		T[0] = Arr / detA;
-		T[1] = -Akr / detA;
-		T[2] = -conj(Akr) / detA;
-		T[3] = Akk / detA;
 
 		printf("inverse of A2 manual = \n");
 		printMatrix(T, 2, 2);
