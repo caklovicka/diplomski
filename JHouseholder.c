@@ -592,22 +592,22 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
-		#pragma omp parallel num_threads( 1 )
-		{
-			mkl_set_num_threads_local( 1 );
+		//#pragma omp parallel num_threads( 1 )
+		//{
+			//mkl_set_num_threads_local( 1 );
 
-			#pragma omp for nowait
+			//#pragma omp for nowait
 			for(j = k+2; j < N; ++j){
 
 				double complex a, b;
 				inc = 1;
 				Mk = M - k;
-				// a = T1*g
+				// a = T1* g
 				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
-				// b = T2*g
+				// b = T2* g
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
-				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[k]*a + E[k+M]*b);
+				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
 
 				// case when we are in the last column
 					
@@ -636,7 +636,7 @@ int main(int argc, char* argv[]){
 					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}*/
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
 
 		k = k+1;
