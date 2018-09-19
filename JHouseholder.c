@@ -629,7 +629,7 @@ int main(int argc, char* argv[]){
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				mkl_free(CC);
+				//mkl_free(CC);
 			}
 		//}
 		mkl_set_num_threads_local(0);
