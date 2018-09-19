@@ -803,7 +803,7 @@ int main(int argc, char* argv[]){
 		f[k] -= gkk;
 
 		// update G
-		G[k + M*k] = gkk;
+		//G[k + M*k] = gkk;
 
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
@@ -811,7 +811,7 @@ int main(int argc, char* argv[]){
 		T[k] = J[k] * f[k];
 		#pragma omp parallel for num_threads(nthreads)
 		for(i = k+1; i < M; ++i){
-			G[i + M*k] = 0;
+			//G[i + M*k] = 0;
 			T[i] = J[i] * f[i];
 		}
 
@@ -823,7 +823,7 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel num_threads( nthreads )
 		{
 			#pragma omp for nowait
-			for(j = k+1; j < N; ++j){
+			for(j = k; j < N; ++j){
 
 				mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
 				if (Mk/D == 0) mkl_nthreads = 1;
@@ -842,6 +842,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 		if(k == 210){
+			printf("gkk = %lg + i %lg\n", creal(gkk), cimag(gkk));
 			printf("G = \n");
 			printMatrix(&G[k+M*k], 10, 1);
 			break;
