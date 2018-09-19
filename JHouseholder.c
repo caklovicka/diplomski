@@ -815,6 +815,13 @@ int main(int argc, char* argv[]){
 			T[i] = J[i] * f[i];
 		}
 
+		if(k == 210){
+			printf("Akk = %lg\n", Akk);
+			printf("|gkk|^2 * Jk = %lg\n", cabs(gkk)*cabs(gkk)*J[k]);
+			printf("G before = \n");
+			printMatrix(&G[k+M*k], 10, 1);
+		}
+
 
 		// apply the rotation on the rest of the matrix
 		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
