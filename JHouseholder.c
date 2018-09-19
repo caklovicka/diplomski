@@ -632,8 +632,8 @@ int main(int argc, char* argv[]){
 
 		int provjera = 1;
 		if(provjera){
-			printf("PIVOT_2, k = %d", k);
-			printf("detA = %lg", detA);
+			printf("PIVOT_2, k = %d\n", k);
+			printf("detA = %lg\n", detA);
 			printf("det(D*JD) = %lg\n", C[0]*C[3] - cabs(C[1])*cabs(C[1]));
 
 			double complex G0 = G[k+M*k];
@@ -673,7 +673,7 @@ int main(int argc, char* argv[]){
 			d4 = cabs(a4-Arr);
 
 			err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
-			printf("|A2-F*JF| = %lg\n", err);
+			printf("|A2-F*JF| = %lg\n--------------------------\n", err);
 		}
 
 		// C = C^(-1) = (K*JK)^+
