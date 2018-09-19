@@ -513,7 +513,12 @@ int main(int argc, char* argv[]){
 		K[3] = T[3];
 		n = 2;
 		mkl_set_num_threads(1);
-		zgesv(&n, &n, K, &n, ipiv, &G[k+M*k], &M, &info);
+		// TODO put G in place of T in zgesv
+		T[0] = G[k+M*k];
+		T[1] = G[k+1+M*k];
+		T[2] = G[k+M*(k+1)];
+		T[3] = G[k+1+M*(k+1)];
+		zgesv(&n, &n, K, &n, ipiv, T, &n, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
 		double complex T0, T1, T2, T3;
