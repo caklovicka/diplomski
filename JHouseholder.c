@@ -395,6 +395,16 @@ int main(int argc, char* argv[]){
 		zgetri(&n, K, &n, E, C, &lwork, &info);
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 
+		T[0] = Arr / detA;
+		T[1] = -Akr / detA;
+		T[2] = -conj(Akr) / detA;
+		T[3] = Akk / detA;
+
+		printf("inverse of A2 manual = \n");
+		printMatrix(T, 2, 2);
+		printf("inverse of A2 lapack = \n");
+		printMatrix(K, 2, 2);
+
 		// find pivot G1
 		int idx = -1;
 		for(i = k+1; i < M; ++i){
