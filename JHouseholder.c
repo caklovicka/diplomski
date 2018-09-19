@@ -467,7 +467,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 0;
+		int kontrola = 1;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
@@ -534,6 +534,7 @@ int main(int argc, char* argv[]){
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
+		// TODO put G in place of T in zgesv
 		T[0] = G[k+M*k];
 		T[1] = G[k+1+M*k];
 		T[2] = G[k+M*(k+1)];
@@ -541,6 +542,7 @@ int main(int argc, char* argv[]){
 		zgesv(&n, &n, K, &n, E, T, &n, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
+		kontrola = 1;
 		if(kontrola){
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
@@ -647,7 +649,6 @@ int main(int argc, char* argv[]){
 
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
-
 
 		if(provjera){
 			printf("PIVOT_2, k = %d\n", k);
