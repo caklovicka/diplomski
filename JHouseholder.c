@@ -658,7 +658,7 @@ int main(int argc, char* argv[]){
 			double d3 = cabs(a3-b3);
 			double d4 = cabs(a4-b4);
 
-			double err = cqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
 			printf("|F*JG-G*JF| = %lg\n", err);
 
 			// F*JF
@@ -672,7 +672,7 @@ int main(int argc, char* argv[]){
 			d3 = cabs(a3-Akr);
 			d4 = cabs(a4-Arr);
 
-			err = cqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
 			printf("|A2-F*JF| = %lg\n", err);
 		}
 
