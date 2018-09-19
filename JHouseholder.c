@@ -594,7 +594,7 @@ int main(int argc, char* argv[]){
 		// T = JK
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			#pragma omp parallel for num_threads( 1 )
+			#pragma omp parallel for num_threads( 2 )
 			for(j = k+2; j < N; j += 1){
 
 				mkl_set_num_threads_local(1);
