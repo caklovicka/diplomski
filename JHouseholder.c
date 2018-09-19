@@ -382,19 +382,15 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 
 		// K = inverse of A2
+		// E, C temporary arrays
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
 		int n = 2;
 		K[0] = Akk;
 		K[1] = conj(Akr);
 		K[2] = Akr;
 		K[3] = Arr;
-
-		T[0] = K[3] / detA;
-		T[1] = -K[1] / detA;
-		T[2] = -K[2] / detA;
-		T[3] = K[0] / detA;
-
 		int info;
+		mkl_set_num_threads(1);
 		zgetrf(&n, &n, K, &n, E, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
 		int lwork = 4; 
@@ -402,11 +398,6 @@ int main(int argc, char* argv[]){
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
-
-		printf("inverse of A2 manual = \n");
-		printMatrix(T, 2, 2);
-		printf("inverse of A2 lapack = \n");
-		printMatrix(K, 2, 2);
 
 		// find pivot G1
 		int idx = -1;
@@ -425,10 +416,6 @@ int main(int argc, char* argv[]){
 			double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[1] * xJy );
 			double det = -cabs(detG1) * cabs(detG1) / detA;
-
-			//printf("k = %d, trace + 2 * creal(csqrt(det)) = %lg , trace = %lg, det = %lg\n", k, trace + 2 * creal(csqrt(det)), trace, det);
-			//printMatrix(K, 2, 2);
-			//printf("xJx = %lg, yJy = %lg, xJy = %lg + i %lg\n-----------------\n", xJx, yJy, creal(xJy), cimag(xJy));
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
@@ -528,11 +515,10 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
-		double detT = creal(T[0]*T[3] - T[1]*T[2]);
-		K[0] = T[3] / detT;
-		K[1] = -T[1] / detT;
-		K[2] = -T[2] / detT;
-		K[3] = T[0] / detT;
+		K[0] = T[0];
+		K[1] = T[1];
+		K[2] = T[2];
+		K[3] = T[3];
 
 		if(kontrola){
 			printf("T^2 = \n");
@@ -543,12 +529,17 @@ int main(int argc, char* argv[]){
 			printMatrix(C, 2, 2);
 		}
 
+		// find F1
 		n = 2;
 		alpha = 1, beta = 0;
 		nontrans = 'N';
 		mkl_set_num_threads(1);
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
-
+		T[0] = G[k+M*k];
+		T[1] = G[k+1+M*k];
+		T[2] = G[k+M*(k+1)];
+		T[3] = G[k+1+M*(k+1)];
+		zgesv(&n, &n, K, &n, E, T, &n, &info);
+		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
 		if(kontrola){
 
