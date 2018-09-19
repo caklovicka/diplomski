@@ -842,7 +842,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 		if(k == 210){
-			printMatrix("G = \n");
+			printf("G = \n");
 			printMatrix(&G[k+M*k], 10, 1);
 			break;
 		}
