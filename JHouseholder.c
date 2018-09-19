@@ -659,8 +659,8 @@ int main(int argc, char* argv[]){
 			// G*JF
 			double complex b1 = J[k]*T0*conj(G0) + J[k+1]*T1*conj(G1);
 			double complex b2 = J[k]*T0*conj(G2) + J[k+1]*T1*conj(G3);
-			double complex b3 = J[k]*T2*conj(G0) + J[k+1]*T1*conj(G1);
-			double complex b4 = J[k]*T2*conj(G2) + J[k+1]*T1*conj(G3);
+			double complex b3 = J[k]*T2*conj(G0) + J[k+1]*T3*conj(G1);
+			double complex b4 = J[k]*T2*conj(G2) + J[k+1]*T3*conj(G3);
 
 			double d1 = cabs(a1-b1);
 			double d2 = cabs(a2-b2);
@@ -671,10 +671,10 @@ int main(int argc, char* argv[]){
 			printf("|F*JG-G*JF| = %lg\n", err);
 
 			// F*JF
-			a1 = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
-			a2 = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
-			a3 = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
-			a4 = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
+			a1 = J[k]*T0*conj(T0) + J[k+1]*T1]*conj(T1);
+			a2 = J[k]*T0*conj(T2) + J[k+1]*T1*conj(T3);
+			a3 = J[k]*T2*conj(T0) + J[k+1]*T3*conj(T1);
+			a4 = J[k]*T2*conj(T2) + J[k+1]*T3*conj(T3);
 
 			d1 = cabs(a1-Akk);
 			d2 = cabs(a2-conj(Akr));
