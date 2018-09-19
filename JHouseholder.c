@@ -429,7 +429,7 @@ int main(int argc, char* argv[]){
 		}
 
 		if(idx == -1){
-			printf("No more altering signs in J or no such G1 for finding a sqrt(K^2) ... (in pivot 2) ... Exiting\n");
+			printf("No more altering signs in J or no such G1 for finding a sqrt(K^2) ... (in pivot 2, k = %d) ... Exiting\n", k);
 			printJ(&J[k], M-k);
 			exit(-5);
 		}
