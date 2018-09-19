@@ -180,7 +180,7 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		if( k > 250 ) break;
+		if( k > 230 ) break;
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
@@ -352,6 +352,8 @@ int main(int argc, char* argv[]){
 
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
+
+		printf("PIVOT_2 k = %d\n", k);
 
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
