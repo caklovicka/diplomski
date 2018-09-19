@@ -381,21 +381,6 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
-
-		double detA;
-		double complex Akr = 0;
-		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-		detA = Akk*Arr - cabs(Akr)*cabs(Akr);
-		H[0] = Akk;
-		H[1] = conj(Akr);
-		H[2] = Akr;
-		H[3] = Arr;
-		printf("k = %d\n", k);
-		printf("detA = %lg\n", detA);
-		printf("Akr = %lg + i%lg\n", creal(Akr), cimag(Akr));
-		printf("Akk = %lg\n", Akk);
-
-
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
 		// [SEQUENTIAL] find the first non zero element in the kth column
