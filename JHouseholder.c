@@ -682,7 +682,7 @@ int main(int argc, char* argv[]){
 			d4 = cabs(a4-Arr);
 
 			err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
-			printf("|A2-F*JF| = %lg\n--------------------------\n", err);
+			printf("|A2-F*JF| = %lg\n", err);
 		}
 
 		// C = C^(-1) = (K*JK)^+
@@ -765,6 +765,16 @@ int main(int argc, char* argv[]){
 			}
 		//}
 		mkl_set_num_threads_local(0);
+
+		if(provjera){
+			double d0 = cabs(G[k+M*k] - T0);
+			double d1 = cabs(G[k+1+M*k] - T1);
+			double d2 = cabs(G[k+M*(k+1)]-T2);
+			double d3 = cabs(G[k+1+M*(k+1)]-T3);
+
+			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
+		}
 
 		k = k+1;
 		double end2 = omp_get_wtime();
