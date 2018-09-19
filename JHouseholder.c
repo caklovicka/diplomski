@@ -91,8 +91,6 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *CC = (double complex*) mkl_malloc(2*omp_get_max_threads()*sizeof(double complex), 64);	// temporary matrix
-
 
 
 	// check if files are opened
@@ -595,13 +593,16 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
-		//#pragma omp parallel num_threads( nthreads )
-		//{
-			#pragma omp parallel for num_threads( 2 )
-			for(j = k+2; j < N; j += 1){
+		double complex *CC;
 
-				mkl_set_num_threads_local( mkl_nthreads );
-				int nt = omp_get_thread_num();
+
+		#pragma omp parallel num_threads( nthreads )
+		{
+			CC = (double complex*) mkl_malloc(2*omp_get_max_threads()*sizeof(double complex), 64);
+			mkl_set_num_threads_local( mkl_nthreads );
+
+			#pragma omp for nowait
+			for(j = k+2; j < N; j += 1){
 
 				// case when we have 2 columns of G to work with
 				if(0){//j != N-1
@@ -624,15 +625,17 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &CC[2*nt], &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &CC[2*nt], &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 			}
-		//}
+
+			mkl_free(CC);
+		}
 		mkl_set_num_threads_local(0);
 
 		k = k+1;
