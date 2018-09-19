@@ -592,13 +592,15 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
+
+		double complex *CC;
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			#pragma omp parallel for num_threads( 2 ) shared(T, G, E)
+			#pragma omp parallel for num_threads( 2 ) shared(T, G) private( CC )
 			for(j = k+2; j < N; j += 1){
 
-				mkl_set_num_threads_local(1);
-				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				mkl_set_num_threads_local( mkl_nthreads );
+				*CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(0){//j != N-1
@@ -629,7 +631,7 @@ int main(int argc, char* argv[]){
 					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				//mkl_free(CC);
+				mkl_free(CC);
 			}
 		//}
 		mkl_set_num_threads_local(0);
