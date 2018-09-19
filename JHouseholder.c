@@ -592,11 +592,11 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
-		//#pragma omp parallel num_threads( 1 )
-		//{
-			//mkl_set_num_threads_local( 1 );
+		#pragma omp parallel num_threads( nthreads )
+		{
+			mkl_set_num_threads_local( mkl_nthreads );
 
-			//#pragma omp for nowait
+			#pragma omp for nowait
 			for(j = k+2; j < N; ++j){
 
 				double complex a, b;
@@ -636,7 +636,7 @@ int main(int argc, char* argv[]){
 					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}*/
 			}
-		//}
+		}
 		mkl_set_num_threads_local(0);
 
 		k = k+1;
