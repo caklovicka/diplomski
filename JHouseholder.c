@@ -671,7 +671,7 @@ int main(int argc, char* argv[]){
 			printf("|F*JG-G*JF| = %lg\n", err);
 
 			// F*JF
-			a1 = J[k]*T0*conj(T0) + J[k+1]*T1]*conj(T1);
+			a1 = J[k]*T0*conj(T0) + J[k+1]*T1*conj(T1);
 			a2 = J[k]*T0*conj(T2) + J[k+1]*T1*conj(T3);
 			a3 = J[k]*T2*conj(T0) + J[k+1]*T3*conj(T1);
 			a4 = J[k]*T2*conj(T2) + J[k+1]*T3*conj(T3);
