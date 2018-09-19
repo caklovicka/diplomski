@@ -506,32 +506,18 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
-		// find F1 = T
-		K[0] = T[0];
-		K[1] = T[1];
-		K[2] = T[2];
-		K[3] = T[3];
+		// find F1, store it into G
 		n = 2;
+		K[k] = G[k+M*k];
+		K[k+1] = G[k+1+M*k];
+		K[k+M] = G[k+M*(k+1)];
+		K[k+1+M] = G[k+1+M*(k+1)];
 		mkl_set_num_threads(1);
-		// TODO put G in place of T in zgesv
-		T[0] = G[k+M*k];
-		T[1] = G[k+1+M*k];
-		T[2] = G[k+M*(k+1)];
-		T[3] = G[k+1+M*(k+1)];
-		zgesv(&n, &n, K, &n, ipiv, T, &n, &info);
+		zgesv(&n, &n, T, &n, ipiv, &G[k+M*k], &M, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
-		double complex T0, T1, T2, T3;
-		int provjera = 0;
-		if(provjera){
-			T0 = T[0];
-			T1 = T[1];
-			T2 = T[2];
-			T3 = T[3];
-		}
-
 		// copy columns of G into K
-		Mk = M-k;
+		Mk = M-k-2;
 		inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
 		if(Mk/D == 0) mkl_nthreads = 1;
@@ -539,29 +525,30 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel num_threads(2)
 		{
 			mkl_set_num_threads_local(mkl_nthreads);
-			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
-			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
+			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+2+M*k], &inc, &K[k+2], &inc);
+			else zcopy(&Mk, &G[k+2+M*(k+1)], &inc, &K[k+2+M], &inc);
 		}
 		mkl_set_num_threads_local(0);
 
 		// K = the difference operator for the J Householder
-		K[k] -= T[0];
-		K[k+1] -= T[1];
-		K[k + M] -= T[2];
-		K[k+1 + M] -= T[3];
+		K[k] -= G[k+M*k];
+		K[k+1] -= G[k+1+M*k];
+		K[k+M] -= G[k+M*(k+1)];
+		K[k+1+M] -= G[k+1+M*(k+1)];
 
 		// compute K*JK, first we need T = JK
 		// fill the rest of the G with zeros
+		Mk = M - k;
 		nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
 		if(Mk/D == 0) nthreads = 1;
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
 			T[i+M] = J[i] * K[i+M];
-			//if( i >= k+2 ){
-			//	G[i+M*k] = 0;
-			//	G[i+M*(k+1)] = 0;
-			//}
+			if( i >= k+2 ){
+				G[i+M*k] = 0;
+				G[i+M*(k+1)] = 0;
+			}
 		}
 
 		// compute K*T, where T = JK
@@ -654,7 +641,7 @@ int main(int argc, char* argv[]){
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//#pragma omp for nowait
-			for(j = k; j < N; j += 1){
+			for(j = k+2; j < N; j += 1){
 
 				//mkl_set_num_threads_local(mkl_nthreads);
 				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
@@ -693,7 +680,7 @@ int main(int argc, char* argv[]){
 		//}
 		mkl_set_num_threads_local(0);
 
-		if(provjera){
+		/*if(provjera){
 			double d0 = cabs(G[k+M*k] - T0);
 			double d1 = cabs(G[k+1+M*k] - T1);
 			double d2 = cabs(G[k+M*(k+1)]-T2);
@@ -717,7 +704,7 @@ int main(int argc, char* argv[]){
 			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
 			printMatrix(&G[k+M*k], 5, 1);
 			printMatrix(&G[k+M*(k+1)], 5, 1);
-		}
+		}*/
 
 		k = k+1;
 		double end2 = omp_get_wtime();
@@ -726,7 +713,7 @@ int main(int argc, char* argv[]){
 	
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
 
-		PIVOT_1: 
+		PIVOT_1:
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
