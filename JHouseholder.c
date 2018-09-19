@@ -390,9 +390,9 @@ int main(int argc, char* argv[]){
 		K[3] = Arr;
 
 		T[0] = K[3] / detA;
-		T[1] = -T[2] / detA;
-		T[2] = -T[1] / detA;
-		T[3] = T[0] / detA;
+		T[1] = -K[2] / detA;
+		T[2] = -K[1] / detA;
+		T[3] = K[0] / detA;
 
 		int info;
 		zgetrf(&n, &n, K, &n, E, &info);
