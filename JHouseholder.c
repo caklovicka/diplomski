@@ -636,6 +636,11 @@ int main(int argc, char* argv[]){
 			printf("detA = %lg", detA);
 			printf("det(D*JD) = %lg\n", C[0]*C[3] - cabs(C[1])*cabs(C[1]));
 
+			double complex G0 = G[k+M*k];
+			double complex G1 = G[k+1+M*k];
+			double complex G2 = G[k+M*(k+1)];
+			double complex G3 = G[k+1+M*(k+1)];
+
 			// F*JG
 			double complex a1 = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
 			double complex a2 = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
@@ -662,12 +667,12 @@ int main(int argc, char* argv[]){
 			a3 = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
 			a4 = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
 
-			double d1 = cabs(a1-Akk);
-			double d2 = cabs(a2-conj(Akr));
-			double d3 = cabs(a3-Akr);
-			double d4 = cabs(a4-Arr);
+			d1 = cabs(a1-Akk);
+			d2 = cabs(a2-conj(Akr));
+			d3 = cabs(a3-Akr);
+			d4 = cabs(a4-Arr);
 
-			double err = cqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			err = cqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
 			printf("|A2-F*JF| = %lg\n", err);
 		}
 
