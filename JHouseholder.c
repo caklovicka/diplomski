@@ -594,11 +594,11 @@ int main(int argc, char* argv[]){
 		// T = JK
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			//#pragma omp for nowait
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k+2; j < N; j += 1){
 
-				//mkl_set_num_threads_local(mkl_nthreads);
-				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				mkl_set_num_threads_local(mkl_nthreads);
+				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(0){//j != N-1
@@ -621,15 +621,15 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				//mkl_free(CC);
+				mkl_free(CC);
 			}
 		//}
 		mkl_set_num_threads_local(0);
