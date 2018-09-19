@@ -462,7 +462,7 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		int kontrola = 0;
+		int kontrola = 1;
 		if(kontrola){
 			printf("K (kvadrat) = \n");
 			printMatrix(K, 2, 2);
@@ -756,6 +756,8 @@ int main(int argc, char* argv[]){
 			}
 		//}
 		mkl_set_num_threads_local(0);
+
+		if(k == 0) break;
 
 		k = k+1;
 		double end2 = omp_get_wtime();
