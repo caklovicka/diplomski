@@ -772,7 +772,7 @@ int main(int argc, char* argv[]){
 			double d2 = cabs(G[k+M*(k+1)]-T2);
 			double d3 = cabs(G[k+1+M*(k+1)]-T3);
 
-			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d0*d0);
 			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
 		}
 
