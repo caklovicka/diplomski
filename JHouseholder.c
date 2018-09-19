@@ -582,7 +582,7 @@ int main(int argc, char* argv[]){
 
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
-		if(Mk/D == 0) mkl_nthreads = 1;
+		if(Mk/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
 
 		// compute E = KC
 		alpha = 1;
@@ -592,20 +592,38 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
-
-		double complex *CC;
-
-
 		#pragma omp parallel num_threads( nthreads ) private(CC)
 		{
-			CC = (double complex*) mkl_malloc(2*omp_get_max_threads()*sizeof(double complex), 64);
 			mkl_set_num_threads_local( mkl_nthreads );
 
 			#pragma omp for nowait
-			for(j = k+2; j < N; j += 1){
+			for(j = k+2; j < N; ++j){
+
+				double complex a, b;
+				inc = 1;
+				Mk = M - k;
+				// a = T1*g
+				zdoct(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+				// b = T2*g
+				zdoct(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				//g = g - 2E [a b]^T
+				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[k]*a + E[k+M]*b);
+
+				// case when we are in the last column
+					
+				// CC = T*g
+				/*alpha = 1;
+				beta = 0;
+				inc = 1;
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
+
+				// g = g - 2E CC
+				alpha = -2;
+				beta = 1;
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 
 				// case when we have 2 columns of G to work with
-				if(0){//j != N-1
+				/*if(0){//j != N-1
 
 					// CC  = T*G
 					alpha = 1;
@@ -616,22 +634,7 @@ int main(int argc, char* argv[]){
 					alpha = -2;
 					beta = 1;
 					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
-				}
-
-				// case when we are in the last column
-				else{
-					
-					// CC = T*g
-					alpha = 1;
-					beta = 0;
-					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
-
-					// g = g - 2E CC
-					alpha = -2;
-					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
-				}
+				}*/
 			}
 
 			mkl_free(CC);
@@ -739,14 +742,15 @@ int main(int argc, char* argv[]){
 		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
 		if ((N-k-1)/D == 0) nthreads = 1;
 
+		mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+		if (Mk/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
+
 		#pragma omp parallel num_threads( nthreads )
 		{
+			mkl_set_num_threads_local(mkl_nthreads);
+
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){
-
-				mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
-				if (Mk/D == 0) mkl_nthreads = 1;
-				mkl_set_num_threads_local(mkl_nthreads);
 
 				// T = Jf
 				// alpha = f*Jg
@@ -755,7 +759,8 @@ int main(int argc, char* argv[]){
 				double complex alpha;
 				zdotc(&alpha, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				alpha = - 2 * alpha / fJf;
-				zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);	// G[k + M*j] = alpha * f[k] + G[k + M*k]
+				// G[k + M*j] = alpha * f[k] + G[k + M*k]
+				zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);
 			}
 		}
 		mkl_set_num_threads_local(0);
