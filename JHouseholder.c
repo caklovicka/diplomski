@@ -180,8 +180,7 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		//printf("k = %d, G = \n", k);
-		//printMatrix(G, M, N);
+		if( k == 313 ) break;
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
@@ -521,7 +520,7 @@ int main(int argc, char* argv[]){
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
 		double complex T0, T1, T2, T3;
-		int provjera = 0;
+		int provjera = 1;
 		if(provjera){
 			T0 = T[0];
 			T1 = T[1];
