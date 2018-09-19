@@ -594,10 +594,10 @@ int main(int argc, char* argv[]){
 		// T = JK
 		//#pragma omp parallel num_threads( nthreads )
 		//{
-			#pragma omp parallel for num_threads( nthreads )
+			#pragma omp parallel for num_threads( 1 )
 			for(j = k+2; j < N; j += 1){
 
-				mkl_set_num_threads_local(mkl_nthreads);
+				mkl_set_num_threads_local(1);
 				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
