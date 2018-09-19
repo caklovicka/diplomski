@@ -383,11 +383,17 @@ int main(int argc, char* argv[]){
 
 		// K = inverse of A2
 		double detA = Akk * Arr - cabs(Akr) * cabs(Akr); 
-
-		K[0] = Arr / detA;
-		K[1] = -conj(Akr) / detA;
-		K[2] = -Akr / detA;
-		K[3] = Akk / detA;
+		int n = 2;
+		K[0] = Akk;
+		K[1] = conj(Akr);
+		K[2] = Akr;
+		K[3] = Arr;
+		int info;
+		zgetrf(&n, &n, K, &n, E, &info);
+		if( info ) printf("LU of A2 unstable. Proceeding.\n");
+		int lwork = 4; 
+		zgetri(&n, K, &n, E, C, &lwork, &info);
+		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 
 		// find pivot G1
 		int idx = -1;
@@ -445,7 +451,6 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
 		}
 
-		int n = 2;
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
 		char trans = 'C';
