@@ -517,8 +517,17 @@ int main(int argc, char* argv[]){
 		T[1] = G[k+1+M*k];
 		T[2] = G[k+M*(k+1)];
 		T[3] = G[k+1+M*(k+1)];
-		zgesv(&n, &n, K, &n, E, T, &n, &info);
+		zgesv(&n, &n, K, &n, ipiv, T, &n, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
+
+		double complex T0, T1, T2, T3;
+		int provjera = 1;
+		if(provjera){
+			T0 = T[0];
+			T1 = T[1];
+			T2 = T[2];
+			T3 = T[3];
+		}
 
 		// copy columns of G into K
 		Mk = M-k;
@@ -539,16 +548,6 @@ int main(int argc, char* argv[]){
 		K[k+1] -= T[1];
 		K[k + M] -= T[2];
 		K[k+1 + M] -= T[3];
-
-
-		double complex T0, T1, T2, T3;
-		int provjera = 1;
-		if(provjera){
-			T0 = T[0];
-			T1 = T[1];
-			T2 = T[2];
-			T3 = T[3];
-		}
 
 		// compute K*JK, first we need T = JK
 		// fill the rest of the G with zeros
@@ -577,7 +576,7 @@ int main(int argc, char* argv[]){
 		C[3] = creal(C[3]);
 
 
-		if(provjera){
+		/*if(provjera){
 			printf("PIVOT_2, k = %d\n", k);
 			printf("detA = %lg\n", detA);
 			printf("det(D*JD) = %lg\n", C[0]*C[3] - cabs(C[1])*cabs(C[1]));
@@ -620,16 +619,16 @@ int main(int argc, char* argv[]){
 
 			err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
 			printf("|A2-F*JF| = %lg\n", err);
-		}
+		}*/
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
 
 		mkl_set_num_threads(1);
 		zgetrf(&n, &n, C, &n, ipiv, &info);
-		if( info ) printf("LU of A2 unstable. Proceeding.\n");
+		if( info ) printf("LU of K*JK unstable. Proceeding.\n");
 		zgetri(&n, C, &n, ipiv, work, &lwork, &info);	// safe to put first 2 places of T here
-		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
+		if( info ) printf("(K*JK)^+ unstable. Proceeding.\n");
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
 
@@ -646,10 +645,10 @@ int main(int argc, char* argv[]){
 		// compute E = KC
 		alpha = 1;
 		beta = 0;
+		mkl_set_num_threads( mkl_nthreads );
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
-		// K = W (Mk x 2 matrix)
-		// C = (W*JW)^+ (2x2 matrix)
+		// E = K(K*JK)^+
 		// T = JK
 		//#pragma omp parallel num_threads( nthreads )
 		//{
