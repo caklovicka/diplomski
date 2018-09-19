@@ -180,8 +180,6 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		if( k == 211 ) break;
-
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
@@ -522,7 +520,7 @@ int main(int argc, char* argv[]){
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
 		double complex T0, T1, T2, T3;
-		int provjera = 1;
+		int provjera = 0;
 		if(provjera){
 			T0 = T[0];
 			T1 = T[1];
@@ -728,6 +726,7 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1: 
 
+		printf("PIVOT_1 k = %d\n", k);
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_1_count += 1;
@@ -841,6 +840,11 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
+
+		if(k == 210){
+			printMatrix("G = \n");
+			printMatrix(&G[k+M*k], 10, 1);
+			break;
 	
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
