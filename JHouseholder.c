@@ -180,7 +180,7 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		if( k == 313 ) break;
+		if( k > 300 ) break;
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
