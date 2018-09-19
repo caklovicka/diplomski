@@ -366,6 +366,10 @@ int main(int argc, char* argv[]){
 			Pcol[pivot_r] = Pcol[k+1];
 			Pcol[k+1] = itemp;
 
+			double complex ctemp = norm[pivot_r];
+			norm[pivot_r] = norm[k+1];
+			norm[k+1] = ctemp;
+
 			int inc = 1;
 			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
 			if(M/D == 0) mkl_nthreads = 1;
