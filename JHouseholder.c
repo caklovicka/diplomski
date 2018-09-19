@@ -592,6 +592,7 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
+		double ss = omp_get_wtime();
 		#pragma omp parallel num_threads( nthreads )
 		{
 			mkl_set_num_threads_local( mkl_nthreads );
@@ -638,6 +639,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
+		redukcijatime += omp_get_wtime() - ss;
 
 		k = k+1;
 		double end2 = omp_get_wtime();
@@ -774,7 +776,7 @@ int main(int argc, char* argv[]){
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
-	printf("redukcija u PIVOT_2 time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
+	printf("PIVOT_2 reflektor time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
 
 
