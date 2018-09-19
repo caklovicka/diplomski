@@ -531,6 +531,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, K, &n, &G[k+M*k], &M, &beta, T, &n);	// T = K G1
 
+
 		if(kontrola){
 
 			printf("trK = %lg, detK = %lg\n", trK, detK);
@@ -627,6 +628,48 @@ int main(int argc, char* argv[]){
 
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
+
+
+		int provjera = 1;
+		if(provjera){
+			printf("PIVOT_2, k = %d", k);
+			printf("detA = %lg", detA);
+			printf("det(D*JD) = %lg\n", C[0]*C[3] - cabs(C[1])*cabs(C[1]));
+
+			// F*JG
+			double complex a1 = J[k]*G0*conj(T[0]) + J[k+1]*G1*conj(T[1]);
+			double complex a2 = J[k]*G0*conj(T[2]) + J[k+1]*G1*conj(T[3]);
+			double complex a3 = J[k]*G2*conj(T[0]) + J[k+1]*G3*conj(T[1]);
+			double complex a4 = J[k]*G2*conj(T[2]) + J[k+1]*G3*conj(T[3]);
+		
+			// G*JF
+			double complex b1 = J[k]*T[0]*conj(G0) + J[k+1]*T[1]*conj(G1);
+			double complex b2 = J[k]*T[0]*conj(G2) + J[k+1]*T[1]*conj(G3);
+			double complex b3 = J[k]*T[2]*conj(G0) + J[k+1]*T[3]*conj(G1);
+			double complex b4 = J[k]*T[2]*conj(G2) + J[k+1]*T[3]*conj(G3);
+
+			double d1 = cabs(a1-b1);
+			double d2 = cabs(a2-b2);
+			double d3 = cabs(a3-b3);
+			double d4 = cabs(a4-b4);
+
+			double err = cqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			printf("|F*JG-G*JF| = %lg\n", err);
+
+			// F*JF
+			a1 = J[k]*T[0]*conj(T[0]) + J[k+1]*T[1]*conj(T[1]);
+			a2 = J[k]*T[0]*conj(T[2]) + J[k+1]*T[1]*conj(T[3]);
+			a3 = J[k]*T[2]*conj(T[0]) + J[k+1]*T[3]*conj(T[1]);
+			a4 = J[k]*T[2]*conj(T[2]) + J[k+1]*T[3]*conj(T[3]);
+
+			double d1 = cabs(a1-Akk);
+			double d2 = cabs(a2-conj(Akr));
+			double d3 = cabs(a3-Akr);
+			double d4 = cabs(a4-Arr);
+
+			double err = cqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
+			printf("|A2-F*JF| = %lg\n", err);
+		}
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
