@@ -679,7 +679,7 @@ int main(int argc, char* argv[]){
 		//}
 		mkl_set_num_threads_local(0);
 
-		if(provjera){
+		/*if(provjera){
 			double d0 = cabs(G[k+M*k] - T0);
 			double d1 = cabs(G[k+1+M*k] - T1);
 			double d2 = cabs(G[k+M*(k+1)]-T2);
@@ -703,7 +703,7 @@ int main(int argc, char* argv[]){
 			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
 			printMatrix(&G[k+M*k], 5, 1);
 			printMatrix(&G[k+M*(k+1)], 5, 1);
-		}
+		}*/
 
 		k = k+1;
 		double end2 = omp_get_wtime();
