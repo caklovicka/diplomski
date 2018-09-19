@@ -592,9 +592,9 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
-		#pragma omp parallel num_threads( nthreads ) private(CC)
+		#pragma omp parallel num_threads( 1 )
 		{
-			mkl_set_num_threads_local( mkl_nthreads );
+			mkl_set_num_threads_local( 1 );
 
 			#pragma omp for nowait
 			for(j = k+2; j < N; ++j){
