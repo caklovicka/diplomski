@@ -624,10 +624,6 @@ int main(int argc, char* argv[]){
 
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
-		double complex C0 = C[3] / detC;
-		double complex C1 = -C[1] / detC;
-		double complex C2 = -C[2] / detC;
-		double complex C3 = C[0] / detC;
 
 		mkl_set_num_threads(1);
 		zgetrf(&n, &n, C, &n, ipiv, &info);
@@ -636,17 +632,6 @@ int main(int argc, char* argv[]){
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
-
-		printf("inverse C lapack = ");
-		printMatrix(C, 2, 2);
-
-		C[0] = C0;
-		C[1] = C1;
-		C[2] = C2;
-		C[3] = C3;
-
-		printf("onverse C manual = \n");
-		printMatrix(C, 2, 2);
 
 
 		// apply the reflector
@@ -730,6 +715,8 @@ int main(int argc, char* argv[]){
 
 			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d0*d0);
 			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
+			printMatrix(&G[k+M*k], 5, 1);
+			printMatrix(&G[k+M*(k+1)], 5, 1);
 		}
 
 		k = k+1;
