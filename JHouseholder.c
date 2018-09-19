@@ -516,6 +516,14 @@ int main(int argc, char* argv[]){
 		zgesv(&n, &n, K, &n, ipiv, &G[k+M*k], &M, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
+		double complex T0, T1, T2, T3;
+		int provjera = 0;
+		if(provjera){
+			T0 = T[0];
+			T1 = T[1];
+			T2 = T[2];
+			T3 = T[3];
+		}
 
 		// copy columns of G into K
 		Mk = M-k;
