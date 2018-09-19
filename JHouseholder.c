@@ -563,52 +563,6 @@ int main(int argc, char* argv[]){
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
 
-
-		/*if(provjera){
-			printf("PIVOT_2, k = %d\n", k);
-			printf("detA = %lg\n", detA);
-			printf("det(D*JD) = %lg\n", C[0]*C[3] - cabs(C[1])*cabs(C[1]));
-
-			double complex G0 = G[k+M*k];
-			double complex G1 = G[k+1+M*k];
-			double complex G2 = G[k+M*(k+1)];
-			double complex G3 = G[k+1+M*(k+1)];
-
-			// F*JG
-			double complex a1 = J[k]*G0*conj(T0) + J[k+1]*G1*conj(T1);
-			double complex a2 = J[k]*G0*conj(T2) + J[k+1]*G1*conj(T3);
-			double complex a3 = J[k]*G2*conj(T0) + J[k+1]*G3*conj(T1);
-			double complex a4 = J[k]*G2*conj(T2) + J[k+1]*G3*conj(T3);
-		
-			// G*JF
-			double complex b1 = J[k]*T0*conj(G0) + J[k+1]*T1*conj(G1);
-			double complex b2 = J[k]*T0*conj(G2) + J[k+1]*T1*conj(G3);
-			double complex b3 = J[k]*T2*conj(G0) + J[k+1]*T3*conj(G1);
-			double complex b4 = J[k]*T2*conj(G2) + J[k+1]*T3*conj(G3);
-
-			double d1 = cabs(a1-b1);
-			double d2 = cabs(a2-b2);
-			double d3 = cabs(a3-b3);
-			double d4 = cabs(a4-b4);
-
-			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
-			printf("|F*JG-G*JF| = %lg\n", err);
-
-			// F*JF
-			a1 = J[k]*T0*conj(T0) + J[k+1]*T1*conj(T1);
-			a2 = J[k]*T0*conj(T2) + J[k+1]*T1*conj(T3);
-			a3 = J[k]*T2*conj(T0) + J[k+1]*T3*conj(T1);
-			a4 = J[k]*T2*conj(T2) + J[k+1]*T3*conj(T3);
-
-			d1 = cabs(a1-Akk);
-			d2 = cabs(a2-conj(Akr));
-			d3 = cabs(a3-Akr);
-			d4 = cabs(a4-Arr);
-
-			err = csqrt(d1*d1 + d2*d2 + d3*d3 + d4*d4);
-			printf("|A2-F*JF| = %lg\n", err);
-		}*/
-
 		// C = C^(-1) = (K*JK)^+
 		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
 
@@ -638,13 +592,13 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
-		//#pragma omp parallel num_threads( nthreads )
-		//{
-			//#pragma omp for nowait
+		#pragma omp parallel num_threads( nthreads )
+		{
+			#pragma omp for nowait
 			for(j = k+2; j < N; j += 1){
 
-				//mkl_set_num_threads_local(mkl_nthreads);
-				//double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+				mkl_set_num_threads_local(mkl_nthreads);
+				double complex *CC = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 				// case when we have 2 columns of G to work with
 				if(0){//j != N-1
@@ -652,12 +606,12 @@ int main(int argc, char* argv[]){
 					// CC  = T*G
 					alpha = 1;
 					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
+					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, CC, &n);
 
 					// G = G - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
+					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, CC, &n, &beta, &G[k+M*j], &M);
 				}
 
 				// case when we are in the last column
@@ -667,44 +621,18 @@ int main(int argc, char* argv[]){
 					alpha = 1;
 					beta = 0;
 					inc = 1;
-					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, C, &inc);
+					zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, CC, &inc);
 
 					// g = g - 2E CC
 					alpha = -2;
 					beta = 1;
-					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, C, &inc, &beta, &G[k+M*j], &inc);
+					zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, CC, &inc, &beta, &G[k+M*j], &inc);
 				}
 
-				//mkl_free(CC);
+				mkl_free(CC);
 			}
-		//}
+		}
 		mkl_set_num_threads_local(0);
-
-		/*if(provjera){
-			double d0 = cabs(G[k+M*k] - T0);
-			double d1 = cabs(G[k+1+M*k] - T1);
-			double d2 = cabs(G[k+M*(k+1)]-T2);
-			double d3 = cabs(G[k+1+M*(k+1)]-T3);
-
-			printf("F1 = \n");
-			T[0] = T0;
-			T[1] = T1;
-			T[2] = T2;
-			T[3] = T3;
-			printMatrix(T, 2, 2);
-
-			printf("HG1 = \n");
-			T[0] = G[k+M*k];
-			T[1] = G[k+1+M*k];
-			T[2] = G[k+M*(k+1)];
-			T[3] = G[k+1+M*(k+1)];
-			printMatrix(T, 2, 2);
-
-			double err = csqrt(d1*d1 + d2*d2 + d3*d3 + d0*d0);
-			printf("|HG1 - F1| = %lg\n--------------------------\n", err);
-			printMatrix(&G[k+M*k], 5, 1);
-			printMatrix(&G[k+M*(k+1)], 5, 1);
-		}*/
 
 		k = k+1;
 		double end2 = omp_get_wtime();
