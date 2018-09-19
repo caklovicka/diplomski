@@ -394,6 +394,8 @@ int main(int argc, char* argv[]){
 		int lwork = 4; 
 		zgetri(&n, K, &n, E, C, &lwork, &info);
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
+		K[0] = creal(K[0]);
+		K[3] = creal(K[3]);
 
 		T[0] = Arr / detA;
 		T[1] = -Akr / detA;
