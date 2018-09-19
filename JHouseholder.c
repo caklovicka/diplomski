@@ -596,7 +596,7 @@ int main(int argc, char* argv[]){
 		double complex *CC;
 
 
-		#pragma omp parallel num_threads( 1 )
+		#pragma omp parallel num_threads( nthreads ) private(CC)
 		{
 			CC = (double complex*) mkl_malloc(2*omp_get_max_threads()*sizeof(double complex), 64);
 			mkl_set_num_threads_local( mkl_nthreads );
