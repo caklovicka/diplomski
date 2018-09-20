@@ -603,7 +603,7 @@ int main(int argc, char* argv[]){
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( 2 )
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k+2; j < N; ++j){
 
 				//mkl_set_num_threads_local(1);
