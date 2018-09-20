@@ -180,8 +180,6 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
-		if(k == 0) break;
-
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
@@ -352,8 +350,6 @@ int main(int argc, char* argv[]){
 
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
-
-		printf("PIVOT_2 k = %d\n", k);
 
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
@@ -674,7 +670,6 @@ int main(int argc, char* argv[]){
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
 
 		PIVOT_1:
-		printf("PIVOT_1 k = %d\n", k);
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
@@ -739,14 +734,6 @@ int main(int argc, char* argv[]){
 		// save the J norm of the vector
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
-		printf("gkk = %lg + i%lg\n", creal(gkk), cimag(gkk));
-		printf("|gkk|^2*Jk = %lg\n", cabs(gkk)*cabs(gkk)*J[k]);
-		printf("fJf = %lg\n", fJf);
-		double akk = 0;
-		for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
-		printf("Akk = %lg, akk = %lg\n", Akk, akk);
-
-
 		// make the reflector vector and save it
 		alpha = -1;
 		inc = 1;
@@ -759,7 +746,7 @@ int main(int argc, char* argv[]){
 		f[k] -= gkk;
 
 		// update G
-		//G[k + M*k] = gkk;
+		G[k + M*k] = gkk;
 
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
@@ -767,7 +754,7 @@ int main(int argc, char* argv[]){
 		T[k] = J[k] * f[k];
 		#pragma omp parallel for num_threads(nthreads)
 		for(i = k+1; i < M; ++i){
-			//G[i + M*k] = 0;
+			G[i + M*k] = 0;
 			T[i] = J[i] * f[i];
 		}
 
@@ -783,7 +770,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads_local(mkl_nthreads);
 
 			#pragma omp for nowait
-			for(j = k; j < N; ++j){
+			for(j = k+1; j < N; ++j){
 
 				// T = Jf
 				// alpha = f*Jg
@@ -792,7 +779,6 @@ int main(int argc, char* argv[]){
 				double complex alpha;
 				zdotc(&alpha, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				alpha = - 2 * alpha / fJf;
-				printf("alpha = %lg + i %lg\n", creal(alpha), cimag(alpha));
 				// G[k + M*j] = alpha * f[k] + G[k + M*k]
 				zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);
 			}
