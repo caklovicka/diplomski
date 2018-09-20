@@ -630,7 +630,7 @@ int main(int argc, char* argv[]){
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 
 				printMatrix(&K[2*(k+2)], 2, N - k - 2);
-
+				double complex a, b;
 				// a = T1* g
 				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2* g
