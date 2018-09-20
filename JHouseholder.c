@@ -593,7 +593,7 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
-		for(i = k+2; i < N, ++i) K[i] = 0;
+		for(i = k+2; i < N; ++i) K[i] = 0;
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
