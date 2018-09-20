@@ -262,31 +262,28 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*k];
 
-		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-		if ((N-k)/D == 0) nthreads = 1;
+		mkl_nthreads = (M-k)/D > mkl_get_max_threads()/nthreads ? (M-k)/D : mkl_get_max_threads()/nthreads;
+		if ((M-k)/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
 
 		#pragma omp parallel num_threads( nthreads )
 		{
+			mkl_set_num_threads_local( mkl_nthreads );
 			#pragma omp for nowait
 			for(i = k+1; i < N; ++i){
-
-				double complex Aik = 0;
-				int Mk = M-k;
+				int Mk = M - k;
 				int inc = 1;
-				int mkl_nthreads = mkl_get_max_threads() / nthreads;
-				if(mkl_nthreads == 0) mkl_nthreads = 1;
-				mkl_set_num_threads_local( mkl_nthreads );
-				zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
-				
-				#pragma omp critical
-				if(pivot_lambda < cabs(Aik)){
-					pivot_lambda = cabs(Aik);
-					pivot_r = i;
-				}
+				zdotc(&T[i], &Mk, &G[k+M*i], &inc, &f[k], &inc); //T[i] = gi* J gk, but on a submatrix G[k:M, k:N]
 			}
 		}
-		mkl_set_num_threads_local(0);	//return global value
-		
+		mkl_set_num_threads_local(0);
+
+		for(i = k+1; i < N; ++i){
+			if(pivot_lambda < cabs(T[i])){
+				pivot_lambda = cabs(T[i]);
+				pivot_r = i;
+			}
+		}
+	
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
 
@@ -298,6 +295,21 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M; ++i)	f[i] = J[i] * G[i+M*pivot_r];
 
+		mkl_nthreads = (M-k)/D > mkl_get_max_threads()/nthreads ? (M-k)/D : mkl_get_max_threads()/nthreads;
+		if ((M-k)/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
+
+		#pragma omp parallel num_threads( nthreads )
+		{
+			mkl_set_num_threads_local( mkl_nthreads );
+			#pragma omp for nowait
+			for(i = k; i < N; ++i){
+				int Mk = M - k;
+				int inc = 1;
+				zdotc(&T[i], &Mk, &G[k+M*i], &inc, &f[k], &inc); //T[i] = gk* J gr, but on a submatrix G[k:M, k:N]
+			}
+		}
+		mkl_set_num_threads_local(0);
+
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
@@ -305,21 +317,11 @@ int main(int argc, char* argv[]){
 		for(i = k; i < N; ++i){
 
 			if(i == pivot_r) continue;
-
-			double complex Air = 0;
-			int Mk = M-k;
-			int inc = 1;
-			int mkl_nthreads = mkl_get_max_threads() / nthreads;
-			if(mkl_nthreads == 0) mkl_nthreads = 1;
-			mkl_set_num_threads_local( mkl_nthreads );
-			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
-
-			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
+			if(pivot_sigma < cabs(T[i])) pivot_sigma = cabs(T[i]);
 		}
 		mkl_set_num_threads_local(0);	//return global value
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
-
 
 		double Arr = (double) norm[pivot_r];
 
@@ -335,7 +337,6 @@ int main(int argc, char* argv[]){
 			double complex ctemp = norm[pivot_r];
 			norm[pivot_r] = norm[k];
 			norm[k] = ctemp;
-
 
 			int inc = 1;
 			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
