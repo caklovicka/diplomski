@@ -231,9 +231,6 @@ int main(int argc, char* argv[]){
 		// refresh norms
 		else{
 
-			nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
-			if ((N-k)/D == 0) nthreads = 1;
-
 			#pragma omp parallel for num_threads( nthreads )
 			for(j = k; j < N; ++j){
 				norm[j] = 0;
