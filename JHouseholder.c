@@ -603,12 +603,12 @@ int main(int argc, char* argv[]){
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( nthreads ) shared(K, G, T, E)
+			#pragma omp parallel for num_threads( 2 ) shared(K, G, T, E)
 			for(j = k+2; j < N; ++j){
 
 				mkl_set_num_threads_local(1);
 
-				/*double complex a, b;
+				double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
@@ -617,7 +617,7 @@ int main(int argc, char* argv[]){
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				*/
+				
 				
 				// case when we are in the last column
 
