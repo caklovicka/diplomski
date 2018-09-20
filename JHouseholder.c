@@ -634,12 +634,12 @@ int main(int argc, char* argv[]){
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
+				printMatrix(&K[2*j], 2, 1);
+
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
-
-				printMatrix(&K[2*(k+2)], 2, N - k - 2);
 
 
 				// case when we have 2 columns of G to work with
