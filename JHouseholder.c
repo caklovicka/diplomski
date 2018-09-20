@@ -613,32 +613,32 @@ int main(int argc, char* argv[]){
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
-				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+				//zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2* g
-				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				//zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
-				#pragma omp critical
+				/*#pragma omp critical
 				{
 				if(cabs(K[2*j] - a) > EPSILON) printf("cabs(K[2*j] - a) = %lg\n", cabs(K[2*j]-a));
 				if(cabs(K[2*j+1] - b) > EPSILON) printf("cabs(K[2*j+1] - b) = %lg\n", cabs(K[2*j+1]-b));
-				}
-				zcopy(&M, &G[M*j], &inc, &GG[M*j], &inc);
+				}*/
+				//zcopy(&M, &G[M*j], &inc, &GG[M*j], &inc);
 				//g = g - 2E [a b]^T
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
-				for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
+				//for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
 
-				#pragma omp critical
+				/*#pragma omp critical
 				{
 					printf("G = \n");
 					printMatrix(&G[M*j], M, 1);
 					printf("GG(tocno) = \n");
 					printMatrix(&GG[M*j], M, 1);
-				}
+				}*/
 				
 				
 				// case when we are in the last column
