@@ -66,7 +66,7 @@ int main(int argc, char* argv[]){
 	omp_set_dynamic(0);
 	mkl_set_dynamic(0);
 	omp_set_max_active_levels(2);
-	if(M/D == 0) omp_set_num_threads(1)
+	if(M/D == 0) omp_set_num_threads(1);
 	else omp_set_num_threads(M/D);
 
 	// read variables from command line
