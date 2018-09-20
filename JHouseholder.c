@@ -34,6 +34,7 @@
 #define eps 1e-1
 #define D 64
 #define refresh 30
+#define cache_line 2
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -71,9 +72,6 @@ int main(int argc, char* argv[]){
 	int M = atoi(argv[3]);
 	int N = atoi(argv[4]);
 
-	if(M/D == 0) omp_set_num_threads(1);
-	else omp_set_num_threads(M/D);
-
 	FILE *readG = fopen(argv[1], "rb");
 	FILE *readJ = fopen(argv[2], "rb");
 
@@ -89,13 +87,11 @@ int main(int argc, char* argv[]){
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
 	double complex *T = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
+	double complex *K = (double complex*) mkl_malloc(cache_line*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-
-	double complex *GG = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
 
 	// check if files are opened
 
@@ -606,7 +602,7 @@ int main(int argc, char* argv[]){
 			// c = T*g
 			alpha = 1;
 			beta = 0;
-			zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+			zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[cache_line*j], &inc);
 		}
 
 		#pragma omp parallel for num_threads( nthreads )
@@ -616,7 +612,7 @@ int main(int argc, char* argv[]){
 			// g = g - 2E c
 			alpha = -2;
 			beta = 1;
-			zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+			zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[cache_line*j] , &inc, &beta, &G[k+M*j], &inc);
 		}
 
 		mkl_set_num_threads_local(0);
