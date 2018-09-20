@@ -640,7 +640,7 @@ int main(int argc, char* argv[]){
 				{
 					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
 					printf("K = T*g = \n");
-					printMatrix(&K[2*j], 2, 2);
+					printMatrix(&K[2*j], 2, 1);
 					printMatrix(&G[k+M*j], Mk, 1);
 				}
 
@@ -664,6 +664,7 @@ int main(int argc, char* argv[]){
 				}*/
 			}
 		//}
+		printMatrix(G, M, N);
 		mkl_set_num_threads_local(0);
 		redukcijatime += omp_get_wtime() - ss;
 
