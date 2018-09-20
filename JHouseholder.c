@@ -95,6 +95,8 @@ int main(int argc, char* argv[]){
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 
+	double complex *GG = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
+
 	// check if files are opened
 
 	if(readG == NULL || readJ == NULL){
@@ -607,21 +609,37 @@ int main(int argc, char* argv[]){
 			for(j = k+2; j < N; ++j){
 
 
-				/*double complex a, b;
+				double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
 				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2* g
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+
+				#pragma omp critical
+				{
+				if(cabs(K[2*j] - a) > EPSILON) printf("cabs(K[2*j] - a) = %lg", cabs(K[2*j]-a));
+				if(cabs(K[2*j+1] - b) > EPSILON) printf("cabs(K[2*j+1] - b) = %lg", cabs(K[2*j+1]-b));
+				}
+				zcopy(&Mk, &G[k+M*j], &inc, &GG[k+M*j], &inc);
 				//g = g - 2E [a b]^T
-				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				*/
+				for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+
+				#pragma omp critical
+				{
+					printf("G = \n");
+					printMatrix(G, M, 2);
+					printf("GG (tocno) = \n");
+					printMatrix(GG, M, 2);
+				}
 				
 				
 				// case when we are in the last column
 
-				inc = 1;
+				/*inc = 1;
 				n = 2;
 				trans = 'C';
 				nontrans = 'N';
@@ -636,12 +654,6 @@ int main(int argc, char* argv[]){
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
-
-				#pragma omp critical
-				{
-					printf("j = %d, thread = %d\n", j, omp_get_thread_num());
-					printMatrix(&K[2*(j-1)], 2, 3);
-				}
 
 
 				// case when we have 2 columns of G to work with
