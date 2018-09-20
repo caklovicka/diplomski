@@ -593,8 +593,8 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
-		for(i = k+2; i < N; ++i) K[i] = 0;
-		printMatrix(&K[2*(k+2)], 2, M - k - 2);
+		for(i = 2*(k+2); i < N; ++i) K[i] = 0;
+		printMatrix(&K[2*(k+2)], 2, N - k - 2);
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
@@ -629,7 +629,7 @@ int main(int argc, char* argv[]){
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 
-				printMatrix(&K[2*(k+2)], 2, M - k - 2);
+				printMatrix(&K[2*(k+2)], 2, N - k - 2);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
