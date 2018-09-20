@@ -599,16 +599,16 @@ int main(int argc, char* argv[]){
 		trans = 'C';
 		nontrans = 'N';
 		double ss = omp_get_wtime();
-		#pragma omp parallel num_threads( nthreads )
-		{
-			mkl_set_num_threads_local( mkl_nthreads );
+		//#pragma omp parallel num_threads( nthreads )
+		//{
+			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp for nowait
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k+2; j < N; ++j){
 
 				mkl_set_num_threads_local(mkl_nthreads);
 
-				double complex a, b;
+				/*double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
@@ -617,11 +617,12 @@ int main(int argc, char* argv[]){
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
+				*/
 				
 				// case when we are in the last column
 
 				// K = T*g
-				/*alpha = 1;
+				alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
@@ -644,7 +645,7 @@ int main(int argc, char* argv[]){
 					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}*/
 			}
-		}
+		//}
 		mkl_set_num_threads_local(0);
 		redukcijatime += omp_get_wtime() - ss;
 
