@@ -603,7 +603,7 @@ int main(int argc, char* argv[]){
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			//#pragma omp parallel for num_threads( 1 )
+			#pragma omp parallel for num_threads( 1 )
 			for(j = k+2; j < N; ++j){
 
 				//mkl_set_num_threads_local(1);
@@ -770,8 +770,6 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
-
-		printMatrix(G, M, N);
 
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
