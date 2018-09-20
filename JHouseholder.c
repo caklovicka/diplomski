@@ -91,7 +91,6 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *c = (double complex*) mkl_malloc(2 * N * sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -613,16 +612,16 @@ int main(int argc, char* argv[]){
 				*/
 				// case when we are in the last column
 					
-				// c = T*g
+				// K = T*g
 				alpha = 1;
 				beta = 0;
 				inc = 1;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[2*j], &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
-				// g = g - 2E c
+				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[2*j], &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
