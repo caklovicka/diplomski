@@ -591,13 +591,7 @@ int main(int argc, char* argv[]){
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
 		// E = K(K*JK)^+
-		// T = JK
-
-		
-		inc = 1;
-		n = 2;
-		trans = 'C';
-		nontrans = 'N';
+		// T = Jk
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
@@ -608,7 +602,7 @@ int main(int argc, char* argv[]){
 
 				mkl_set_num_threads_local(1);
 
-				double complex a, b;
+				/*double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
@@ -617,12 +611,18 @@ int main(int argc, char* argv[]){
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				
+				*/
 				
 				// case when we are in the last column
 
+				inc = 1;
+				n = 2;
+				trans = 'C';
+				nontrans = 'N';
+				Mk = M - k;
+
 				// K = T*g
-				/*alpha = 1;
+				alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
