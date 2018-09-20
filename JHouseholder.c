@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *c = (double complex*) mkl_malloc(3 * 128 * omp_get_max_threads() * sizeof(double complex), 64);	// for the reflector, avoiding false sharing
+	double complex *c = (double complex*) mkl_malloc(3 * 128 * omp_get_max_threads() * sizeof(double complex), 64);	// for the reflector, avoiding false sharing?
 
 
 	// check if files are opened
@@ -601,7 +601,7 @@ int main(int argc, char* argv[]){
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( 3 ) shared(K, G, T, E)
+			#pragma omp parallel for num_threads( 3 ) shared(c, G, T, E)
 			for(j = k+2; j < N; ++j){
 
 				mkl_set_num_threads_local(1);
