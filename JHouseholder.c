@@ -594,15 +594,16 @@ int main(int argc, char* argv[]){
 		// T = JK
 
 		for(i = k+2; i < N; ++i) K[i] = 0;
+		printMatrix(&K[2*(k+2)], 2, M - k - 2);
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( 1 )
+			//#pragma omp parallel for num_threads( 1 )
 			for(j = k+2; j < N; ++j){
 
-				mkl_set_num_threads_local(1);
+				//mkl_set_num_threads_local(1);
 
 				/*double complex a, b;
 				inc = 1;
