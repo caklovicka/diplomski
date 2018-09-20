@@ -623,6 +623,13 @@ int main(int argc, char* argv[]){
 				nontrans = 'N';
 				Mk = M - k;
 
+				#pragma omp critical
+				{
+					printf("k = %d, thread = %d\n", k, omp_get_thread_num());
+					printf("K = \n");
+					printMatrix(K, 2, M);
+				}
+
 				// K = T*g
 				alpha = 1;
 				beta = 0;
