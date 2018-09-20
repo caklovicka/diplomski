@@ -631,6 +631,13 @@ int main(int argc, char* argv[]){
 
 				printMatrix(&K[2*(k+2)], 2, N - k - 2);
 
+				// a = T1* g
+				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+				// b = T2* g
+				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				printf("a = %lg + i %lg\n", creal(a), cimag(a));
+				printf("b = %lg + i %lg\n", creal(b), cimag(b));
+
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
 
