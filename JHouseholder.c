@@ -33,7 +33,7 @@
 #define DIGITS DBL_DIG
 #define eps 1e-1
 #define D 64
-#define refresh 50
+#define refresh 30
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -306,18 +306,22 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = (M-k)/D > mkl_get_max_threads()/nthreads ? (M-k)/D : mkl_get_max_threads()/nthreads;
 		if ((M-k)/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
 
-		#pragma omp parallel for reduction(max:pivot_sigma) num_threads( nthreads ) 
-		for(i = k; i < N; ++i){
-
-			if(i == pivot_r) continue;
-
-			double complex Air = 0;
-			int Mk = M-k;
-			int inc = 1;
+		#pragma omp parallel num_threads( nthreads ) 
+		{
 			mkl_set_num_threads_local( mkl_nthreads );
-			zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
 
-			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
+			#pragma omp for reduction(max:pivot_sigma)
+			for(i = k; i < N; ++i){
+
+				if(i == pivot_r) continue;
+
+				double complex Air = 0;
+				int Mk = M-k;
+				int inc = 1;
+				zdotc(&Air, &Mk, &G[k+M*i], &inc, &f[k], &inc);
+
+				if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
+			}
 		}
 		mkl_set_num_threads_local(0);	//return global value
 
@@ -595,24 +599,32 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = Jk
 		double ss = omp_get_wtime();
-		#pragma omp parallel for num_threads( nthreads )
-		for(j = k+2; j < N; ++j){
-
+		#pragma omp parallel num_threads( nthreads )
+		{
 			mkl_set_num_threads_local( mkl_nthreads );
-			// c = T*g
-			alpha = 1;
-			beta = 0;
-			zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+
+			#pragma omp for nowait
+			for(j = k+2; j < N; ++j){
+
+				// c = T*g
+				alpha = 1;
+				beta = 0;
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+			}
 		}
 
-		#pragma omp parallel for num_threads( nthreads )
-		for(j = k+2; j < N; ++j){
-
+		#pragma omp parallel num_threads( nthreads )
+		{
 			mkl_set_num_threads_local( mkl_nthreads );
-			// g = g - 2E c
-			alpha = -2;
-			beta = 1;
-			zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+
+			#pragma omp for nowait
+			for(j = k+2; j < N; ++j){
+
+				// g = g - 2E c
+				alpha = -2;
+				beta = 1;
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+			}
 		}
 
 		mkl_set_num_threads_local(0);
