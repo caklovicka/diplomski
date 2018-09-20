@@ -789,7 +789,6 @@ int main(int argc, char* argv[]){
 	// ----------------------------------------- writing -----------------------------------------
 
 	start = omp_get_wtime();
-	printf("writing...\n");
 
 	FILE *writeG = fopen("data/reducedG.bin", "wb");
 	FILE *writeJ = fopen("data/reducedJ.bin", "wb");
