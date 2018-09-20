@@ -616,6 +616,7 @@ int main(int argc, char* argv[]){
 				alpha = 1;
 				beta = 0;
 				inc = 1;
+				int n = 2;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
 				// g = g - 2E K
