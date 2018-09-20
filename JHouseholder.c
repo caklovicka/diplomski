@@ -647,13 +647,6 @@ int main(int argc, char* argv[]){
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 
-				#pragma omp critical
-				{
-					printf("k = %d, thread = %d\n", k, omp_get_thread_num());
-					printf("K = T*g = \n");
-					printMatrix(K, 2, M);
-				}
-
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
 
