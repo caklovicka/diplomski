@@ -792,6 +792,7 @@ int main(int argc, char* argv[]){
 				double complex alpha;
 				zdotc(&alpha, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				alpha = - 2 * alpha / fJf;
+				printf("alpha = %lg + i %lg\n", creal(alpha), cimag(alpha));
 				// G[k + M*j] = alpha * f[k] + G[k + M*k]
 				zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);
 			}
