@@ -598,6 +598,7 @@ int main(int argc, char* argv[]){
 		// T = Jk
 		//printMatrix(G, M, N);
 		double ss = omp_get_wtime();
+		omp_set_nested();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
@@ -605,7 +606,6 @@ int main(int argc, char* argv[]){
 			#pragma omp parallel for num_threads( 1 )
 			for(j = k+2; j < N; ++j){
 
-				mkl_set_num_threads_local(1);
 
 				/*double complex a, b;
 				inc = 1;
@@ -659,6 +659,7 @@ int main(int argc, char* argv[]){
 				}*/
 			}
 		//}
+		omp_set_nested(1);
 
 		mkl_set_num_threads_local(0);
 		redukcijatime += omp_get_wtime() - ss;
