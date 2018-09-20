@@ -599,28 +599,24 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = Jk
 		double ss = omp_get_wtime();
+		#pragma omp parallel for num_threads( nthreads )
+		for(j = k+2; j < N; ++j){
 
-		#pragma omp parallel num_threads( nthreads )
-		{
 			mkl_set_num_threads_local( mkl_nthreads );
+			// c = T*g
+			alpha = 1;
+			beta = 0;
+			zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+		}
 
-			#pragma omp for nowait
-			for(j = k+2; j < N; ++j){
+		#pragma omp parallel for num_threads( nthreads )
+		for(j = k+2; j < N; ++j){
 
-				// K = T*g
-				alpha = 1;
-				beta = 0;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
-			}
-
-			#pragma omp for nowait
-			for(j = k+2; j < N; ++j){
-
-				// g = g - 2EK
-				alpha = -2;
-				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
-			}
+			mkl_set_num_threads_local( mkl_nthreads );
+			// g = g - 2E c
+			alpha = -2;
+			beta = 1;
+			zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
 		}
 
 		mkl_set_num_threads_local(0);
