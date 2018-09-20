@@ -594,6 +594,7 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = Jk
+		printMatrix(G, M, N);
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
