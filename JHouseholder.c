@@ -66,12 +66,13 @@ int main(int argc, char* argv[]){
 	omp_set_dynamic(0);
 	mkl_set_dynamic(0);
 	omp_set_max_active_levels(2);
-	if(M/D == 0) omp_set_num_threads(1);
-	else omp_set_num_threads(M/D);
 
 	// read variables from command line
 	int M = atoi(argv[3]);
 	int N = atoi(argv[4]);
+
+	if(M/D == 0) omp_set_num_threads(1);
+	else omp_set_num_threads(M/D);
 
 	FILE *readG = fopen(argv[1], "rb");
 	FILE *readJ = fopen(argv[2], "rb");
