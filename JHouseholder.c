@@ -597,7 +597,7 @@ int main(int argc, char* argv[]){
 		{
 			mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp for nowait
+			#pragma omp for
 			for(j = k+2; j < N; ++j){
 
 				/*double complex a, b;
