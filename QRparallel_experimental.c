@@ -31,7 +31,7 @@
 
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define eps 1e-1
+#define eps 0.2
 #define refresh 30
 
 #define D 64
@@ -204,7 +204,7 @@ int main(int argc, char* argv[]){
 						double frac = cabs(norm[j]) / cabs(denomi);
 
 						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) > eps )
 							norm[j] -= denomi;
 
 						// else compute the norm again 
@@ -221,7 +221,7 @@ int main(int argc, char* argv[]){
 						double frac = cabs(norm[j]) / cabs(denomi);
 						
 						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
+						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) > eps)
 							norm[j] -= denomi;
 
 						// else compute the norm again 
