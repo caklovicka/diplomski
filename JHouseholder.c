@@ -625,7 +625,7 @@ int main(int argc, char* argv[]){
 
 				#pragma omp critical
 				{
-					printf("k = %d, thread = %d\n", k, omp_get_thread_num());
+					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
 					printf("K = \n");
 					printMatrix(K, 2, M);
 				}
