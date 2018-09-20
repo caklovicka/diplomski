@@ -598,59 +598,43 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = Jk
-		//printMatrix(G, M, N);
 		double ss = omp_get_wtime();
-		omp_set_nested(0);
-		//#pragma omp parallel num_threads( nthreads )
-		//{
-			//mkl_set_num_threads_local( mkl_nthreads );
+		#pragma omp parallel for num_threads( nthreads )
+		for(j = k+2; j < N; ++j){
 
-			#pragma omp parallel for num_threads( nthreads )
-			for(j = k+2; j < N; ++j){
+			mkl_set_num_threads_local( mkl_nthreads );
+			// c = T*g
+			alpha = 1;
+			beta = 0;
+			zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+		}
+
+		#pragma omp parallel for num_threads( nthreads )
+		for(j = k+2; j < N; ++j){
+
+			mkl_set_num_threads_local( mkl_nthreads );
+			// g = g - 2E c
+			alpha = -2;
+			beta = 1;
+			zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+		}
 
 
-				double complex a, b;
+				/*double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
 				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2* g
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
-				alpha = 1;
-				beta = 0;
-				//zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+				//g = g - 2E [a b]^T				
+				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);*/
 
-				/*#pragma omp critical
-				{
-				if(cabs(K[2*j] - a) > EPSILON) printf("cabs(K[2*j] - a) = %lg\n", cabs(K[2*j]-a));
-				if(cabs(K[2*j+1] - b) > EPSILON) printf("cabs(K[2*j+1] - b) = %lg\n", cabs(K[2*j+1]-b));
-				}*/
-				//zcopy(&M, &G[M*j], &inc, &GG[M*j], &inc);
-				//g = g - 2E [a b]^T
-				alpha = -2;
-				beta = 1;
-				//zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
-				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-
-				/*#pragma omp critical
-				{
-					printf("G = \n");
-					printMatrix(&G[M*j], M, 1);
-					printf("GG(tocno) = \n");
-					printMatrix(&GG[M*j], M, 1);
-				}*/
-				
-				
+			
 				// case when we are in the last column
 
-				/*inc = 1;
-				n = 2;
-				trans = 'C';
-				nontrans = 'N';
-				Mk = M - k;
-
 				// c = T*g
-				alpha = 1;
+				/*alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
@@ -673,8 +657,6 @@ int main(int argc, char* argv[]){
 					beta = 1;
 					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
 				}*/
-			}
-		//}
 		omp_set_nested(1);
 
 		mkl_set_num_threads_local(0);
