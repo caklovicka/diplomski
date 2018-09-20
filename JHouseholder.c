@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *c = (double complex*) mkl_malloc(64*N*sizeof(double complex), 64);	// for the reflector, avoiding false sharing
+	double complex *c = (double complex*) mkl_malloc(64 * omp_get_max_threads() * sizeof(double complex), 64);	// for the reflector, avoiding false sharing
 
 
 	// check if files are opened
@@ -625,15 +625,17 @@ int main(int argc, char* argv[]){
 				nontrans = 'N';
 				Mk = M - k;
 
+				int nt = omp_get_thread_num();
+
 				// c = T*g
 				alpha = 1;
 				beta = 0;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[64*j], &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[64*nt], &inc);
 
 				// g = g - 2E c
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[64*j], &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[64*nt], &inc, &beta, &G[k+M*j], &inc);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
