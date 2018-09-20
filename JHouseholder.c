@@ -184,7 +184,7 @@ int main(int argc, char* argv[]){
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
-		if( k && !( k % refresh == 0 || k % refresh == 1 ) ){	// if we have something to update
+		if( k && !( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
 
 			#pragma omp parallel num_threads( nthreads )
 			{

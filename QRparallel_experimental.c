@@ -190,7 +190,7 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ update J-norms of columns ------------------------
 
-		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
+		if( k && !( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
 
 			#pragma omp parallel num_threads( nthreads )
 			{
