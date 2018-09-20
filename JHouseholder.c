@@ -41,7 +41,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%10.2g + i%10.2g ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%10.3g + i%10.3g ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -739,6 +739,7 @@ int main(int argc, char* argv[]){
 		// save the J norm of the vector
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
+		printf("gkk = %lg + i%lg\n", creal(gkk), cimag(gkk));
 		printf("|gkk|^2*Jk = %lg\n", cabs(gkk)*cabs(gkk)*J[k]);
 		printf("fJf = %lg\n", fJf);
 		double akk = 0;
