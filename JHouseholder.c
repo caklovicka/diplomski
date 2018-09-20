@@ -616,6 +616,8 @@ int main(int argc, char* argv[]){
 				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2* g
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				alpha = 1;
+				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
 				#pragma omp critical
@@ -625,6 +627,8 @@ int main(int argc, char* argv[]){
 				}
 				zcopy(&M, &G[M*j], &inc, &GG[M*j], &inc);
 				//g = g - 2E [a b]^T
+				alpha = -2;
+				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
 				for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
 
