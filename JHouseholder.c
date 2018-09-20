@@ -629,14 +629,14 @@ int main(int argc, char* argv[]){
 				//g = g - 2E [a b]^T
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &GG[k+M*j], &inc);
-				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+				for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
 
 				#pragma omp critical
 				{
-					printf("G (tocno) = \n");
+					printf("G = \n");
 					printMatrix(&G[M*j], M, 1);
-					printf("GG = \n");
+					printf("GG(tocno) = \n");
 					printMatrix(&GG[M*j], M, 1);
 				}
 				
