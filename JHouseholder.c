@@ -41,7 +41,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%15.10g + i%15.10g  ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%10.2g + i%10.2g ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
@@ -741,6 +741,9 @@ int main(int argc, char* argv[]){
 
 		printf("|gkk|^2*Jk = %lg\n", cabs(gkk)*cabs(gkk)*J[k]);
 		printf("fJf = %lg\n", fJf);
+		double akk = 0;
+		for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
+		printf("Akk = %lg, akk = %lg\n", Akk, akk);
 
 
 		// make the reflector vector and save it
