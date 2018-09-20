@@ -599,65 +599,29 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = Jk
 		double ss = omp_get_wtime();
-		#pragma omp parallel for num_threads( nthreads )
-		for(j = k+2; j < N; ++j){
 
+		#pragma omp parallel num_threads( nthreads )
+		{
 			mkl_set_num_threads_local( mkl_nthreads );
-			// c = T*g
-			alpha = 1;
-			beta = 0;
-			zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
-		}
 
-		#pragma omp parallel for num_threads( nthreads )
-		for(j = k+2; j < N; ++j){
+			#pragma omp for nowait
+			for(j = k+2; j < N; ++j){
 
-			mkl_set_num_threads_local( mkl_nthreads );
-			// g = g - 2E c
-			alpha = -2;
-			beta = 1;
-			zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
-		}
-
-
-				/*double complex a, b;
-				inc = 1;
-				Mk = M - k;
-				// a = T1* g
-				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
-				// b = T2* g
-				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
-				//g = g - 2E [a b]^T				
-				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);*/
-
-			
-				// case when we are in the last column
-
-				// c = T*g
-				/*alpha = 1;
+				// K = T*g
+				alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+			}
 
-				// g = g - 2E c
+			#pragma omp for nowait
+			for(j = k+2; j < N; ++j){
+
+				// g = g - 2EK
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
-
-
-				// case when we have 2 columns of G to work with
-				/*if(0){//j != N-1
-
-					// CC  = T*G
-					alpha = 1;
-					beta = 0;
-					zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &T[k], &M, &G[k+M*j], &M, &beta, C, &n);
-
-					// G = G - 2E CC
-					alpha = -2;
-					beta = 1;
-					zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &E[k], &M, C, &n, &beta, &G[k+M*j], &M);
-				}*/
-		omp_set_nested(1);
+			}
+		}
 
 		mkl_set_num_threads_local(0);
 		redukcijatime += omp_get_wtime() - ss;
