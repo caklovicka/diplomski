@@ -27,11 +27,9 @@
 #include <mkl.h>
 #include <mkl_types.h>
 
-
-
 #define EPSILON DBL_EPSILON
 #define DIGITS DBL_DIG
-#define eps 1e-1
+#define eps 0.2
 #define D 64
 #define refresh 30
 
@@ -183,7 +181,10 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ update J-norms of columns ------------------------
 
-		if( k && ( k % refresh == 0 || (k % refresh == 1 && last_pivot == 2) ) ){	// if we have something to update
+		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
+		if ((N-k)/D == 0) nthreads = 1;
+
+		if( k && !( k % refresh == 0 || k % refresh == 1 ) ){	// if we have something to update
 
 			#pragma omp parallel num_threads( nthreads )
 			{
@@ -196,8 +197,8 @@ int main(int argc, char* argv[]){
 						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j];
 						double frac = cabs(norm[j]) / cabs(denomi);
 
-						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps )
+						// stable to update the norm
+						if( cabs(frac - 1) > eps )
 							norm[j] -= denomi;
 
 						// else compute the norm again 
@@ -213,8 +214,8 @@ int main(int argc, char* argv[]){
 						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 						double frac = cabs(norm[j]) / cabs(denomi);
 						
-						// not a case of catastrophic cancellation
-						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) < eps)
+						// stable to update the norm
+						if( cabs(frac - 1) > eps)
 							norm[j] -= denomi;
 
 						// else compute the norm again 
