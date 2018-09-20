@@ -41,7 +41,7 @@ void printMatrix(double complex *G, int M, int N){
 	int i, j;
 	for( i = 0; i < M; ++i ){
 		for( j = 0; j < N; ++j ){
-			printf("%5g + i%5g ", creal(G[i+M*j]), cimag(G[i+M*j]));
+			printf("%8.2g + i%8.2g ", creal(G[i+M*j]), cimag(G[i+M*j]));
 		}
 		printf("\n");
 	}
