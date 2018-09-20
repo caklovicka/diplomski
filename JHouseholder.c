@@ -593,8 +593,7 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
-		for(i = 2*(k+2); i < 2*N; ++i) K[i] = 0;
-		printMatrix(&K[2*(k+2)], 2, N - k - 2);
+		
 		inc = 1;
 		n = 2;
 		trans = 'C';
@@ -640,6 +639,12 @@ int main(int argc, char* argv[]){
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
+				printf("sto smo mi dobili za G = \n");
+				printMatrix(&G[k+M*j], Mk, 1);
+
+				for(i = k; i < M; ++i) K[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
+				printf("sto treba biti na mjestu G, manual = \n")
+				printMatrix(&K[k+M*j], Mk, 1);
 
 
 				// case when we have 2 columns of G to work with
