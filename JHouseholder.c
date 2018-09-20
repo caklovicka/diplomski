@@ -180,6 +180,8 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
+		if(k == 1) break;
+
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
@@ -671,9 +673,8 @@ int main(int argc, char* argv[]){
 	
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
 
-		printf("PIVOT_1 k = %d\n", k);
-
 		PIVOT_1:
+		printf("PIVOT_1 k = %d\n", k);
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
