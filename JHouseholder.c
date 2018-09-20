@@ -613,17 +613,16 @@ int main(int argc, char* argv[]){
 				*/
 				// case when we are in the last column
 					
-				int nt = omp_get_thread_num();
 				// c = T*g
 				alpha = 1;
 				beta = 0;
 				inc = 1;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[2*nt], &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[2*j], &inc);
 
 				// g = g - 2E c
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[2*nt], &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[2*j], &inc, &beta, &G[k+M*j], &inc);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
