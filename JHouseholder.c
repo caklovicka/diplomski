@@ -640,7 +640,7 @@ int main(int argc, char* argv[]){
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[4*j], &inc, &beta, &c[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[4*j], &inc, &beta, &G[k+M*j], &inc);
 			
 				/*#pragma omp critical
 				{
