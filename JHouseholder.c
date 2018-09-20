@@ -606,7 +606,7 @@ int main(int argc, char* argv[]){
 
 				mkl_set_num_threads_local(1);
 
-				/*double complex a, b;
+				double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
@@ -615,22 +615,15 @@ int main(int argc, char* argv[]){
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				*/
+				
 				
 				// case when we are in the last column
 
-				inc = 1;
+				/*inc = 1;
 				n = 2;
 				trans = 'C';
 				nontrans = 'N';
 				Mk = M - k;
-
-				/*#pragma omp critical
-				{
-					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
-					printf("K = \n");
-					printMatrix(K, 2, M);
-				}*/
 
 				// c = T*g
 				alpha = 1;
@@ -641,14 +634,6 @@ int main(int argc, char* argv[]){
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[8*j], &inc, &beta, &G[k+M*j], &inc);
-			
-				/*#pragma omp critical
-				{
-					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
-					printf("K = T*g = \n");
-					printMatrix(K, 2, M);
-					printMatrix(&K[2*j], 2, 1);
-				}*/
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
@@ -665,7 +650,6 @@ int main(int argc, char* argv[]){
 				}*/
 			}
 		//}
-		//printMatrix(G, M, N);
 
 		printMatrix(K, 2, M);
 		mkl_set_num_threads_local(0);
