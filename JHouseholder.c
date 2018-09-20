@@ -595,6 +595,10 @@ int main(int argc, char* argv[]){
 
 		for(i = 2*(k+2); i < 2*N; ++i) K[i] = 0;
 		printMatrix(&K[2*(k+2)], 2, N - k - 2);
+		inc = 1;
+		n = 2;
+		trans = 'C';
+		nontrans = 'N';
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
@@ -620,8 +624,6 @@ int main(int argc, char* argv[]){
 				// K = T*g
 				alpha = 1;
 				beta = 0;
-				inc = 1;
-				n = 2;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
 				// g = g - 2E K
