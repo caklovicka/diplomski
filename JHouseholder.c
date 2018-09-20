@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *c = (double complex*) mkl_malloc(2 * omp_get_max_threads() * sizeof(double complex), 64);	// temporary matrix
+	double complex *c = (double complex*) mkl_malloc(2 * N * sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
