@@ -605,7 +605,7 @@ int main(int argc, char* argv[]){
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( 2 )
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k+2; j < N; ++j){
 
 
@@ -629,7 +629,7 @@ int main(int argc, char* argv[]){
 				//g = g - 2E [a b]^T
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 				//for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
 
 				/*#pragma omp critical
