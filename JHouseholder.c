@@ -351,6 +351,8 @@ int main(int argc, char* argv[]){
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
+		printf("PIVOT_2 k = %d\n", k);
+
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
@@ -593,7 +595,6 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
-		break;
 		
 		inc = 1;
 		n = 2;
@@ -669,6 +670,8 @@ int main(int argc, char* argv[]){
 		goto LOOP_END;
 	
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
+
+		printf("PIVOT_1 k = %d\n", k);
 
 		PIVOT_1:
 
