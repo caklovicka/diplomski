@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex c[2];
+	double complex *c = (double complex*) mkl_malloc(2 * omp_get_max_threads() * sizeof(double complex), 64);	// temporary matrix
 
 
 	// check if files are opened
@@ -601,7 +601,7 @@ int main(int argc, char* argv[]){
 			#pragma omp for nowait
 			for(j = k+2; j < N; ++j){
 
-				double complex a, b;
+				/*double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
@@ -610,19 +610,20 @@ int main(int argc, char* argv[]){
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				
+				*/
 				// case when we are in the last column
 					
+				int nt = omp_get_thread_num();
 				// c = T*g
-				/*alpha = 1;
+				alpha = 1;
 				beta = 0;
 				inc = 1;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, c, &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[2*nt], &inc);
 
 				// g = g - 2E c
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, c, &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &c[2*nt], &inc, &beta, &G[k+M*j], &inc);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
