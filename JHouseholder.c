@@ -599,11 +599,11 @@ int main(int argc, char* argv[]){
 		trans = 'C';
 		nontrans = 'N';
 		double ss = omp_get_wtime();
-		//#pragma omp parallel num_threads( nthreads )
-		//{
-			//mkl_set_num_threads_local( mkl_nthreads );
+		#pragma omp parallel num_threads( nthreads )
+		{
+			mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( nthreads )
+			#pragma omp for nowait
 			for(j = k+2; j < N; ++j){
 
 				//mkl_set_num_threads_local(1);
