@@ -636,6 +636,8 @@ int main(int argc, char* argv[]){
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, c, &inc, &beta, &G[k+M*j], &inc);
 
+				free(c);
+
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
 
