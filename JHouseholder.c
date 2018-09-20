@@ -180,6 +180,8 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){
 
+		printf("size = %d\n", sizeof(double complex));
+
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
@@ -636,13 +638,11 @@ int main(int argc, char* argv[]){
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
-				#pragma omp barrier
-				{
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
-				}
+			
 				/*#pragma omp critical
 				{
 					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
