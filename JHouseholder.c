@@ -608,7 +608,7 @@ int main(int argc, char* argv[]){
 
 				//mkl_set_num_threads_local(1);
 
-				double complex a, b;
+				/*double complex a, b;
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
@@ -617,32 +617,18 @@ int main(int argc, char* argv[]){
 				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				//g = g - 2E [a b]^T
 				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				
+				*/
 				// case when we are in the last column
 
-				/*double complex a, b;
-				// a = T1* g
-				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
-				// b = T2* g
-				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
-				printf("a = %lg + i %lg\n", creal(a), cimag(a));
-				printf("b = %lg + i %lg\n", creal(b), cimag(b));
-					
 				// K = T*g
 				alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
-				printMatrix(&K[2*j], 2, 1);
-
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
-				//zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
-				//printf("sto smo mi dobili za G = \n");
-				//printMatrix(&G[k+M*j], Mk, 1);
-
-				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*K[2*j] + E[i+M]*K[2*j+1]);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
