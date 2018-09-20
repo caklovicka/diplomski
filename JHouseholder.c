@@ -613,12 +613,12 @@ int main(int argc, char* argv[]){
 				inc = 1;
 				Mk = M - k;
 				// a = T1* g
-				//zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+				zdotc(&a, &Mk, &T[k], &inc, &G[k+M*j], &inc);
 				// b = T2* g
-				//zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
+				zdotc(&b, &Mk, &T[k+M], &inc, &G[k+M*j], &inc);
 				alpha = 1;
 				beta = 0;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+				//zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
 				/*#pragma omp critical
 				{
@@ -629,8 +629,8 @@ int main(int argc, char* argv[]){
 				//g = g - 2E [a b]^T
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
-				//for(i = k; i < M; ++i) GG[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
+				//zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
+				for(i = k; i < M; ++i) G[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
 
 				/*#pragma omp critical
 				{
