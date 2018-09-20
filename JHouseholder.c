@@ -593,7 +593,7 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
-		for(i = 2*(k+2); i < N; ++i) K[i] = 0;
+		for(i = 2*(k+2); i < 2*N; ++i) K[i] = 0;
 		printMatrix(&K[2*(k+2)], 2, N - k - 2);
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
