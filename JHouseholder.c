@@ -631,9 +631,9 @@ int main(int argc, char* argv[]){
 				#pragma omp critical
 				{
 					printf("G = \n");
-					printMatrix(G, M, 2);
+					printMatrix(&G[M*j], M, 1);
 					printf("GG (tocno) = \n");
-					printMatrix(GG, M, 2);
+					printMatrix(&GG[M*j], M, 1);
 				}
 				
 				
