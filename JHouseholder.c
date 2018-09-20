@@ -66,6 +66,8 @@ int main(int argc, char* argv[]){
 	omp_set_dynamic(0);
 	mkl_set_dynamic(0);
 	omp_set_max_active_levels(2);
+	if(M/D == 0) omp_set_num_threads(1)
+	else omp_set_num_threads(M/D);
 
 	// read variables from command line
 	int M = atoi(argv[3]);
@@ -599,7 +601,7 @@ int main(int argc, char* argv[]){
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( 3 ) shared(G, T, E)
+			#pragma omp parallel for num_threads( 3 )
 			for(j = k+2; j < N; ++j){
 
 				mkl_set_num_threads_local(1);
@@ -624,19 +626,16 @@ int main(int argc, char* argv[]){
 				nontrans = 'N';
 				Mk = M - k;
 
-				double complex c[2];
-
 				// c = T*g
 				alpha = 1;
 				beta = 0;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, c, &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
 				// g = g - 2E c
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, c, &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
 
-				free(c);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
