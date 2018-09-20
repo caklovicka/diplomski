@@ -606,7 +606,7 @@ int main(int argc, char* argv[]){
 			#pragma omp parallel for num_threads( nthreads )
 			for(j = k+2; j < N; ++j){
 
-				mkl_set_num_threads_local(mkl_nthreads);
+				mkl_set_num_threads_local(1);
 
 				/*double complex a, b;
 				inc = 1;
