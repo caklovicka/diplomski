@@ -594,7 +594,7 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = Jk
-		//printMatrix(G, M, N);
+		printMatrix(G, M, N);
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
@@ -624,30 +624,36 @@ int main(int argc, char* argv[]){
 				nontrans = 'N';
 				Mk = M - k;
 
-				/*#pragma omp critical
+				#pragma omp critical
 				{
 					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
 					printf("K = \n");
 					printMatrix(K, 2, M);
-				}*/
+				}
 
 				// K = T*g
 				alpha = 1;
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
-				/*#pragma omp critical
+				#pragma omp critical
 				{
 					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
 					printf("K = T*g = \n");
 					printMatrix(K, 2, M);
 					printMatrix(&G[k+M*j], Mk, 1);
-				}*/
+				}
 
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
+
+				#pragma omp critical
+				{
+					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
+					printMatrix(&G[k+M*j], Mk, 1);
+				}
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
@@ -664,7 +670,7 @@ int main(int argc, char* argv[]){
 				}*/
 			}
 		//}
-		//printMatrix(G, M, N);
+		printMatrix(G, M, N);
 		mkl_set_num_threads_local(0);
 		redukcijatime += omp_get_wtime() - ss;
 
