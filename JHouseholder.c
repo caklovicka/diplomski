@@ -592,12 +592,14 @@ int main(int argc, char* argv[]){
 
 		// E = K(K*JK)^+
 		// T = JK
+
+		for(i = k+2; i < N, ++i) K[i] = 0;
 		double ss = omp_get_wtime();
 		//#pragma omp parallel num_threads( nthreads )
 		//{
 			//mkl_set_num_threads_local( mkl_nthreads );
 
-			#pragma omp parallel for num_threads( nthreads ) shared(G, T, E, K)
+			#pragma omp parallel for num_threads( nthreads )
 			for(j = k+2; j < N; ++j){
 
 				mkl_set_num_threads_local(1);
@@ -618,13 +620,15 @@ int main(int argc, char* argv[]){
 				alpha = 1;
 				beta = 0;
 				inc = 1;
-				int n = 2;
+				n = 2;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
 				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
+
+				printMatrix(&K[2*(k+2)], 2, M - k - 2);
 
 				// case when we have 2 columns of G to work with
 				/*if(0){//j != N-1
