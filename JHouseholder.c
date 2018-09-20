@@ -643,7 +643,7 @@ int main(int argc, char* argv[]){
 				printMatrix(&G[k+M*j], Mk, 1);
 
 				for(i = k; i < M; ++i) K[i+M*j] -= 2 * (E[i]*a + E[i+M]*b);
-				printf("sto treba biti na mjestu G, manual = \n")
+				printf("sto treba biti na mjestu G, manual = \n");
 				printMatrix(&K[k+M*j], Mk, 1);
 
 
