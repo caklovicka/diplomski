@@ -91,6 +91,7 @@ int main(int argc, char* argv[]){
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
 	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
+	double complex *c = (double complex*) mkl_malloc(4*N*sizeof(double complex), 64);	// for the reflector, avoiding false sharing
 
 
 	// check if files are opened
@@ -179,8 +180,6 @@ int main(int argc, char* argv[]){
 
 
 	for(k = 0; k < N; ++k){
-
-		printf("size = %d\n", sizeof(double complex));
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
@@ -636,12 +635,12 @@ int main(int argc, char* argv[]){
 				// K = T*g
 				alpha = 1;
 				beta = 0;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &c[4*j], &inc);
 
 				// g = g - 2E K
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[4*j], &inc, &beta, &c[k+M*j], &inc);
 			
 				/*#pragma omp critical
 				{
