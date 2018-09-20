@@ -640,7 +640,7 @@ int main(int argc, char* argv[]){
 				{
 					printf("k = %d, j = %d, thread = %d\n", k, j, omp_get_thread_num());
 					printf("K = T*g = \n");
-					printMatrix(&K[2*j], 2, 1);
+					printMatrix(K, 2, M);
 					printMatrix(&G[k+M*j], Mk, 1);
 				}
 
