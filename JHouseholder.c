@@ -739,6 +739,9 @@ int main(int argc, char* argv[]){
 		// save the J norm of the vector
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
+		printf("|gkk|^2*Jk = %lg\n", cabs(gkk)*cabs(gkk)*J[k]);
+		printf("fJf = %lg\n", fJf);
+
 
 		// make the reflector vector and save it
 		alpha = -1;
@@ -752,7 +755,7 @@ int main(int argc, char* argv[]){
 		f[k] -= gkk;
 
 		// update G
-		G[k + M*k] = gkk;
+		//G[k + M*k] = gkk;
 
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
@@ -760,7 +763,7 @@ int main(int argc, char* argv[]){
 		T[k] = J[k] * f[k];
 		#pragma omp parallel for num_threads(nthreads)
 		for(i = k+1; i < M; ++i){
-			G[i + M*k] = 0;
+			//G[i + M*k] = 0;
 			T[i] = J[i] * f[i];
 		}
 
@@ -776,7 +779,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads_local(mkl_nthreads);
 
 			#pragma omp for nowait
-			for(j = k+1; j < N; ++j){
+			for(j = k; j < N; ++j){
 
 				// T = Jf
 				// alpha = f*Jg
@@ -790,6 +793,8 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
+
+		printMatrix(G, M, N);
 
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
