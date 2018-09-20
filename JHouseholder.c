@@ -620,8 +620,8 @@ int main(int argc, char* argv[]){
 
 				#pragma omp critical
 				{
-				if(cabs(K[2*j] - a) > EPSILON) printf("cabs(K[2*j] - a) = %lg", cabs(K[2*j]-a));
-				if(cabs(K[2*j+1] - b) > EPSILON) printf("cabs(K[2*j+1] - b) = %lg", cabs(K[2*j+1]-b));
+				if(cabs(K[2*j] - a) > EPSILON) printf("cabs(K[2*j] - a) = %lg\n", cabs(K[2*j]-a));
+				if(cabs(K[2*j+1] - b) > EPSILON) printf("cabs(K[2*j+1] - b) = %lg\n", cabs(K[2*j+1]-b));
 				}
 				zcopy(&Mk, &G[k+M*j], &inc, &GG[k+M*j], &inc);
 				//g = g - 2E [a b]^T
