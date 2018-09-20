@@ -593,6 +593,7 @@ int main(int argc, char* argv[]){
 		// E = K(K*JK)^+
 		// T = JK
 
+		break;
 		
 		inc = 1;
 		n = 2;
