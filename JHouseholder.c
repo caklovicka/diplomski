@@ -628,10 +628,9 @@ int main(int argc, char* argv[]){
 				beta = 0;
 				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 
-				printf("k = %d, thread = %d\n", k, omp_get_thread_num());
-
 				#pragma omp critical
 				{
+					printf("k = %d, thread = %d\n", k, omp_get_thread_num());
 					printf("K = T*g = \n");
 					printMatrix(K, 2, M);
 				}
@@ -643,6 +642,7 @@ int main(int argc, char* argv[]){
 
 				#pragma omp critical
 				{
+					printf("k = %d, thread = %d\n", k, omp_get_thread_num());
 					printf("K = T*g = \n");
 					printMatrix(K, 2, M);
 				}
