@@ -103,7 +103,7 @@ int main(int argc, char* argv[]){
 
 	// check if memory is allocated
 
-	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || H == NULL || f == NULL || p == NULL || n == NULL || norm == NULL){
+	if(G == NULL || J == NULL || Pcol == NULL || Prow == NULL || T == NULL || f == NULL || p == NULL || n == NULL || norm == NULL){
 		printf("Cannot allocate memory.\n");
 		exit(-2);
 	}
@@ -1548,9 +1548,7 @@ int main(int argc, char* argv[]){
 	mkl_free(G);
 	mkl_free(J);
 	mkl_free(T);
-	mkl_free(H);
 	mkl_free(f);
-	mkl_free(tempf);
 	mkl_free(U);
 	mkl_free(p);
 	mkl_free(n);
