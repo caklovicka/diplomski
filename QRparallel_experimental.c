@@ -83,7 +83,7 @@ int main(int argc, char* argv[]){
 	double complex *G = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	//double complex *H = (double complex*) mkl_malloc(M*M*sizeof(double complex), 64);	// reflector
-	double complex *T = (double complex*) mkl_malloc(2*N*sizeof(double complex), 64);	// temporary matrix
+	double complex *T = (double complex*) mkl_malloc(4*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *U = (double complex*) mkl_malloc(16*sizeof(double complex), 64);	// matrix of rotatoins
 	int *p = (int*) mkl_malloc(M*sizeof(int), 64);	// for location of +1 in J for givens reduction
 	int *n = (int*) mkl_malloc(M*sizeof(int), 64);  // for location of -1 in J for givens reduction
