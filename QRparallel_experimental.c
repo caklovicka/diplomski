@@ -170,6 +170,8 @@ int main(int argc, char* argv[]){
 
 	// first compute J-norms of matrix G
 
+	printf("poceo racunati norme...\n");
+
 	nthreads = N/D > omp_get_max_threads() ? N/D : omp_get_max_threads();
 	if (N/D == 0) nthreads = 1;
 	double norm_time = omp_get_wtime();
@@ -1552,6 +1554,7 @@ int main(int argc, char* argv[]){
 	mkl_free(U);
 	mkl_free(p);
 	mkl_free(n);
+	mkl_free(norm);
 
 	//printf("\nFinished.\n");
 	printf("\n-------------------------------------------------------------------------------\n\n");
