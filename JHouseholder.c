@@ -633,13 +633,11 @@ int main(int argc, char* argv[]){
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
 
-		// C = C^(-1) = (K*JK)^+
-		double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
-
+		// C = C^(-1) = (K*JK)^+ 
 		mkl_set_num_threads(1);
 		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of K*JK unstable. Proceeding.\n");
-		zgetri(&n, C, &n, ipiv, work, &lwork, &info);	// safe to put first 2 places of T here
+		zgetri(&n, C, &n, ipiv, work, &lwork, &info);
 		if( info ) printf("(K*JK)^+ unstable. Proceeding.\n");
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
@@ -663,7 +661,7 @@ int main(int argc, char* argv[]){
 		for(i = 0; i < 2*M; ++i) K[i] = 0;
 
 		// E = K(K*JK)^+
-		// T = Jk
+		// T = JK
 		double ss = omp_get_wtime();
 		#pragma omp parallel num_threads( nthreads )
 		{
