@@ -518,6 +518,24 @@ int main(int argc, char* argv[]){
 		zgesv(&n, &n, T, &n, ipiv, &G[k+M*k], &M, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
 
+
+
+
+
+
+		// E = F
+		E[0] = G[k+M*k];
+		E[1] = G[k+1+M*k];
+		E[2] = G[k+M*(k+1)];
+		E[3] = G[k+1+(k+1)*M];
+
+
+
+
+
+
+
+
 		// copy columns of G into K
 		Mk = M-k-2;
 		inc = 1;
@@ -531,6 +549,56 @@ int main(int argc, char* argv[]){
 			else zcopy(&Mk, &G[k+2+M*(k+1)], &inc, &K[k+2+M], &inc);
 		}
 		mkl_set_num_threads_local(0);
+
+
+
+
+
+
+
+
+		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
+		T[1] = conj(E[2])*J[k]*E[0] + conj(E[2])*J[k+1]*E[1];
+		T[2] = conj(E[0])*J[k]*E[2] + conj(E[1])*J[k+1]*E[2];
+		T[3] = conj(E[2])*J[k]*E[2] + conj(E[3])*J[k+1]*E[3];
+		double d1 = cabs(Akk - T[0]);
+		double d2 = cabs(conj(Akr)-T[1]);
+		double d3 = cabs(Akr - T[2]);
+		double d4 = cabs(Arr - T[3]);
+		printf("|A2 - F*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
+
+		// C = old G1
+		C[0] = K[k];
+		C[1] = K[k+1];
+		C[2] = K[k+M];
+		C[3] = K[k+1+M];
+
+		// T = G1*JF
+		T[0] = conj(C[0])*J[k]*E[0] + conj(C[1])*J[k+1]*E[1];
+		T[1] = conj(C[2])*J[k]*E[0] + conj(C[2])*J[k+1]*E[1];
+		T[2] = conj(C[0])*J[k]*E[2] + conj(C[1])*J[k+1]*E[2];
+		T[3] = conj(C[2])*J[k]*E[2] + conj(C[3])*J[k+1]*E[3];
+
+		// f = F*JG1
+		f[0] = conj(E[0])*J[k]*C[0] + conj(E[1])*J[k+1]*C[1];
+		f[1] = conj(E[2])*J[k]*C[0] + conj(E[2])*J[k+1]*C[1];
+		f[2] = conj(E[0])*J[k]*C[2] + conj(E[1])*J[k+1]*C[2];
+		f[3] = conj(E[2])*J[k]*C[2] + conj(E[3])*J[k+1]*C[3];
+		d1 = cabs(f[0] - T[0]);
+		d2 = cabs(f[1]-T[1]);
+		d3 = cabs(f[2] - T[2]);
+		d4 = cabs(f[3] - T[3]);
+		printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
+
+
+
+
+
+
+
+
+
+
 
 		// K = the difference operator for the J Householder
 		K[k] -= G[k+M*k];
