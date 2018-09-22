@@ -556,7 +556,7 @@ int main(int argc, char* argv[]){
 
 
 
-
+		printf("k = %d\n", k);
 		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
 		T[1] = conj(E[2])*J[k]*E[0] + conj(E[3])*J[k+1]*E[1];
 		T[2] = conj(E[0])*J[k]*E[2] + conj(E[1])*J[k+1]*E[3];
