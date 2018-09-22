@@ -558,8 +558,8 @@ int main(int argc, char* argv[]){
 
 
 		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
-		T[1] = conj(E[2])*J[k]*E[0] + conj(E[2])*J[k+1]*E[1];
-		T[2] = conj(E[0])*J[k]*E[2] + conj(E[1])*J[k+1]*E[2];
+		T[1] = conj(E[2])*J[k]*E[0] + conj(E[3])*J[k+1]*E[1];
+		T[2] = conj(E[0])*J[k]*E[2] + conj(E[1])*J[k+1]*E[3];
 		T[3] = conj(E[2])*J[k]*E[2] + conj(E[3])*J[k+1]*E[3];
 		double d1 = cabs(Akk - T[0]);
 		double d2 = cabs(conj(Akr)-T[1]);
@@ -575,17 +575,17 @@ int main(int argc, char* argv[]){
 
 		// T = G1*JF
 		T[0] = conj(C[0])*J[k]*E[0] + conj(C[1])*J[k+1]*E[1];
-		T[1] = conj(C[2])*J[k]*E[0] + conj(C[2])*J[k+1]*E[1];
-		T[2] = conj(C[0])*J[k]*E[2] + conj(C[1])*J[k+1]*E[2];
+		T[1] = conj(C[2])*J[k]*E[0] + conj(C[3])*J[k+1]*E[1];
+		T[2] = conj(C[0])*J[k]*E[2] + conj(C[1])*J[k+1]*E[3];
 		T[3] = conj(C[2])*J[k]*E[2] + conj(C[3])*J[k+1]*E[3];
 
 		// f = F*JG1
 		f[0] = conj(E[0])*J[k]*C[0] + conj(E[1])*J[k+1]*C[1];
-		f[1] = conj(E[2])*J[k]*C[0] + conj(E[2])*J[k+1]*C[1];
-		f[2] = conj(E[0])*J[k]*C[2] + conj(E[1])*J[k+1]*C[2];
+		f[1] = conj(E[2])*J[k]*C[0] + conj(E[3])*J[k+1]*C[1];
+		f[2] = conj(E[0])*J[k]*C[2] + conj(E[1])*J[k+1]*C[3];
 		f[3] = conj(E[2])*J[k]*C[2] + conj(E[3])*J[k+1]*C[3];
 		d1 = cabs(f[0] - T[0]);
-		d2 = cabs(f[1]-T[1]);
+		d2 = cabs(f[1] - T[1]);
 		d3 = cabs(f[2] - T[2]);
 		d4 = cabs(f[3] - T[3]);
 		printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
