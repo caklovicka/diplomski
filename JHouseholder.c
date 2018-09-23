@@ -518,6 +518,48 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
+		// fix the sqrt with an iterative method
+
+		double sqrt_err, sqrt_eps = 1e-12;
+		int m = 4;
+		inc = 1;
+		n = 2;
+		lwork = 4;
+		alpha = 0.5;
+		beta = 0.5;
+
+		//E = T^2 - K
+		E[0] = conj(T[0])*J[k]*T[0] + conj(T[1])*J[k+1]*T[1] - K[0];
+		E[1] = conj(T[2])*J[k]*T[0] + conj(T[3])*J[k+1]*T[1] - K[1];
+		E[2] = conj(T[0])*J[k]*T[2] + conj(T[1])*J[k+1]*T[3] - K[2];
+		E[3] = conj(T[2])*J[k]*T[2] + conj(T[3])*J[k+1]*T[3] - K[3]; 
+		sqrt_err = dznrm(&m, E, &inc);
+		mkl_set_num_threads(1);
+		while(sqrt_err > sqrt_eps){
+
+			// C = T
+			zcopy(&m, T, &inc, C, &inc);
+
+			// C = C^(-1)
+			zgetrf(&n, &n, T, &n, ipiv, &info);
+			if( info ) printf("LU of sqrt unstable. Proceeding.\n"); 
+			zgetri(&n, T, &n, ipiv, work, &lwork, &info);
+			if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
+
+			// do the iteration
+			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, K, &n, &beta, T, &n);
+
+			// compute err again
+
+			E[0] = conj(T[0])*J[k]*T[0] + conj(T[1])*J[k+1]*T[1] - K[0];
+			E[1] = conj(T[2])*J[k]*T[0] + conj(T[3])*J[k+1]*T[1] - K[1];
+			E[2] = conj(T[0])*J[k]*T[2] + conj(T[1])*J[k+1]*T[3] - K[2];
+			E[3] = conj(T[2])*J[k]*T[2] + conj(T[3])*J[k+1]*T[3] - K[3]; 
+			sqrt_err = dznrm(&m, E, &inc);
+			printf("sqrt_err = %lg\n", sqrt_err);
+		}
+
+
 		// find F1, store it into G
 		n = 2;
 		K[k] = G[k+M*k];
@@ -527,7 +569,6 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgesv(&n, &n, T, &n, ipiv, &G[k+M*k], &M, &info);
 		if(info) printf("Finding F1 in sistem solving unstable. Proceeding.\n");
-
 
 
 
