@@ -535,7 +535,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		double sqrt_err, sqrt_eps = 1e-15;
+		double sqrt_err, sqrt_eps = 1e-16;
 		int m = 4;
 		inc = 1;
 		n = 2;
@@ -577,10 +577,10 @@ int main(int argc, char* argv[]){
 			// Newton will not work, copy back old iteration
 			if(sqrt_err < dznrm2(&m, E, &inc)){
 				zcopy(&m, f, &inc, T, &inc);
+				printf("newton ne kvg\n");
 				break;
 			}
 			else sqrt_err = dznrm2(&m, E, &inc);
-			printf("sqrt_err = %lg\n", sqrt_err);
 		}
 
 		errk += sqrt_err;
