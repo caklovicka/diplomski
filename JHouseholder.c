@@ -535,7 +535,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		double sqrt_err, sqrt_eps = 1e-12;
+		double sqrt_err, sqrt_eps = 1e-15;
 		int m = 4;
 		inc = 1;
 		n = 2;
