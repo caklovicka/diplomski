@@ -413,7 +413,7 @@ int main(int argc, char* argv[]){
 
 		int idx = -1;
 		double max_denomi = -1;
-		#pragma omp parallel for num_threads( nthreads )
+		//#pragma omp parallel for num_threads( nthreads )
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
@@ -432,7 +432,7 @@ int main(int argc, char* argv[]){
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			#pragma omp critical
+			//#pragma omp critical
 			if(trace + 2 * creal(csqrt(det)) > max_denomi ){
 				idx = i;
 				max_denomi = trace + 2 * creal(csqrt(det));
