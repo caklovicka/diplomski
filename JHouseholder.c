@@ -158,6 +158,7 @@ int main(int argc, char* argv[]){
 	int pivot_2_count = 0;
 	int last_pivot = -1;
 	double err1 = 0, err2 = 0, err0 = 0, errk = 0;
+	double max1 = 0, max2 = 0, max0 = 0, maxk = 0;
 	start = omp_get_wtime();
 
 	int i, j, k, nthreads, mkl_nthreads;
@@ -569,6 +570,7 @@ int main(int argc, char* argv[]){
 		}
 
 		errk += sqrt_err;
+		if(maxk < errk) maxk = errk;
 
 
 		// find F1, store it into G
@@ -629,6 +631,7 @@ int main(int argc, char* argv[]){
 		double d4 = cabs(Arr - T[3]);
 		//printf("|A2 - F*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err2 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
+		if(max2 < err2) max2 = err2;
 
 		// C = old G1
 		C[0] = K[k];
@@ -653,6 +656,7 @@ int main(int argc, char* argv[]){
 		d4 = cabs(f[3] - T[3]);
 		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
+		if(max1 < err1) max1 = err1;
 
 
 
@@ -844,6 +848,7 @@ int main(int argc, char* argv[]){
 		G[k + M*k] = gkk;
 		//printf("k = %d\n|Akk - gkk| = %lg\n", k, cabs(Akk - conj(gkk)*J[k]*gkk) );
 		err0 += cabs(Akk - conj(gkk)*J[k]*gkk);
+		if(max0 < err0) max0 = err0;
 
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
@@ -895,10 +900,10 @@ int main(int argc, char* argv[]){
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
 	printf("PIVOT_2 reflektor time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
-	printf("prosjecna greska |A2-F*JF| = %lg\n", err2/pivot_2_count);
-	printf("prosjecna greska |F*JG-G*JF| = %lg\n", err1/pivot_2_count);
-	printf("prosjecna greska |T^2 - K| = %lg\n", errk/pivot_2_count);
-	printf("prosjecna greska |Akk - gkk| = %lg\n", err0/pivot_1_count);
+	printf("prosjecna greska |A2-F*JF| = %lg, max = %lg\n", err2/pivot_2_count, max2);
+	printf("prosjecna greska |F*JG-G*JF| = %lg, max = %lg\n", err1/pivot_2_count, max1);
+	printf("prosjecna greska |T^2 - K| = %lg, max = %lg\n", errk/pivot_2_count, maxk);
+	printf("prosjecna greska |Akk - gkk| = %lg, max = %lg\n", err0/pivot_1_count, max0);
 
 
 	// ----------------------------------------- writing -----------------------------------------
