@@ -447,7 +447,7 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
-			if( J[k] == J[i] || cabs(detG1) < EPSILON*1000 ) continue;
+			if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
 
 			// try finding maximal trace for K^2
 			// trK^2 = K0 x*J1x + K3 y*J1y + 2*Re( conj(K1) x*J1y )
@@ -471,6 +471,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(1);
 			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 			if(info) printf("SVD did not converge... Proceeding...\n");
+			if(s[0] < 1e-5) continue;
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
