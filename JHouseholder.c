@@ -32,6 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 30
+#define COND 1.0
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -87,8 +88,10 @@ int main(int argc, char* argv[]){
 	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
-	int *ipiv = (int*) mkl_malloc(4*sizeof(int), 64);
-	double complex *work = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
+	int *ipiv = (int*) mkl_malloc(16*sizeof(int), 64);
+	double complex *work = (double complex*) mkl_malloc(6*sizeof(double complex), 64);	// temporary matrix
+	double *rwork = (double*) mkl_malloc(10*sizeof(double), 64);
+	double *s = (double*) mkl_malloc(2*sizeof(double), 64);
 
 	// check if files are opened
 
@@ -430,14 +433,25 @@ int main(int argc, char* argv[]){
 			double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[1] * xJy );
 			double det = -cabs(detG1) * cabs(detG1) / detA;
+
+			// mini SVD of G1
+
+			char jobz = 'N';
+			lwork = 6;
+			C[0] = G[k+M*k];
+			C[1] = G[i+M*k];
+			C[2] = G[k+M*(k+1)];
+			C[3] = G[i+M*(k+1)];
+			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
+			if(info) printf("SVD did not converge... Proceeding...\n");
+			printf("cond = %lg\n", s[1]/s[0]);
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 			//#pragma omp critical
-			if( trace + 2 * creal(csqrt(det)) > max_denomi ){
+			if( trace + 2 * creal(csqrt(det)) >= 0 && cabs(s[1]/s[0]) >= COND){
 				idx = i;
-				max_denomi = trace + 2 * creal(csqrt(det));
-				//break;
+				break;
 			}
 		}
 
