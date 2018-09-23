@@ -32,7 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 100
-#define COND 3.0
+#define COND 2.0
 
 
 void printMatrix(double complex *G, int M, int N){
