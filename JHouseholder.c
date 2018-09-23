@@ -417,7 +417,7 @@ int main(int argc, char* argv[]){
 
 		int idx = -1;
 		//double max_denomi = -1;
-		double min_svd = MAX_DBL;
+		double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
