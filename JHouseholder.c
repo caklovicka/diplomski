@@ -411,6 +411,10 @@ int main(int argc, char* argv[]){
 		double condA = s[0]/s[1];
 
 		// inverse of A2
+		K[0] = Akk;
+		K[1] = conj(Akr);
+		K[2] = Akr;
+		K[3] = Arr;
 		zgetrf(&n, &n, K, &n, ipiv, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
 		lwork = 4; 
