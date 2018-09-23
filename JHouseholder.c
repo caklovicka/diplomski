@@ -585,11 +585,11 @@ int main(int argc, char* argv[]){
 
 
 
-		// E = F
-		/*E[0] = G[k+M*k];
+		// E = F1
+		E[0] = G[k+M*k];
 		E[1] = G[k+1+M*k];
 		E[2] = G[k+M*(k+1)];
-		E[3] = G[k+1+(k+1)*M];*/
+		E[3] = G[k+1+(k+1)*M];
 
 
 
@@ -618,7 +618,7 @@ int main(int argc, char* argv[]){
 
 
 
-		/*printf("k = %d\n", k);
+		//printf("k = %d\n", k);
 		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
 		T[1] = conj(E[2])*J[k]*E[0] + conj(E[3])*J[k+1]*E[1];
 		T[2] = conj(E[0])*J[k]*E[2] + conj(E[1])*J[k+1]*E[3];
@@ -627,7 +627,7 @@ int main(int argc, char* argv[]){
 		double d2 = cabs(conj(Akr)-T[1]);
 		double d3 = cabs(Akr - T[2]);
 		double d4 = cabs(Arr - T[3]);
-		printf("|A2 - F*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
+		//printf("|A2 - F*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err2 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 
 		// C = old G1
@@ -651,8 +651,8 @@ int main(int argc, char* argv[]){
 		d2 = cabs(f[1] - T[1]);
 		d3 = cabs(f[2] - T[2]);
 		d4 = cabs(f[3] - T[3]);
-		printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
-		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);*/
+		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
+		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 
 
 
