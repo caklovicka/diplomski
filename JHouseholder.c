@@ -412,31 +412,55 @@ int main(int argc, char* argv[]){
 		if ((M-k-1)/D == 0) nthreads = 1;
 
 		int idx = -1;
+		int ii = -1, jj = -1;
 		double max_denomi = -1;
 		//#pragma omp parallel for num_threads( nthreads )
-		for(i = k+1; i < M; ++i){
+		for(i = k; i < M-1; ++i){
+			for(j = i+1, j < M; ++j){
 
-			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
-			if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
+				double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
+				if( J[j] == J[i] || cabs(detG1) < EPSILON ) continue;
 
-			// try finding maximal trace for K^2
-			// trK^2 = K0 x*J1x + K3 y*J1y + 2*Re( conj(K1) x*J1y )
-			// detK^2 = |detG1|^2 / detA
-			// x is the first column of G1, y is the second
+				// find a positive definite K
 
-			double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[i+M*k]) * J[i] * G[i+M*k];
-			double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
-			double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[1] * xJy );
-			double det = -cabs(detG1) * cabs(detG1) / detA;
-		
-			// condition that a sqrt exists
-			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			//#pragma omp critical
-			if(trace + 2 * creal(csqrt(det)) > max_denomi ){
-				idx = i;
-				max_denomi = trace + 2 * creal(csqrt(det));
-				//break;
+				double complex g1 = G[i+M*k];
+				double complex g2 = G[j+M*k];
+				double complex g3 = G[i+M*(k+1)];
+				double complex g4 = G[j+M*(k+1)];
+
+				// hermitian part of K
+				double K0 = J[i] * ( K[0] * cabs(g1) * cabs(g1) + K[3] * cabs(g3) * cabs(g3) + 2 * creal( K[1] * conj(g1) * g3 ));
+				double K3 = J[j] * ( K[0] * cabs(g2) * cabs(g2) + K[3] * cabs(g4) * cabs(g4) + 2 * creal( K[1] * conj(g2) * g4 ));
+
+				if( K0 > 0 && K0 * K3 > 0){
+					ii = i;
+					jj = j;
+					break;
+				}
+
+				/*double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
+				if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
+
+				// try finding maximal trace for K^2
+				// trK^2 = K0 x*J1x + K3 y*J1y + 2*Re( conj(K1) x*J1y )
+				// detK^2 = |detG1|^2 / detA
+				// x is the first column of G1, y is the second
+
+				/*double xJx = conj(G[k+M*k]) * J[k] * G[k+M*k] + conj(G[i+M*k]) * J[i] * G[i+M*k];
+				double yJy = conj(G[k+M*(k+1)]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*(k+1)]) * J[i] * G[i+M*(k+1)];
+				double complex xJy = conj(G[k+M*k]) * J[k] * G[k+M*(k+1)] + conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+				double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[1] * xJy );
+				double det = -cabs(detG1) * cabs(detG1) / detA;
+				*/
+			
+				// condition that a sqrt exists
+				// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
+				//#pragma omp critical
+				/*if(trace + 2 * creal(csqrt(det)) > max_denomi ){
+					idx = i;
+					max_denomi = trace + 2 * creal(csqrt(det));
+					//break;
+				}*/
 			}
 		}
 
@@ -446,8 +470,46 @@ int main(int argc, char* argv[]){
 			break;
 		}
 
+		if( ii != k ){
+
+			double dtemp = J[ii];
+			J[ii] = J[k];
+			J[k] = dtemp;
+
+			// update Prow
+			long int itemp = Prow[ii];
+			Prow[ii] = Prow[k];
+			Prow[k] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k + M*k], &M, &G[ii + M*k], &M);
+		}
+
+		if( jj != k+1 ){
+
+			double dtemp = J[jj];
+			J[jj] = J[k+1];
+			J[k+1] = dtemp;
+
+			// update Prow
+			long int itemp = Prow[jj];
+			Prow[jj] = Prow[k+1];
+			Prow[k+1] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k+1 + M*k], &M, &G[jj + M*k], &M);
+		}
+
 		// swap rows
-		if( idx != k+1 ){
+		/*if( idx != k+1 ){
 
 			double dtemp = J[idx];
 			J[idx] = J[k+1];
@@ -464,7 +526,7 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
-		}
+		}*/
 
 		double complex alpha = 1, beta = 0;
 		char nontrans = 'N';
