@@ -433,10 +433,10 @@ int main(int argc, char* argv[]){
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 			//#pragma omp critical
-			if(trace + 2 * creal(csqrt(det)) >= 0 ){
+			if( trace + 2 * creal(csqrt(det)) > max_denomi ){
 				idx = i;
-				//max_denomi = trace + 2 * creal(csqrt(det));
-				break;
+				max_denomi = trace + 2 * creal(csqrt(det));
+				//break;
 			}
 		}
 
