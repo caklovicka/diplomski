@@ -416,7 +416,7 @@ int main(int argc, char* argv[]){
 		if ((M-k-1)/D == 0) nthreads = 1;
 
 		int idx = -1;
-		//double max_denomi = -1;
+		double max_denomi = -1;
 		double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
 
@@ -448,10 +448,9 @@ int main(int argc, char* argv[]){
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if( trace + 2 * creal(csqrt(det)) >= 0 && (s[0]/s[1]) < min_svd){
+			if( trace + 2 * creal(csqrt(det)) >= 0 && max_denomi < trace + 2 * creal(csqrt(det))){
 				idx = i;
-				min_svd = (s[0]/s[1]);
-				if(min_svd <= COND) break;
+				max_denomi = trace + 2 * creal(csqrt(det));
 			}
 		}
 
