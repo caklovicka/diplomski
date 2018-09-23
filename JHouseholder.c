@@ -403,7 +403,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		zgetrf(&n, &n, K, &n, ipiv, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
-		lwork = 4; 
+		int lwork = 4; 
 		zgetri(&n, K, &n, ipiv, work, &lwork, &info);
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		K[0] = creal(K[0]);
