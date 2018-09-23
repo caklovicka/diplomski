@@ -32,7 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 30
-#define COND 3.0
+#define COND 4.0
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -471,7 +471,6 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(1);
 			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 			if(info) printf("SVD did not converge... Proceeding...\n");
-			if(s[0] < 0.9) continue;
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
