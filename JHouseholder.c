@@ -405,6 +405,14 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
+		E[0] = K[0]*Akk + K[2]*conj(Akr) - 1;
+		E[1] = K[1]*Akk + K[3]*conj(Akr);
+		E[2] = K[0]*Akr + K[2]*Arr;
+		E[3] = K[1]*Akr + K[3]*Arr - 1;
+
+		printf("|KA-I| = %lg\n", dznrm2(&lwork, E, &inc)); 
+
+
 
 		// find pivot G1
 
@@ -520,7 +528,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		double sqrt_err, sqrt_eps = 1e-14;
+		double sqrt_err, sqrt_eps = 1e-15;
 		int m = 4;
 		inc = 1;
 		n = 2;
