@@ -32,7 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 30
-#define COND 1.0
+#define COND 3.0
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -416,8 +416,8 @@ int main(int argc, char* argv[]){
 		if ((M-k-1)/D == 0) nthreads = 1;
 
 		int idx = -1;
-		double max_denomi = -1;
-		//#pragma omp parallel for num_threads( nthreads )
+		//double max_denomi = -1;
+		double min_svd = MAX_DBL;
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
@@ -444,14 +444,14 @@ int main(int argc, char* argv[]){
 			C[3] = G[i+M*(k+1)];
 			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 			if(info) printf("SVD did not converge... Proceeding...\n");
-			printf("cond = %lg\n", s[1]/s[0]);
+			printf("cond = %lg\n", s[0]/s[1]);
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			//#pragma omp critical
-			if( trace + 2 * creal(csqrt(det)) >= 0 && cabs(s[1]/s[0]) >= COND){
+			if( trace + 2 * creal(csqrt(det)) >= 0 && cabs(s[0]/s[1]) < min_svd){
 				idx = i;
-				break;
+				min_svd = cabs(s[0]/s[1]);
+				if(min_svd <= COND) break;
 			}
 		}
 
