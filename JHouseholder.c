@@ -533,7 +533,7 @@ int main(int argc, char* argv[]){
 		E[1] = conj(T[2])*J[k]*T[0] + conj(T[3])*J[k+1]*T[1] - K[1];
 		E[2] = conj(T[0])*J[k]*T[2] + conj(T[1])*J[k+1]*T[3] - K[2];
 		E[3] = conj(T[2])*J[k]*T[2] + conj(T[3])*J[k+1]*T[3] - K[3]; 
-		sqrt_err = dznrm(&m, E, &inc);
+		sqrt_err = dznrm2(&m, E, &inc);
 		mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
 
@@ -555,7 +555,7 @@ int main(int argc, char* argv[]){
 			E[1] = conj(T[2])*J[k]*T[0] + conj(T[3])*J[k+1]*T[1] - K[1];
 			E[2] = conj(T[0])*J[k]*T[2] + conj(T[1])*J[k+1]*T[3] - K[2];
 			E[3] = conj(T[2])*J[k]*T[2] + conj(T[3])*J[k+1]*T[3] - K[3]; 
-			sqrt_err = dznrm(&m, E, &inc);
+			sqrt_err = dznrm2(&m, E, &inc);
 			printf("sqrt_err = %lg\n", sqrt_err);
 		}
 
