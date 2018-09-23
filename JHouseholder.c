@@ -31,8 +31,8 @@
 #define DIGITS DBL_DIG
 #define eps 0.2
 #define D 64
-#define refresh 30
-#define COND 3
+#define refresh 100
+#define COND 3.0
 
 
 void printMatrix(double complex *G, int M, int N){
