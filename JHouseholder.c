@@ -537,6 +537,8 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
 
+			printf("iter\n");
+
 			// C = T
 			zcopy(&m, T, &inc, C, &inc);
 
