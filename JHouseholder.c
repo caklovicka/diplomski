@@ -447,7 +447,7 @@ int main(int argc, char* argv[]){
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
-			if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
+			if( J[k] == J[i] || cabs(detG1) < EPSILON*1000 ) continue;
 
 			// try finding maximal trace for K^2
 			// trK^2 = K0 x*J1x + K3 y*J1y + 2*Re( conj(K1) x*J1y )
