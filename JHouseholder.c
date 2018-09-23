@@ -822,9 +822,9 @@ int main(int argc, char* argv[]){
 		// compute vector f, where g*Jg = f*Jf must hold
 		// that's why we need fk that looks like Hg = H_sigma*f = H_sigma*(sqrt(|sumk|), 0, ..., 0)
 
-		double complex H_sigma = 1;
-		if(cabs(G[k+M*k]) >= EPSILON) H_sigma = -G[k+M*k] / cabs(G[k+M*k]);
-		double complex gkk = csqrt(cabs(Akk)) * H_sigma;
+		double complex gkk;
+		if(cabs(G[k+M*k]) >= EPSILON) gkk = -G[k+M*k] * csqrt(cabs(Akk)) / cabs(G[k+M*k]);
+		else gkk = csqrt(cabs(Akk));
 
 		// save the J norm of the vector
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
