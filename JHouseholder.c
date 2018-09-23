@@ -405,14 +405,6 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
-		E[0] = K[0]*Akk + K[2]*conj(Akr) - 1;
-		E[1] = K[1]*Akk + K[3]*conj(Akr);
-		E[2] = K[0]*Akr + K[2]*Arr;
-		E[3] = K[1]*Akr + K[3]*Arr - 1;
-
-		printf("|KA-I| = %lg\n", dznrm2(&lwork, E, &inc)); 
-
-
 
 		// find pivot G1
 
@@ -528,7 +520,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		double sqrt_err, sqrt_eps = 1e-15;
+		double sqrt_err, sqrt_eps = 1e-12;
 		int m = 4;
 		inc = 1;
 		n = 2;
@@ -541,6 +533,7 @@ int main(int argc, char* argv[]){
 		E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
 		E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
 		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
+
 		sqrt_err = dznrm2(&m, E, &inc);
 		mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
@@ -554,16 +547,23 @@ int main(int argc, char* argv[]){
 			zgetri(&n, T, &n, ipiv, work, &lwork, &info);
 			if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 
+			// save old iteration in f
+			zcopy(&m, T, &inc, f, &inc);
+
 			// do the iteration
 			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, K, &n, &beta, T, &n);
 
 			// compute err again
-
 			E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
 			E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
 			E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
 			E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
-			if(sqrt_err < dznrm2(&m, E, &inc)) break;
+
+			// Newton will not work, copy back old iteration
+			if(sqrt_err < dznrm2(&m, E, &inc)){
+				zcopy(&m, f, &inc, T, &inc);
+				break;
+			}
 			else sqrt_err = dznrm2(&m, E, &inc);
 			printf("sqrt_err = %lg\n", sqrt_err);
 		}
