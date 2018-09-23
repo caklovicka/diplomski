@@ -471,7 +471,7 @@ int main(int argc, char* argv[]){
 			mkl_set_num_threads(1);
 			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 			if(info) printf("SVD did not converge... Proceeding...\n");
-			if(s[0] < eps) continue;
+			if(s[0] < 0.5) continue;
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
