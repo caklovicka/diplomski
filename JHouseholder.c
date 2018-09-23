@@ -529,10 +529,10 @@ int main(int argc, char* argv[]){
 		beta = 0.5;
 
 		//E = T^2 - K
-		E[0] = T[0]*T[0] + T[1]*T[1] - K[0];
-		E[1] = T[2]*T[0] + T[3]*T[1] - K[1];
-		E[2] = T[0]*T[2] + T[1]*T[3] - K[2];
-		E[3] = T[2]*T[2] + T[3]*T[3] - K[3]; 
+		E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
+		E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
+		E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
+		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
 		sqrt_err = dznrm2(&m, E, &inc);
 		mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
@@ -551,10 +551,10 @@ int main(int argc, char* argv[]){
 
 			// compute err again
 
-			E[0] = T[0]*T[0] + T[1]*T[1] - K[0];
-			E[1] = T[2]*T[0] + T[3]*T[1] - K[1];
-			E[2] = T[0]*T[2] + T[1]*T[3] - K[2];
-			E[3] = T[2]*T[2] + T[3]*T[3] - K[3];
+			E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
+			E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
+			E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
+			E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
 			sqrt_err = dznrm2(&m, E, &inc);
 			printf("sqrt_err = %lg\n", sqrt_err);
 		}
