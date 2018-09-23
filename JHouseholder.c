@@ -32,7 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 30
-#define COND 2.5
+#define COND 2.0
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -455,7 +455,7 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		printf("min_svd = %lg\n", min_svd);
+		//printf("min_svd = %lg\n", min_svd);
 
 		if(idx == -1){
 			printf("No more altering signs in J or no such G1 for finding a sqrt(K^2) ... (in pivot 2, k = %d) ... Exiting\n", k);
