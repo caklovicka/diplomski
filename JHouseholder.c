@@ -405,6 +405,8 @@ int main(int argc, char* argv[]){
 		K[0] = creal(K[0]);
 		K[3] = creal(K[3]);
 
+		double max_denomi = -1;
+
 		// find pivot G1
 		int idx = -1;
 		for(i = k+1; i < M; ++i){
@@ -425,9 +427,10 @@ int main(int argc, char* argv[]){
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if(trace + 2 * creal(csqrt(det)) >= 0 ){
+			if(trace + 2 * creal(csqrt(det)) > max_denomi ){
 				idx = i;
-				break;
+				max_denomi = trace + 2 * creal(csqrt(det));
+				//break;
 			}
 		}
 
