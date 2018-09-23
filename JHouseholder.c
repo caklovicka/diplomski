@@ -401,20 +401,6 @@ int main(int argc, char* argv[]){
 		K[3] = Arr;
 		int info;
 		mkl_set_num_threads(1);
-
-		// mini SVD of A2
-		char jobz = 'N';
-		int lwork = 6;
-		mkl_set_num_threads(1);
-		zgesdd_(&jobz, &n, &n, K, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
-		if(info) printf("SVD did not converge... Proceeding...\n");
-		double condA = s[0]/s[1];
-
-		// inverse of A2
-		K[0] = Akk;
-		K[1] = conj(Akr);
-		K[2] = Akr;
-		K[3] = Arr;
 		zgetrf(&n, &n, K, &n, ipiv, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
 		lwork = 4; 
@@ -462,12 +448,14 @@ int main(int argc, char* argv[]){
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if( (trace + 2 * creal(csqrt(det))) >= 0 && ((s[0]/s[1]) * (1+condA) < min_svd)){
+			if( trace + 2 * creal(csqrt(det)) >= 0 && (s[0]/s[1]) < min_svd){
 				idx = i;
-				min_svd = (s[0]/s[1]) * (1+condA);
+				min_svd = (s[0]/s[1]);
 				if(min_svd <= COND) break;
 			}
 		}
+
+		printf("min_svd = %lg\n", min_svd);
 
 		if(idx == -1){
 			printf("No more altering signs in J or no such G1 for finding a sqrt(K^2) ... (in pivot 2, k = %d) ... Exiting\n", k);
