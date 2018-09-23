@@ -416,7 +416,7 @@ int main(int argc, char* argv[]){
 		double max_denomi = -1;
 		//#pragma omp parallel for num_threads( nthreads )
 		for(i = k; i < M-1; ++i){
-			for(j = i+1, j < M; ++j){
+			for(j = i+1; j < M; ++j){
 
 				double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
 				if( J[j] == J[i] || cabs(detG1) < EPSILON ) continue;
