@@ -410,12 +410,38 @@ int main(int argc, char* argv[]){
 		K[3] = creal(K[3]);
 
 
+		// set J[k] = 1
+
+		int idx = -1;
+		while(J[idx] == -1) ++idx;
+
+		// swap rows
+		if( idx != k ){
+
+			double dtemp = J[idx];
+			J[idx] = J[k];
+			J[k] = dtemp;
+
+			// update Prow
+			long int itemp = Prow[idx];
+			Prow[idx] = Prow[k];
+			Prow[k] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k + M*k], &M, &G[idx + M*k], &M);
+		}
+
+
 		// find pivot G1
 
 		nthreads = (M-k-1)/D > omp_get_max_threads() ? (M-k-1)/D : omp_get_max_threads();
 		if ((M-k-1)/D == 0) nthreads = 1;
 
-		int idx = -1;
+		idx = -1;
 		//double max_denomi = -1;
 		double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
