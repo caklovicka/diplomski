@@ -416,6 +416,7 @@ int main(int argc, char* argv[]){
 		if ((M-k-1)/D == 0) nthreads = 1;
 
 		int idx = -1;
+		inz poz = 0;
 		double max_denomi = -1;
 		double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
@@ -451,8 +452,11 @@ int main(int argc, char* argv[]){
 			if( trace + 2 * creal(csqrt(det)) >= 0 && max_denomi < trace + 2 * creal(csqrt(det))){
 				idx = i;
 				max_denomi = trace + 2 * creal(csqrt(det));
+				if(trace - 2 * creal(csqrt(det)) >= 0) poz = 1;
 			}
 		}
+
+		if(poz == 0) printf("NIJE POZ DEF\n");
 
 		//printf("min_svd = %lg\n", min_svd);
 
@@ -535,7 +539,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		double sqrt_err, sqrt_eps = 1e-16;
+		double sqrt_err, sqrt_eps = 1e-12;
 		int m = 4;
 		inc = 1;
 		n = 2;
@@ -577,7 +581,6 @@ int main(int argc, char* argv[]){
 			// Newton will not work, copy back old iteration
 			if(sqrt_err < dznrm2(&m, E, &inc)){
 				zcopy(&m, f, &inc, T, &inc);
-				printf("newton ne kvg\n");
 				break;
 			}
 			else sqrt_err = dznrm2(&m, E, &inc);
