@@ -541,14 +541,14 @@ int main(int argc, char* argv[]){
 			// C = T
 			zcopy(&m, T, &inc, C, &inc);
 
+			// save old iteration in f
+			zcopy(&m, T, &inc, f, &inc);
+
 			// C = C^(-1)
 			zgetrf(&n, &n, T, &n, ipiv, &info);
 			if( info ) printf("LU of sqrt unstable. Proceeding.\n"); 
 			zgetri(&n, T, &n, ipiv, work, &lwork, &info);
 			if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
-
-			// save old iteration in f
-			zcopy(&m, T, &inc, f, &inc);
 
 			// do the iteration
 			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, K, &n, &beta, T, &n);
