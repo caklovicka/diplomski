@@ -404,7 +404,7 @@ int main(int argc, char* argv[]){
 
 		// mini SVD of A2
 		char jobz = 'N';
-		lwork = 6;
+		int lwork = 6;
 		mkl_set_num_threads(1);
 		zgesdd_(&jobz, &n, &n, K, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 		if(info) printf("SVD did not converge... Proceeding...\n");
@@ -413,7 +413,7 @@ int main(int argc, char* argv[]){
 		// inverse of A2
 		zgetrf(&n, &n, K, &n, ipiv, &info);
 		if( info ) printf("LU of A2 unstable. Proceeding.\n");
-		int lwork = 4; 
+		lwork = 4; 
 		zgetri(&n, K, &n, ipiv, work, &lwork, &info);
 		if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
 		K[0] = creal(K[0]);
