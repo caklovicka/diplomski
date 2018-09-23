@@ -412,7 +412,7 @@ int main(int argc, char* argv[]){
 
 		// set J[k] = 1
 
-		int idx = -1;
+		int idx = k;
 		while(J[idx] == -1) ++idx;
 
 		// swap rows
