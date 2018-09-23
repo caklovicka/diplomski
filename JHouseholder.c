@@ -415,7 +415,7 @@ int main(int argc, char* argv[]){
 		nthreads = (M-k-1)/D > omp_get_max_threads() ? (M-k-1)/D : omp_get_max_threads();
 		if ((M-k-1)/D == 0) nthreads = 1;
 
-		idx = -1;
+		int idx = -1;
 		//double max_denomi = -1;
 		double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
