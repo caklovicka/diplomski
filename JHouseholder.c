@@ -32,7 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 30
-#define COND 3.0
+#define COND 10.0
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -409,7 +409,6 @@ int main(int argc, char* argv[]){
 		zgesdd_(&jobz, &n, &n, K, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 		if(info) printf("SVD did not converge... Proceeding...\n");
 		double condA = s[0]/s[1];
-		printf("condA = %lg\n", condA);
 
 		// inverse of A2
 		zgetrf(&n, &n, K, &n, ipiv, &info);
@@ -459,9 +458,9 @@ int main(int argc, char* argv[]){
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if( trace + 2 * creal(csqrt(det)) >= 0 && (s[0]/s[1]) * condA < min_svd){
+			if( (trace + 2 * creal(csqrt(det))) >= 0 && ((s[0]/s[1]) * (1+condA) < min_svd)){
 				idx = i;
-				min_svd = (s[0]/s[1]) * condA;
+				min_svd = (s[0]/s[1]) * (1+condA);
 				if(min_svd <= COND) break;
 			}
 		}
