@@ -157,7 +157,7 @@ int main(int argc, char* argv[]){
 	int pivot_1_count = 0;
 	int pivot_2_count = 0;
 	int last_pivot = -1;
-	double err1 = 0, err2 = 0, err0 = 0;
+	double err1 = 0, err2 = 0, err0 = 0, errk = 0;
 	start = omp_get_wtime();
 
 	int i, j, k, nthreads, mkl_nthreads;
@@ -568,6 +568,8 @@ int main(int argc, char* argv[]){
 			printf("sqrt_err = %lg\n", sqrt_err);
 		}
 
+		errk += sqrt_err;
+
 
 		// find F1, store it into G
 		n = 2;
@@ -895,6 +897,7 @@ int main(int argc, char* argv[]){
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
 	printf("prosjecna greska |A2-F*JF| = %lg\n", err2/pivot_2_count);
 	printf("prosjecna greska |F*JG-G*JF| = %lg\n", err1/pivot_2_count);
+	printf("prosjecna greska |T^2 - K| = %lg\n", errk/pivot_2_count);
 	printf("prosjecna greska |Akk - gkk| = %lg\n", err0/pivot_1_count);
 
 
