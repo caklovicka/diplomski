@@ -408,7 +408,12 @@ int main(int argc, char* argv[]){
 
 		// find pivot G1
 
+		nthreads = (M-k-1)/D > omp_get_max_threads() ? (M-k-1)/D : omp_get_max_threads();
+		if ((M-k-1)/D == 0) nthreads = 1;
+
 		int idx = -1;
+		double max_denomi = -1;
+		//#pragma omp parallel for num_threads( nthreads )
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
@@ -427,10 +432,11 @@ int main(int argc, char* argv[]){
 		
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-
-			if(trace + 2 * creal(csqrt(det)) >= 0 ){
+			//#pragma omp critical
+			if(trace + 2 * creal(csqrt(det)) > max_denomi ){
 				idx = i;
-				break;
+				max_denomi = trace + 2 * creal(csqrt(det));
+				//break;
 			}
 		}
 
@@ -514,7 +520,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		double sqrt_err, sqrt_eps = 1e-13;
+		double sqrt_err, sqrt_eps = 1e-14;
 		int m = 4;
 		inc = 1;
 		n = 2;
