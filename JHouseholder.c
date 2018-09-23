@@ -31,7 +31,7 @@
 #define DIGITS DBL_DIG
 #define eps 0.2
 #define D 64
-#define refresh 100
+#define refresh 30
 #define COND 4.0
 
 
