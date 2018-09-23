@@ -32,7 +32,7 @@
 #define eps 0.2
 #define D 64
 #define refresh 30
-#define COND 5
+#define COND 2.5
 
 
 void printMatrix(double complex *G, int M, int N){
@@ -442,6 +442,7 @@ int main(int argc, char* argv[]){
 			C[1] = G[i+M*k];
 			C[2] = G[k+M*(k+1)];
 			C[3] = G[i+M*(k+1)];
+			mkl_set_num_threads(1);
 			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
 			if(info) printf("SVD did not converge... Proceeding...\n");
 			
