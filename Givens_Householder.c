@@ -434,7 +434,7 @@ int main(int argc, char* argv[]){
 
 			mkl_set_num_threads(1);
 			int n_ = 2;
-			zswap(&n_, &K[k], &M, &K[first_non_zero_idx], &M);
+			//zswap(&n_, &K[k], &M, &K[first_non_zero_idx], &M);
 		}
 
 
@@ -478,7 +478,7 @@ int main(int argc, char* argv[]){
 
 			mkl_set_num_threads(1);
 			int n_ = 2;
-			zswap(&n_, &K[k+1], &M, &K[i], &M);
+			//zswap(&n_, &K[k+1], &M, &K[i], &M);
 
 			break;
 		}
@@ -629,7 +629,7 @@ int main(int argc, char* argv[]){
 
 			mkl_set_num_threads(1);
 			int n_ = 1;
-			zswap(&n_, &K[k + kth_nonzeros], &M, &K[first_non_zero_idx], &M);
+			//zswap(&n_, &K[k + kth_nonzeros], &M, &K[first_non_zero_idx], &M);
 		}
 
 
@@ -673,7 +673,7 @@ int main(int argc, char* argv[]){
 
 			mkl_set_num_threads(1);
 			int n_ = 1;
-			zswap(&n_, &K[k + kth_nonzeros + 1], &M, &K[i], &M);
+			//zswap(&n_, &K[k + kth_nonzeros + 1], &M, &K[i], &M);
 			break;
 		}
 
@@ -844,7 +844,7 @@ int main(int argc, char* argv[]){
 				mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 				if(Mk/D == 0) mkl_nthreads = 1;
 				mkl_set_num_threads(mkl_nthreads);
-				zswap(&Mk, &K[k], &inc, &K[k+M], &inc);
+				//zswap(&Mk, &K[k], &inc, &K[k+M], &inc);
 
 				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
 				for(i = k; i < k+2; ++i){
@@ -955,7 +955,7 @@ int main(int argc, char* argv[]){
 				mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 				if(Mk/D == 0) mkl_nthreads = 1;
 				mkl_set_num_threads(mkl_nthreads);
-				zswap(&Mk, &K[k], &inc, &K[k+M], &inc);
+				//zswap(&Mk, &K[k], &inc, &K[k+M], &inc);
 
 				// make the kth rows k, k+1 real (k+2 is already real)
 				for(i = k; i < k+2; ++i){
