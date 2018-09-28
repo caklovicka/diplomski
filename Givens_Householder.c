@@ -806,6 +806,7 @@ int main(int argc, char* argv[]){
 		// condition (B2)
 		if(kth_nonzeros == 1 && kkth_nonzeros == 1) goto HOUSEHOLDER;
 
+		printMatrix(G, M, N);
 
 		//make rows real which need to be
 
