@@ -388,7 +388,7 @@ int main(int argc, char* argv[]){
 
 
 		// copy columns of G into K
-		int Mk = M-k-2;
+		int Mk = M-k;
 		int inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
 		if(Mk/D == 0) mkl_nthreads = 1;
@@ -396,8 +396,8 @@ int main(int argc, char* argv[]){
 		#pragma omp parallel num_threads(2)
 		{
 			mkl_set_num_threads_local(mkl_nthreads);
-			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+2+M*k], &inc, &K[k+2], &inc);
-			else zcopy(&Mk, &G[k+2+M*(k+1)], &inc, &K[k+2+M], &inc);
+			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
+			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
 		}
 		mkl_set_num_threads_local(0);
 
@@ -1022,7 +1022,7 @@ int main(int argc, char* argv[]){
 		exit(-4);
 
 
-		HOUSEHOLDER: break;
+		HOUSEHOLDER:
 
 		// E = F1
 		E[0] = G[k+M*k];
@@ -1072,6 +1072,14 @@ int main(int argc, char* argv[]){
 		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 		if(max1 < err1) max1 = err1;
+
+
+
+
+
+
+
+
 
 
 		// K = the difference operator for the J Householder
