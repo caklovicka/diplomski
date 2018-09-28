@@ -390,17 +390,13 @@ int main(int argc, char* argv[]){
 		// copy columns of G into K
 		int Mk = M-k;
 		int inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 
-		#pragma omp parallel num_threads(2)
-		{
-			mkl_set_num_threads_local(mkl_nthreads);
-			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
-			else zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
-		}
-		mkl_set_num_threads_local(0);
-
+		mkl_set_num_threads(mkl_nthreads);
+		zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
+		zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
+		
 
 		int first_non_zero_idx = -1;	// index of the first non zero element in column k
 
@@ -632,7 +628,7 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
 
 			mkl_set_num_threads(1);
-			int n_ = 2;
+			int n_ = 1;
 			zswap(&n_, &K[k + kth_nonzeros], &M, &K[first_non_zero_idx], &M);
 		}
 
@@ -676,7 +672,7 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i + M*(k+1)], &M);
 
 			mkl_set_num_threads(1);
-			int n_ = 2;
+			int n_ = 1;
 			zswap(&n_, &K[k + kth_nonzeros + 1], &M, &K[i], &M);
 			break;
 		}
@@ -1322,7 +1318,6 @@ int main(int argc, char* argv[]){
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
 	printf("prosjecna greska |A2-F*JF| = %lg, max = %lg\n", err2/pivot_2_count, max2);
 	printf("prosjecna greska |F*JG-G*JF| = %lg, max = %lg\n", err1/pivot_2_count, max1);
-	printf("prosjecna greska |T^2 - K| = %lg, max = %lg\n", errk/pivot_2_count, maxk);
 	printf("prosjecna greska |Akk - gkk| = %lg, max = %lg\n", err0/pivot_1_count, max0);
 
 
