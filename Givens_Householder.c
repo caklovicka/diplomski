@@ -385,7 +385,6 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
-		printMatrix(G, M, N);
 
 		// copy columns of G into K
 		int Mk = M-k-2;
@@ -526,13 +525,10 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
-
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						// G[p[i], k] destroys G[p[i+offset], k]
 
@@ -559,13 +555,10 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
-
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < nn - offset; i += 2*offset){
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						// G[n[i], k] destroys G[n[i+offset], k]
 
@@ -731,15 +724,12 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
-
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
 
 						// G[p[i], k+1] destroys G[p[i+offset], k+1]
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 							
 						double c;
 						double complex s;
@@ -764,15 +754,12 @@ int main(int argc, char* argv[]){
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (omp_get_max_threads()-2)/2) nthreads_loc = (omp_get_max_threads()-2)/2;
 
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
-
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < nn - offset; i += 2*offset){
 
 						// G[n[i], k+1] destroys G[n[i+offset], k+1]
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						double c;
 						double complex s;
@@ -806,50 +793,26 @@ int main(int argc, char* argv[]){
 		// condition (B2)
 		if(kth_nonzeros == 1 && kkth_nonzeros == 1) goto HOUSEHOLDER;
 
-		printMatrix(G, M, N);
-
 		//make rows real which need to be
+		
+		
+		for(i = k; i < k + kth_nonzeros; ++i){
 
-		int mkl_nthreads = (N-k)/N > (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros) ? (N-k)/N : (mkl_get_max_threads()/2-2-kth_nonzeros-kkth_nonzeros);
-		if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
+			if( cabs(cimag(G[i + M*k])) < EPSILON ) continue;
 
-		#pragma omp parallel num_threads(2)
-		{
-			if(omp_get_thread_num() == 0){
-
-				#pragma omp parallel for num_threads( kth_nonzeros ) private(i)
-				for(i = k; i < k + kth_nonzeros; ++i){
-
-					if( cabs(cimag(G[i + M*k])) < EPSILON ) continue;
-
-					mkl_set_num_threads_local(mkl_nthreads);
-
-					double complex scal = conj(G[i + M*k]) / cabs(G[i + M*k]);
-					G[i + M*k] = cabs(G[i + M*k]);
-					int Nk = N - k - 1;
-					zscal(&Nk, &scal, &G[i + M*(k+1)], &M);
-				}
-			}
-			if(omp_get_thread_num() == 1){
-
-				#pragma omp parallel for num_threads( kkth_nonzeros ) private(i)
-				for(i = k + kth_nonzeros; i < k + kth_nonzeros + kkth_nonzeros; ++i){
-
-					if( cabs(cimag(G[i + M*(k+1)])) < EPSILON) continue;
-
-					mkl_set_num_threads_local(mkl_nthreads);
-
-					double complex scal = conj(G[i + M*(k+1)]) / cabs(G[i + M*(k+1)]);
-					G[i + M*(k+1)] = cabs(G[i + M*(k+1)]);
-					int Nk = N - k - 2;
-					zscal(&Nk, &scal, &G[i + M*(k+2)], &M);
-				}
-			}
+			double complex scal = conj(G[i + M*k]) / cabs(G[i + M*k]);
+			G[i + M*k] = cabs(G[i + M*k]);
+			G[i + M*(k+1)] *= scal;
 		}
-		mkl_set_num_threads_local(0);
+	
+		for(i = k + kth_nonzeros; i < k + kth_nonzeros + kkth_nonzeros; ++i){
 
-		printMatrix(G, M, N);
-		break;
+			if( cabs(cimag(G[i + M*(k+1)])) < EPSILON) continue;
+
+			double complex scal = conj(G[i + M*(k+1)]) / cabs(G[i + M*(k+1)]);
+			G[i + M*(k+1)] = cabs(G[i + M*(k+1)]);
+		}
+		
 
 		// handle the (A1) form
 
@@ -876,27 +839,25 @@ int main(int argc, char* argv[]){
 				int inc = 1;
 				int mkl_nthreads = n_/D > mkl_get_max_threads() ? n_/D : mkl_get_max_threads();
 				if(n_/D == 0) mkl_nthreads = 1;
-
 				mkl_set_num_threads(mkl_nthreads);
 				zswap(&n_, &G[M*k], &inc, &G[M*(k+1)], &inc);
 
-				mkl_nthreads = (N-k)/N > mkl_get_max_threads()-2 ? (N-k)/N : mkl_get_max_threads()-2;
-				if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
+
+				int Mk = M - k;
+				mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+				if(Mk/D == 0) mkl_nthreads = 1;
+				mkl_set_num_threads(mkl_nthreads);
+				zswap(&Mk, &K[k], &inc, &K[k+M], &inc);
 
 				// make the kth rows k, k+1 real (k+3 and k+2 are already real)
-				#pragma omp parallel for num_threads(2)
 				for(i = k; i < k+2; ++i){
 
 					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
 					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
-					int Nk = N - k - 1;
-
-					mkl_set_num_threads_local(mkl_nthreads);
-					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);	
+					G[i+M*(k+1)] *= scal;
 				}
-				mkl_set_num_threads_local(0);
 
 				// do plane rotations with kth row
 
@@ -911,11 +872,9 @@ int main(int argc, char* argv[]){
 				zrotg(&eliminator, &eliminated, &c, &s);
 
 				// apply the rotation
-				int Nk = N-k;
-				mkl_nthreads = (N-k)/N > mkl_get_max_threads() ? (N-k)/N : mkl_get_max_threads();
-				if((N-k)/D == 0) mkl_nthreads = 1;
-				mkl_set_num_threads(mkl_nthreads);
-				zrot(&Nk, &G[k+M*k], &M, &G[idx+M*k], &M, &c, &s);
+				int n_ = 2;
+				mkl_set_num_threads(1);
+				zrot(&n_, &G[k+M*k], &M, &G[idx+M*k], &M, &c, &s);
 				G[idx+M*k] = 0;
 
 				// do plane rotations with (k+1)st row
@@ -929,8 +888,7 @@ int main(int argc, char* argv[]){
 				zrotg(&eliminator, &eliminated, &c, &s);
 
 				// apply the rotation
-				Nk = N-k;
-				zrot(&Nk, &G[k+1+M*k], &M, &G[idx+M*k], &M, &c, &s);
+				zrot(&n_, &G[k+1+M*k], &M, &G[idx+M*k], &M, &c, &s);
 				G[idx+M*k] = 0;	
 			}
 
@@ -945,51 +903,12 @@ int main(int argc, char* argv[]){
 			double complex g42 = G[k+3+M*(k+1)];
 
 			double complex z = 1.0 / (g11 * g22 - g21 * g12);	// z = 1/detG1
-			double complex a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * (g32*g32 - g42*g42);
-			double complex r = 1.0 / csqrt(1+a);
-			double complex y = J[k] * J[k+2] * r * conj(z);
+			double a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * (g32*g32 - g42*g42);
+			double complex q = - J[k] * J[k+2] * conj(z) * (g32*g32 - g42*g42) / (1 + csqrt(a+1));
 
-			double complex i_xy = (J[k] * J[k+2] * r * cabs(z*z) * (g21*g21 - g11*g11)) / (1 + csqrt(1+a));
-			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * (g32*g32 - g42*g42)) / (1 + csqrt(1+a));
-
-			// making the matrix U dimensions 4x4
-			// first column
-			U[0] = 1 - i_yx * g21 * g21;
-			U[1] = -i_yx * g11 * g21;
-			U[2] = r * z * g21 * g32;
-			U[3] = r * z * g21 * g42;
-			// second column
-			U[4] = i_yx * g11 * g21;
-			U[5] = 1 + i_yx * g11 * g11;
-			U[6] = -r * z * g11 * g32;
-			U[7] = -r * z * g11 * g42;
-			// third column
-			U[8] = -y * g21 * g32;
-			U[9] = -y * g11 * g32;
-			U[10] = 1 - i_xy * g32 * g32;
-			U[11] = -i_xy * g32 * g42;
-			// fourth column
-			U[12] = y * g21 * g42;
-			U[13] = y * g11 * g42;
-			U[14] = i_xy * g32 * g42;
-			U[15] = 1 + i_xy * g42 * g42;
-
-			// apply the reduction
-
-			int n_ = 4;
-			int Nk = 2;
-			char non_trans = 'N';
-			double complex alpha = 1;
-			double complex beta = 0;
-
-			mkl_set_num_threads(1);
-			zgemm(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*k], &M, &beta, T, &n_);
-
-			// copy rows of T back into G
-			G[k+M*k] = T[0];
-			G[k+1+M*k] = T[1];
-			G[k+M*(k+1)] = T[n_];
-			G[k+1+M*(k+1)] = T[1+n_];
+			// copmute F1
+			G[k+M*(k+1)] = g12 + g21*q;
+			G[k+1+M*(k+1)] = g22 + g11*q;
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -1016,7 +935,7 @@ int main(int argc, char* argv[]){
 
 			if( kth_nonzeros == 2 && cabs(G[k+M*k] * G[k+1+M*(k+1)] - G[k+1+M*k] * G[k+M*(k+1)]) < EPSILON ){
 
-				printf("(not optimal) A2/B1 proper form, k = %d\n", k);
+				printf("(not optimal) A2 proper form, k = %d\n", k);
 
 				// swap columns k <-> k+1
 
@@ -1035,23 +954,21 @@ int main(int argc, char* argv[]){
 				mkl_set_num_threads(mkl_nthreads);
 				zswap(&n_, &G[M*k], &inc, &G[M*(k+1)], &inc);
 
-				mkl_nthreads = (N-k)/D > mkl_get_max_threads()-2 ? (N-k)/D : mkl_get_max_threads()-2;
-				if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
+				int Mk = M - k;
+				mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+				if(Mk/D == 0) mkl_nthreads = 1;
+				mkl_set_num_threads(mkl_nthreads);
+				zswap(&Mk, &K[k], &inc, &K[k+M], &inc);
 
 				// make the kth rows k, k+1 real (k+2 is already real)
-				#pragma omp parallel for num_threads(2)
 				for(i = k; i < k+2; ++i){
 
 					if( cabs(cimag(G[i+M*k])) < EPSILON ) continue; //the element is already real
 
 					double complex scal = conj(G[i+M*k]) / cabs(G[i+M*k]);
 					G[i+M*k] = cabs(G[i+M*k]);	// to be exact, so that the Img part is really = 0
-					int Nk = N - k - 1;
-
-					mkl_set_num_threads_local(mkl_nthreads);
-					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);	
+					G[i+M*(k+1)] *= scal;	
 				}
-				mkl_set_num_threads_local(0);
 
 				// do a plane rotation, eliminate row k+2 with row idx
 
@@ -1066,11 +983,9 @@ int main(int argc, char* argv[]){
 				zrotg(&eliminator, &eliminated, &c, &s);
 
 				// apply the rotation
-				mkl_nthreads = (N-k)/D > mkl_get_max_threads() ? (N-k)/D : mkl_get_max_threads();
-				if((N-k)/D == 0) mkl_nthreads = 1;	
-				mkl_set_num_threads(mkl_nthreads);	
-				int Nk = N-k;
-				zrot(&Nk, &G[idx+M*k], &M, &G[k+2+M*k], &M, &c, &s);
+				mkl_set_num_threads(1);	
+				int n_ = 2;
+				zrot(&n_, &G[idx+M*k], &M, &G[k+2+M*k], &M, &c, &s);
 				G[k+2+M*k] = 0;
 			}
 
@@ -1084,41 +999,12 @@ int main(int argc, char* argv[]){
 			double complex g32 = G[k+2+M*(k+1)];
 
 			double complex z = 1 / (g11 * g22 - g21 * g12);	// z = 1/detG1
-			double complex a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * g32*g32;
-			double complex r = 1/csqrt(1+a);
-			double complex y = J[k] * J[k+2] * r * conj(z);
+			double a = J[k] * J[k+2] * cabs(z*z) * (g21*g21 - g11*g11) * g32*g32;
+			double complex q = - J[k] * J[k+2] * conj(z) * g32*g32 / (1 + csqrt(a+1));
 
-			double complex i_yx = (J[k] * J[k+2] * r * cabs(z*z) * g32*g32) / (1 + csqrt(1+a));
-
-			// making the matrix U dimensions 3x3
-			// first column
-			U[0] = 1 - i_yx * g21 * g21;
-			U[1] = -i_yx * g11 * g21;
-			U[2] = r * z * g21 * g32;
-			// second column
-			U[3] = i_yx * g11 * g21;
-			U[4] = 1 + i_yx * g11 * g11;
-			U[5] = -r * z * g11 * g32;
-			// third column
-			U[6] = -y * g21 * g32;
-			U[7] = -y * g11 * g32;
-			U[8] = r;
-
-			// apply the reduction
-			// g11 and g21 remain unchanged
-
-			int n_ = 3;
-			int Nk = 1;
-			char non_trans = 'N';
-			double complex alpha = 1;
-			double complex beta = 0;
-
-			mkl_set_num_threads(1);
-			zgemm_(&non_trans, &non_trans, &n_, &Nk, &n_, &alpha, U, &n_, &G[k+M*(k+1)], &M, &beta, T, &n_);
-
-		
-			G[k+M*(k+1)] = T[0];
-			G[k+1+M*(k+1)] = T[1];
+			// copmute F1
+			G[k+M*(k+1)] = g12 + g21*q;
+			G[k+1+M*(k+1)] = g22 + g11*q;
 
 
 			// put zeros explicitly in the right places
