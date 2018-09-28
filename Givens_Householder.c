@@ -1058,7 +1058,7 @@ int main(int argc, char* argv[]){
 		T[1] = conj(C[2])*J[k]*E[0] + conj(C[3])*J[k+1]*E[1];
 		T[2] = conj(C[0])*J[k]*E[2] + conj(C[1])*J[k+1]*E[3];
 		T[3] = conj(C[2])*J[k]*E[2] + conj(C[3])*J[k+1]*E[3];
-		printMatrix(T, 2, 2);
+		//printMatrix(T, 2, 2);
 
 		// f = F*JG1
 		f[0] = conj(E[0])*J[k]*C[0] + conj(E[1])*J[k+1]*C[1];
@@ -1069,7 +1069,7 @@ int main(int argc, char* argv[]){
 		d2 = cabs(f[1] - T[1]);
 		d3 = cabs(f[2] - T[2]);
 		d4 = cabs(f[3] - T[3]);
-		printMatrix(f, 2, 2);
+		//printMatrix(f, 2, 2);
 		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 		if(max1 < err1) max1 = err1;
