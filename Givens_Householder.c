@@ -435,6 +435,10 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[first_non_zero_idx + M*k], &M);
+
+			mkl_set_num_threads(1);
+			int n_ = 2;
+			zswap(&n_, &K[k], &M, &K[first_non_zero_idx], &M);
 		}
 
 
@@ -475,6 +479,11 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[i + M*k], &M);
+
+			mkl_set_num_threads(1);
+			int n_ = 2;
+			zswap(&n_, &K[k+1], &M, &K[i], &M);
+
 			break;
 		}
 
@@ -526,7 +535,6 @@ int main(int argc, char* argv[]){
 						mkl_set_num_threads_local(mkl_nthreads);
 
 						// G[p[i], k] destroys G[p[i+offset], k]
-						// first if kth column isnt real, make it real
 
 						double c;
 						double complex s;
@@ -560,7 +568,6 @@ int main(int argc, char* argv[]){
 						mkl_set_num_threads_local(mkl_nthreads);
 
 						// G[n[i], k] destroys G[n[i+offset], k]
-						// make them real
 
 						double c;
 						double complex s;
@@ -629,6 +636,10 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
+
+			mkl_set_num_threads(1);
+			int n_ = 2;
+			zswap(&n_, &K[k + kth_nonzeros], &M, &K[first_non_zero_idx], &M);
 		}
 
 
@@ -669,6 +680,10 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i + M*(k+1)], &M);
+
+			mkl_set_num_threads(1);
+			int n_ = 2;
+			zswap(&n_, &K[k + kth_nonzeros + 1], &M, &K[i], &M);
 			break;
 		}
 
@@ -833,6 +848,7 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 		printMatrix(G, M, N);
+		break;
 
 		// handle the (A1) form
 
