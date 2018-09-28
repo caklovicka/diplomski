@@ -1024,15 +1024,16 @@ int main(int argc, char* argv[]){
 
 		HOUSEHOLDER:
 
+
+
+
+
+
 		// E = F1
 		E[0] = G[k+M*k];
 		E[1] = G[k+1+M*k];
 		E[2] = G[k+M*(k+1)];
 		E[3] = G[k+1+(k+1)*M];
-
-		break;
-
-
 
 		//printf("k = %d\n", k);
 		double complex Akr = 0;
@@ -1099,14 +1100,7 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M; ++i){
 			T[i] = J[i] * K[i];
 			T[i+M] = J[i] * K[i+M];
-			if( i >= k+2 ){
-				G[i+M*k] = 0;
-				G[i+M*(k+1)] = 0;
-			}
 		}
-
-		char nontrans = 'N';
-		char trans = 'C';
 
 		// compute K*T, where T = JK
 		// C = K*JK
@@ -1114,9 +1108,13 @@ int main(int argc, char* argv[]){
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
+
 		double complex alpha = 1;
 		double complex beta = 0;
-		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);
+		int n_ = 2;
+		char nontrans = 'N';
+		char trans = 'C';
+		zgemm(&trans, &nontrans, &n_, &n_, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n_);
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
 
@@ -1124,7 +1122,6 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		int lwork = 4;
 		int info;
-		int n_ = 2;
 		zgetrf(&n_, &n_, C, &n_, ipiv, &info);
 		if( info ) printf("LU of K*JK unstable. Proceeding.\n");
 		zgetri(&n_, C, &n_, ipiv, work, &lwork, &info);
@@ -1177,7 +1174,7 @@ int main(int argc, char* argv[]){
 				// g = g - 2E c
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n_, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n_, &alpha, &E[k], &M, &K[2*j], &inc, &beta, &G[k+M*j], &inc);
 			}
 		}
 
