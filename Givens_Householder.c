@@ -386,8 +386,8 @@ int main(int argc, char* argv[]){
 		}
 
 		// copy columns of G into K
-		Mk = M-k-2;
-		inc = 1;
+		int Mk = M-k-2;
+		int inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
 		if(Mk/D == 0) mkl_nthreads = 1;
 
@@ -1125,6 +1125,9 @@ int main(int argc, char* argv[]){
 
 
 		//printf("k = %d\n", k);
+		double complex Akr = 0;
+		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+
 		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
 		T[1] = conj(E[2])*J[k]*E[0] + conj(E[3])*J[k+1]*E[1];
 		T[2] = conj(E[0])*J[k]*E[2] + conj(E[1])*J[k+1]*E[3];
@@ -1184,20 +1187,25 @@ int main(int argc, char* argv[]){
 			}
 		}
 
+		char nontrans = 'N';
+		char trans = 'C';
+
 		// compute K*T, where T = JK
 		// C = K*JK
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads( mkl_nthreads );
-		alpha = 1;
-		beta = 0;
+		double complex alpha = 1;
+		double complex beta = 0;
 		zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
 
 		// C = C^(-1) = (K*JK)^+ 
 		mkl_set_num_threads(1);
+		int lwork = 4;
+		int info;
 		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of K*JK unstable. Proceeding.\n");
 		zgetri(&n, C, &n, ipiv, work, &lwork, &info);
