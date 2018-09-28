@@ -872,7 +872,7 @@ int main(int argc, char* argv[]){
 				zrotg(&eliminator, &eliminated, &c, &s);
 
 				// apply the rotation
-				int n_ = 2;
+				n_ = 2;
 				mkl_set_num_threads(1);
 				zrot(&n_, &G[k+M*k], &M, &G[idx+M*k], &M, &c, &s);
 				G[idx+M*k] = 0;
@@ -984,7 +984,7 @@ int main(int argc, char* argv[]){
 
 				// apply the rotation
 				mkl_set_num_threads(1);	
-				int n_ = 2;
+				n_ = 2;
 				zrot(&n_, &G[idx+M*k], &M, &G[k+2+M*k], &M, &c, &s);
 				G[k+2+M*k] = 0;
 			}
