@@ -43,6 +43,11 @@ runH:
 	icc JHouseholder.c -o JHouseholder.out -mkl -lm -fopenmp -w
 	./JHouseholder.out data/G.bin data/J.bin $(M) $(N) -w
 
+runGH:
+	@echo $(M) $(N)
+	icc Givnes_Householder.c -o Givens_Householder.out -mkl -lm -fopenmp -w
+	./Givens_Householder.out data/G.bin data/J.bin $(M) $(N) -w
+
 
 generate_xeon:
 	rm -rf data

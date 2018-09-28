@@ -416,7 +416,6 @@ int main(int argc, char* argv[]){
 		if ((M-k-1)/D == 0) nthreads = 1;
 
 		int idx = -1;
-		int poz = 0;
 		double max_denomi = -1;
 		double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
@@ -452,11 +451,9 @@ int main(int argc, char* argv[]){
 			if( trace + 2 * creal(csqrt(det)) >= 0 && max_denomi < trace + 2 * creal(csqrt(det))){
 				idx = i;
 				max_denomi = trace + 2 * creal(csqrt(det));
-				if(trace - 2 * creal(csqrt(det)) >= 0) poz = 1;
 			}
 		}
 
-		if(poz == 0) printf("NIJE POZ DEF\n");
 
 		//printf("min_svd = %lg\n", min_svd);
 
