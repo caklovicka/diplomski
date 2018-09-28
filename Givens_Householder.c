@@ -160,6 +160,7 @@ int main(int argc, char* argv[]){
 	double pivot1time = 0;
 	double pivotiranje = 0;
 	double redukcijatime = 0;
+	double H2 = 0;
 	int pivot_1_count = 0;
 	int pivot_2_count = 0;
 	int last_pivot = -1;
@@ -1113,9 +1114,10 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads(1);
 		int lwork = 4;
 		int info;
-		zgetrf(&n, &n, C, &n, ipiv, &info);
+		int n_ = 2;
+		zgetrf(&n_, &n_, C, &n_, ipiv, &info);
 		if( info ) printf("LU of K*JK unstable. Proceeding.\n");
-		zgetri(&n, C, &n, ipiv, work, &lwork, &info);
+		zgetri(&n_, C, &n_, ipiv, work, &lwork, &info);
 		if( info ) printf("(K*JK)^+ unstable. Proceeding.\n");
 		C[0] = creal(C[0]);
 		C[3] = creal(C[3]);
@@ -1134,7 +1136,7 @@ int main(int argc, char* argv[]){
 		alpha = 1;
 		beta = 0;
 		mkl_set_num_threads( mkl_nthreads );
-		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
+		zgemm(&nontrans, &nontrans, &Mk, &n_, &n_, &alpha, &K[k], &M, C, &n_, &beta, &E[k], &M);
 
 		for(i = 0; i < 2*M; ++i) K[i] = 0;
 
@@ -1151,7 +1153,7 @@ int main(int argc, char* argv[]){
 				// c = T*g
 				alpha = 1;
 				beta = 0;
-				zgemv(&trans, &Mk, &n, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
+				zgemv(&trans, &Mk, &n_, &alpha, &T[k], &M, &G[k+M*j], &inc, &beta, &K[2*j], &inc);
 			}
 		}
 
@@ -1165,12 +1167,12 @@ int main(int argc, char* argv[]){
 				// g = g - 2E c
 				alpha = -2;
 				beta = 1;
-				zgemv(&nontrans, &Mk, &n, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
+				zgemv(&nontrans, &Mk, &n_, &alpha, &E[k], &M, &K[2*j] , &inc, &beta, &G[k+M*j], &inc);
 			}
 		}
 
 		mkl_set_num_threads_local(0);
-		redukcijatime += omp_get_wtime() - ss;
+		H2 += omp_get_wtime() - ss;
 
 		k = k+1;
 		double end2 = omp_get_wtime();
@@ -1309,7 +1311,7 @@ int main(int argc, char* argv[]){
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
-	printf("PIVOT_2 reflektor time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
+	printf("PIVOT_2 reflektor time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", H2, H2/pivot2time * 100, H2/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
 	printf("prosjecna greska |A2-F*JF| = %lg, max = %lg\n", err2/pivot_2_count, max2);
 	printf("prosjecna greska |F*JG-G*JF| = %lg, max = %lg\n", err1/pivot_2_count, max1);
