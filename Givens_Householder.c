@@ -1030,6 +1030,8 @@ int main(int argc, char* argv[]){
 		E[2] = G[k+M*(k+1)];
 		E[3] = G[k+1+(k+1)*M];
 
+		break;
+
 
 
 		//printf("k = %d\n", k);
