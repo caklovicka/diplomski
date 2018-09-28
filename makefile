@@ -45,7 +45,7 @@ runH:
 
 runGH:
 	@echo $(M) $(N)
-	icc Givnes_Householder.c -o Givens_Householder.out -mkl -lm -fopenmp -w
+	icc Givens_Householder.c -o Givens_Householder.out -mkl -lm -fopenmp -w
 	./Givens_Householder.out data/G.bin data/J.bin $(M) $(N) -w
 
 
