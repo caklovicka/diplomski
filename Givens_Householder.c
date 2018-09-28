@@ -385,6 +385,8 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
+		printMatrix(G, M, N);
+
 		// copy columns of G into K
 		int Mk = M-k-2;
 		int inc = 1;
@@ -829,6 +831,8 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
+
+		printMatrix(G, M, N);
 
 		// handle the (A1) form
 
