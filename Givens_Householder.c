@@ -1022,7 +1022,7 @@ int main(int argc, char* argv[]){
 		exit(-4);
 
 
-		HOUSEHOLDER:
+		HOUSEHOLDER: break;
 
 		// E = F1
 		E[0] = G[k+M*k];
