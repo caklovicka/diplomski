@@ -398,6 +398,15 @@ int main(int argc, char* argv[]){
 		A2[2] = Akr;
 		A2[3] = Arr;
 
+		// copy columns of G into K
+		int Mk = M-k;
+		int inc = 1;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+		zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
+		zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
+
 
 		// find pivot G1
 		int idxi = -1;
@@ -405,86 +414,100 @@ int main(int argc, char* argv[]){
 		for(i = k; i < M-1; ++i){
 			for(j = i+1; j < M; ++j){
 
-			double complex detG1 = G[i+M*k]*G[j+M*(k+1)] - G[i+M*(k+1)]*G[j+M*k];
-			if( cabs(detG1) < EPSILON ) continue;
+				double complex detG1 = G[i+M*k]*G[j+M*(k+1)] - G[i+M*(k+1)]*G[j+M*k];
+				if( cabs(detG1) < EPSILON ) continue;
 
-			// copy columns of G into K
-			Mk = M-k;
-			int inc = 1;
-			mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-			if(Mk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zcopy(&Mk, &G[k+M*k], &inc, &K[k], &inc);
-			zcopy(&Mk, &G[k+M*(k+1)], &inc, &K[k+M], &inc);
+				// G1 = G1^(-1)
+				G1[0] = G[i+M*k];
+				G1[1] = G[j+M*k];
+				G1[2] = G[i+M*(k+1)];
+				G1[3] = G[j+M*(k+1)];
+				mkl_set_num_threads(1);
+				int n = 2;
+				int info;
+				zgetrf(&n, &n, G1, &n, ipiv, &info);
+				if( info ) printf("LU of G1 unstable. Proceeding.\n");
+				int lwork = 4; 
+				zgetri(&n, G1, &n, ipiv, work, &lwork, &info);
+				if( info ) printf("Inverse of G1 unstable. Proceeding.\n");
 
-			// G1 = G1^(-1)
-			G1[0] = G[i+M*k];
-			G1[1] = G[j+M*k];
-			G1[2] = G[i+M*(k+1)];
-			G1[3] = G[j+M*(k+1)];
-			mkl_set_num_threads(1);
-			int n = 2;
-			int info;
-			zgetrf(&n, &n, G1, &n, ipiv, &info);
-			if( info ) printf("LU of G1 unstable. Proceeding.\n");
-			int lwork = 4; 
-			zgetri(&n, G1, &n, ipiv, work, &lwork, &info);
-			if( info ) printf("Inverse of G1 unstable. Proceeding.\n");
+				//G1 = G1^* A2
+				double complex alpha = 1.0;
+				double complex beta = 0;
+				char trans = 'C';
+				char nontrans = 'N';
+				zgemm(&trans, &nontrans, &n, &n, &n, &alpha, G1, &n, A2, &n, &beta, C, &n);
+				int m = 4;
+				zcopy(&m, C, &inc, G1, &inc);
 
-			//G1 = G1^* A2
-			double complex alpha = 1.0;
-			double complex beta = 0;
-			char trans = 'C';
-			char nontrans = 'N';
-			zgemm(&trans, &nontrans, &n, &n, &n, &alpha, G1, &n, A2, &n, &beta, C, &n);
-			int m = 4;
-			zcopy(&m, C, &inc, G1, &inc);
+				//compute K*JK
+				if( i != k ) zswap(&n, &K[k], &M, &K[i], &M);
+				if( j != k+1 ) zswap(&n, &K[k+1], &M, &K[j], &M);
+				
+				double dtemp = J[i];
+				J[i] = J[k];
+				J[k] = dtemp;
 
-			//compute K*JK
-			if( i != k ) zswap(&n, &K[k], &M, &K[i], &M);
-			if( j != k+1 ) zswap(&n, &K[k+1], &M, &K[j], &M);
+				dtemp = J[j];
+				J[j] = J[k+1];
+				J[k+1] = dtemp;
 
-			K[k] -= G1[k];
-			K[k+1] -= G1[k+1];
-			K[k+M] -= G1[k+M];
-			K[k+1+M] -= G1[k+1+M];
+				K[k] -= G1[0];
+				K[k+1] -= G1[1];
+				K[k+M] -= G1[2];
+				K[k+1+M] -= G1[3];
 
-			nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
-			if(Mk/D == 0) nthreads = 1;
-			#pragma omp parallel for num_threads( nthreads )
-			for(i = k; i < M; ++i){
-				T[i] = J[i] * K[i];
-				T[i+M] = J[i] * K[i+M];
-			}
+				nthreads = Mk/D > omp_get_max_threads() ? Mk/D : omp_get_max_threads();
+				if(Mk/D == 0) nthreads = 1;
+				#pragma omp parallel for num_threads( nthreads )
+				for(i = k; i < M; ++i){
+					T[i] = J[i] * K[i];
+					T[i+M] = J[i] * K[i+M];
+				}
 
-			// compute K*T, where T = JK
-			// C = K*JK
-			Mk = M - k;
-			mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-			if(Mk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads( mkl_nthreads );
-			alpha = 1;
-			beta = 0;
-			zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);
-			C[0] = creal(C[0]);
-			C[3] = creal(C[3]);
+				// compute K*T, where T = JK
+				// C = K*JK
+				Mk = M - k;
+				mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+				if(Mk/D == 0) mkl_nthreads = 1;
+				mkl_set_num_threads( mkl_nthreads );
+				alpha = 1;
+				beta = 0;
+				zgemm(&trans, &nontrans, &n, &n, &Mk, &alpha, &K[k], &M, &T[k], &M, &beta, C, &n);
+				C[0] = creal(C[0]);
+				C[3] = creal(C[3]);
 
-			double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
-			printf("detC = %lg\n", detC);
-			if( cabs(detC) < EPSILON ) continue;
+				double detC = C[0]*C[3] - cabs(C[1])*cabs(C[1]);
+				printf("detC = %lg\n", detC);
+				if( cabs(detC) < EPSILON ){
+					
+					//swap rows into J back, also in K
+					dtemp = J[i];
+					J[i] = J[k];
+					J[k] = dtemp;
 
-			// C = C^(-1) = (K*JK)^+ 
-			mkl_set_num_threads(1);
-			zgetrf(&n, &n, C, &n, ipiv, &info);
-			if( info ) printf("LU of K*JK unstable. Proceeding.\n");
-			zgetri(&n, C, &n, ipiv, work, &lwork, &info);
-			if( info ) printf("(K*JK)^+ unstable. Proceeding.\n");
-			C[0] = creal(C[0]);
-			C[3] = creal(C[3]);
+					dtemp = J[j];
+					J[j] = J[k+1];
+					J[k+1] = dtemp;
 
-			idxi = i;
-			idxj = j;
-			goto TASK2;
+					if( i != k ) zswap(&n, &K[k], &M, &K[i], &M);
+					if( j != k+1 ) zswap(&n, &K[k+1], &M, &K[j], &M);
+
+					continue;
+				}
+
+				// C = C^(-1) = (K*JK)^+ 
+				mkl_set_num_threads(1);
+				zgetrf(&n, &n, C, &n, ipiv, &info);
+				if( info ) printf("LU of K*JK unstable. Proceeding.\n");
+				zgetri(&n, C, &n, ipiv, work, &lwork, &info);
+				if( info ) printf("(K*JK)^+ unstable. Proceeding.\n");
+				C[0] = creal(C[0]);
+				C[3] = creal(C[3]);
+
+				idxi = i;
+				idxj = j;
+				goto TASK2;
 			}
 		}
 
@@ -497,10 +520,6 @@ int main(int argc, char* argv[]){
 
 		// swap rows
 		if( idxi != k ){
-
-			double dtemp = J[idxi];
-			J[idxi] = J[k];
-			J[k] = dtemp;
 
 			// update Prow
 			long int itemp = Prow[idxi];
@@ -515,10 +534,6 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k + M*k], &M, &G[idxi + M*k], &M);
 		}
 		if( idxj != k+1 ){
-
-			double dtemp = J[idxj];
-			J[idxj] = J[k+1];
-			J[k+1] = dtemp;
 
 			// update Prow
 			long int itemp = Prow[idxj];
@@ -535,10 +550,10 @@ int main(int argc, char* argv[]){
 
 
 		// E = F1
-		E[0] = G[k+M*k];
-		E[1] = G[k+1+M*k];
-		E[2] = G[k+M*(k+1)];
-		E[3] = G[k+1+(k+1)*M];
+		E[0] = G1[0];
+		E[1] = G1[1];
+		E[2] = G1[2];
+		E[3] = G1[3];
 
 		//printf("k = %d\n", k);
 		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
@@ -554,10 +569,10 @@ int main(int argc, char* argv[]){
 		if(max2 < err2) max2 = err2;
 
 		// C = old G1
-		C[0] = K[k];
-		C[1] = K[k+1];
-		C[2] = K[k+M];
-		C[3] = K[k+1+M];
+		C[0] = G[k+M*k];
+		C[1] = G[k+1+M*k];
+		C[2] = G[k+M*(k+1)];
+		C[3] = G[k+1+M*(k+1)];
 
 		// T = G1*JF
 		T[0] = conj(C[0])*J[k]*E[0] + conj(C[1])*J[k+1]*E[1];
