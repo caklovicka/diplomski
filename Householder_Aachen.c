@@ -399,8 +399,8 @@ int main(int argc, char* argv[]){
 		A2[3] = Arr;
 
 		// copy columns of G into K
-		int Mk = M-k;
-		int inc = 1;
+		Mk = M-k;
+		inc = 1;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
