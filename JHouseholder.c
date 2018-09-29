@@ -436,7 +436,7 @@ int main(int argc, char* argv[]){
 
 			// mini SVD of G1
 
-			char jobz = 'N';
+			/*char jobz = 'N';
 			lwork = 6;
 			C[0] = G[k+M*k];
 			C[1] = G[i+M*k];
@@ -444,7 +444,7 @@ int main(int argc, char* argv[]){
 			C[3] = G[i+M*(k+1)];
 			mkl_set_num_threads(1);
 			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
-			if(info) printf("SVD did not converge... Proceeding...\n");
+			if(info) printf("SVD did not converge... Proceeding...\n");*/
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
@@ -617,16 +617,12 @@ int main(int argc, char* argv[]){
 		// copy columns of G into K
 		Mk = M-k-2;
 		inc = 1;
-		mkl_nthreads = Mk/D > mkl_get_max_threads()/2 ? Mk/D : mkl_get_max_threads()/2;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 
-		#pragma omp parallel num_threads(2)
-		{
-			mkl_set_num_threads_local(mkl_nthreads);
-			if(omp_get_thread_num() == 0) zcopy(&Mk, &G[k+2+M*k], &inc, &K[k+2], &inc);
-			else zcopy(&Mk, &G[k+2+M*(k+1)], &inc, &K[k+2+M], &inc);
-		}
-		mkl_set_num_threads_local(0);
+		mkl_set_num_threads(mkl_nthreads);
+		zcopy(&Mk, &G[k+2+M*k], &inc, &K[k+2], &inc);
+		zcopy(&Mk, &G[k+2+M*(k+1)], &inc, &K[k+2+M], &inc);
 
 
 
