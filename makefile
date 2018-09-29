@@ -43,11 +43,6 @@ runH:
 	icc JHouseholder.c -o JHouseholder.out -mkl -lm -fopenmp -w
 	./JHouseholder.out data/G.bin data/J.bin $(M) $(N) -w
 
-runA:
-	@echo $(M) $(N)
-	icc Householder_Aachen.c -o Householder_Aachen.out -mkl -lm -fopenmp -w
-	./Householder_Aachen.out data/G.bin data/J.bin $(M) $(N) -w
-
 
 runGH:
 	@echo $(M) $(N)
