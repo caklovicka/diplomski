@@ -438,7 +438,7 @@ int main(int argc, char* argv[]){
 			char nontrans = 'N';
 			zgemm(&trans, &nontrans, &n, &n, &n, &alpha, G1, &n, A2, &n, &beta, C, &n);
 			int m = 4;
-			zcopy(&m, C, &inc, g1, &inc);
+			zcopy(&m, C, &inc, G1, &inc);
 
 			//compute K*JK
 			if( i != k ) zswap(&n, &K[k], &M, &K[i], &M);
@@ -604,8 +604,11 @@ int main(int argc, char* argv[]){
 		if(Mk/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
 
 		// compute E = KC
-		alpha = 1;
-		beta = 0;
+		double complex alpha = 1;
+		double complex beta = 0;
+		char trans = 'C';
+		char nontrans = 'N';
+		int n = 2;
 		mkl_set_num_threads( mkl_nthreads );
 		zgemm(&nontrans, &nontrans, &Mk, &n, &n, &alpha, &K[k], &M, C, &n, &beta, &E[k], &M);
 
