@@ -418,6 +418,7 @@ int main(int argc, char* argv[]){
 		int idx = -1;
 		double max_denomi = -1;
 		double min_svd = DBL_MAX;
+		double max_det = -1;
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
@@ -448,9 +449,10 @@ int main(int argc, char* argv[]){
 			
 			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if( trace + 2 * creal(csqrt(det)) >= 0 && max_denomi < trace + 2 * creal(csqrt(det))){
+			if( trace + 2 * creal(csqrt(det)) >= 0 && max_det <= det){//max_denomi < trace + 2 * creal(csqrt(det))){
 				idx = i;
-				max_denomi = trace + 2 * creal(csqrt(det));
+				//max_denomi = trace + 2 * creal(csqrt(det));
+				max_det = det;
 			}
 		}
 
