@@ -416,14 +416,14 @@ int main(int argc, char* argv[]){
 		if ((M-k-1)/D == 0) nthreads = 1;
 
 		int idx = -1;
-		int swap = 0;
+		double max_denomi = -1;
+		//double min_svd = DBL_MAX;
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
 			if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
 
-			idx = i;
-
+			// try finding maximal trace for K^2
 			// trK^2 = K0 x*J1x + K3 y*J1y + 2*Re( conj(K1) x*J1y )
 			// detK^2 = |detG1|^2 / detA
 			// x is the first column of G1, y is the second
@@ -434,14 +434,31 @@ int main(int argc, char* argv[]){
 			double trace = K[0] * xJx + K[3] * yJy + 2 * creal( K[1] * xJy );
 			double det = -cabs(detG1) * cabs(detG1) / detA;
 
+			// mini SVD of G1
+
+			/*char jobz = 'N';
+			lwork = 6;
+			C[0] = G[k+M*k];
+			C[1] = G[i+M*k];
+			C[2] = G[k+M*(k+1)];
+			C[3] = G[i+M*(k+1)];
+			mkl_set_num_threads(1);
+			zgesdd_(&jobz, &n, &n, C, &n, s, NULL, &n, NULL, &n, work, &lwork, rwork, ipiv, &info);
+			if(info) printf("SVD did not converge... Proceeding...\n");*/
+			
+			// condition that a sqrt exists
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if( trace + 2 * creal(csqrt(det)) < 0 ) swap = 1;
-			break;
+			if( trace + 2 * creal(csqrt(det)) >= 0 && max_denomi < trace + 2 * creal(csqrt(det))){
+				idx = i;
+				max_denomi = trace + 2 * creal(csqrt(det));
+			}
 		}
 
 
+		//printf("min_svd = %lg\n", min_svd);
+
 		if(idx == -1){
-			printf("Something went wrong, no regular G1 ... (in pivot 2, k = %d) ... Exiting\n", k);
+			printf("No more altering signs in J or no such G1 for finding a sqrt(K^2) ... (in pivot 2, k = %d) ... Exiting\n", k);
 			break;
 		}
 
@@ -463,25 +480,6 @@ int main(int argc, char* argv[]){
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
-		}
-
-		// do a column swap k <-> k+1 if needed
-
-		if( swap ){
-
-			long int itemp = Pcol[k];
-			Pcol[k] = Pcol[k+1];
-			Pcol[k+1] = itemp;
-
-			double complex ctemp = norm[k];
-			norm[k] = norm[k+1];
-			norm[k+1] = ctemp;
-
-			int inc = 1;
-			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
-			if(M/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&M, &G[M*k], &inc, &G[M*(k+1)], &inc);
 		}
 
 		double complex alpha = 1, beta = 0;
@@ -538,7 +536,7 @@ int main(int argc, char* argv[]){
 
 		// fix the sqrt with an iterative method
 
-		/*double sqrt_err, sqrt_eps = 1e-12;
+		double sqrt_err, sqrt_eps = 1e-12;
 		int m = 4;
 		inc = 1;
 		n = 2;
@@ -550,10 +548,10 @@ int main(int argc, char* argv[]){
 		E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
 		E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
 		E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
-		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; */
+		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
 
 		sqrt_err = dznrm2(&m, E, &inc);
-		/*mkl_set_num_threads(1);
+		mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
 
 			// C = T
@@ -583,7 +581,7 @@ int main(int argc, char* argv[]){
 				break;
 			}
 			else sqrt_err = dznrm2(&m, E, &inc);
-		}*/
+		}
 
 		errk += sqrt_err;
 		if(maxk < errk) maxk = errk;
@@ -630,7 +628,7 @@ int main(int argc, char* argv[]){
 
 
 
-		//-------------------------------------
+
 
 		//printf("k = %d\n", k);
 		T[0] = conj(E[0])*J[k]*E[0] + conj(E[1])*J[k+1]*E[1];
@@ -671,7 +669,7 @@ int main(int argc, char* argv[]){
 		if(max1 < err1) max1 = err1;
 
 
-		//---------------------------------------------
+
 
 
 
