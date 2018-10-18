@@ -483,8 +483,8 @@ int main(int argc, char* argv[]){
 			// change A2 = K
 
 			ctemp = K[0];
-			K[3] = K[0];
-			K[0] = ctemp;
+			K[0] = K[3];
+			K[3] = ctemp;
 			ctemp = K[1];
 			K[1] = K[2];
 			K[2] = ctemp;
@@ -495,6 +495,7 @@ int main(int argc, char* argv[]){
 		char trans = 'C';
 
 		mkl_set_num_threads(1);
+		n = 2;
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, K, &n, &beta, T, &n);	// T = G1 K
 		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, T, &n, &G[k+M*k], &M, &beta, K, &n);	// K = T G1^H
 
@@ -542,17 +543,7 @@ int main(int argc, char* argv[]){
 			T[3] *= -1.0;
 		}
 
-		// fix the sqrt with an iterative method
-
-		/*double sqrt_err, sqrt_eps = 1e-12;
-		int m = 4;
-		inc = 1;
-		n = 2;
-		lwork = 4;
-		alpha = 0.5;
-		beta = 0.5;*/
-
-		//E = T^2 - K
+		//E = T^2 - K ------------------------------------------
 		E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
 		E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
 		E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
@@ -561,40 +552,9 @@ int main(int argc, char* argv[]){
 		int m = 4;
 		inc = 1;
 		double sqrt_err = dznrm2(&m, E, &inc);
-		/*mkl_set_num_threads(1);
-		while(sqrt_err > sqrt_eps){
-
-			// C = T
-			zcopy(&m, T, &inc, C, &inc);
-
-			// save old iteration in f
-			zcopy(&m, T, &inc, f, &inc);
-
-			// C = C^(-1)
-			zgetrf(&n, &n, T, &n, ipiv, &info);
-			if( info ) printf("LU of sqrt unstable. Proceeding.\n"); 
-			zgetri(&n, T, &n, ipiv, work, &lwork, &info);
-			if( info ) printf("Inverse of A2 unstable. Proceeding.\n");
-
-			// do the iteration
-			zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, K, &n, &beta, T, &n);
-
-			// compute err again
-			E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
-			E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
-			E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
-			E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
-
-			// Newton will not work, copy back old iteration
-			if(sqrt_err < dznrm2(&m, E, &inc)){
-				zcopy(&m, f, &inc, T, &inc);
-				break;
-			}
-			else sqrt_err = dznrm2(&m, E, &inc);
-		}*/
-
 		errk += sqrt_err;
 		if(maxk < sqrt_err) maxk = sqrt_err;
+		//E = T^2 - K ------------------------------------------
 
 
 		// find F1, store it into G
