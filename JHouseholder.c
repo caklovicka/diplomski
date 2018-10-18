@@ -588,7 +588,7 @@ int main(int argc, char* argv[]){
 		}*/
 
 		errk += sqrt_err;
-		if(maxk < sqrt_err) maxk = sqrt_errk;
+		if(maxk < sqrt_err) maxk = sqrt_err;
 
 
 		// find F1, store it into G
@@ -645,7 +645,7 @@ int main(int argc, char* argv[]){
 		double d4 = cabs(Arr - T[3]);
 		//printf("|A2 - F*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err2 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
-		if(max2 < csqrt(d1*d1+d2*d2+d3*d3+d4*d4)) max2 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
+		if(max2 < cabs(csqrt(d1*d1+d2*d2+d3*d3+d4*d4))) max2 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 
 		// C = old G1
 		C[0] = K[k];
@@ -670,7 +670,7 @@ int main(int argc, char* argv[]){
 		d4 = cabs(f[3] - T[3]);
 		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
-		if(max1 < csqrt(d1*d1+d2*d2+d3*d3+d4*d4)) max1 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
+		if(max1 < cabs(csqrt(d1*d1+d2*d2+d3*d3+d4*d4))) max1 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 
 
 		//---------------------------------------------
