@@ -552,7 +552,8 @@ int main(int argc, char* argv[]){
 		E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
 		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; */
 
-		sqrt_err = dznrm2(&m, E, &inc);
+		int m = 4;
+		double sqrt_err = dznrm2(&m, E, &inc);
 		/*mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
 
