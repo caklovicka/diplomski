@@ -484,7 +484,7 @@ int main(int argc, char* argv[]){
 
 			ctemp = K[0];
 			K[3] = K[0];
-			K[0] = ctemp
+			K[0] = ctemp;
 			ctemp = K[1];
 			K[1] = K[2];
 			K[2] = ctemp;
