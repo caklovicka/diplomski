@@ -552,7 +552,7 @@ int main(int argc, char* argv[]){
 		int m = 4;
 		inc = 1;
 		double sqrt_err = dznrm2(&m, E, &inc);
-		printf("sqrt_err = %lg\n", sqrt_err);
+		printf("sqrt_err = %lg, k = %d\n", sqrt_err, k);
 		errk += sqrt_err;
 		if(maxk < sqrt_err) maxk = sqrt_err;
 		//E = T^2 - K ------------------------------------------
