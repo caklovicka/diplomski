@@ -511,6 +511,8 @@ int main(int argc, char* argv[]){
 		double detK = (double)(K[0]*K[3] - K[1]*K[2]);
 		double trK = (double) (K[0] + K[3]);
 
+		printf("k = %d, trK * trK - 4 * detK = %lg + i %lg\n", k, creal(trK * trK - 4 * detK), cimag(trK * trK - 4 * detK));
+
 		if( cabs(trK * trK - 4 * detK) > EPSILON ){
 
 			double a = creal(csqrt(trK + 2 * csqrt(detK)));
