@@ -464,7 +464,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// do a column swap k <-> k+1 if needed
-
+		printf("swap = %d\n", swap);
 		if( swap ){
 
 			long int itemp = Pcol[k];
