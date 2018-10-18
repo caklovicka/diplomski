@@ -433,6 +433,7 @@ int main(int argc, char* argv[]){
 
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
 			if( trace + 2 * creal(csqrt(det)) < EPSILON ) swap = 1;
+			printf("trace + 2 * creal(csqrt(det)) = %lg + i %lg\n", creal(trace + 2 * creal(csqrt(det))), cimag(trace + 2 * creal(csqrt(det))));
 			break;
 		}
 
