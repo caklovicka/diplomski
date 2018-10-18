@@ -412,15 +412,12 @@ int main(int argc, char* argv[]){
 
 		// find pivot G1
 
-		nthreads = (M-k-1)/D > omp_get_max_threads() ? (M-k-1)/D : omp_get_max_threads();
-		if ((M-k-1)/D == 0) nthreads = 1;
-
 		int idx = -1;
 		int swap = 0;
 		for(i = k+1; i < M; ++i){
 
 			double complex detG1 = G[k+M*k]*G[i+M*(k+1)] - G[k+M*(k+1)]*G[i+M*k];
-			if( J[k] == J[i] || cabs(detG1) < EPSILON ) continue;
+			if( J[k] == J[i] || cabs(detG1) < EPSILON*100 ) continue;
 
 			idx = i;
 
@@ -435,7 +432,7 @@ int main(int argc, char* argv[]){
 			double det = -cabs(detG1) * cabs(detG1) / detA;
 
 			// see: https://www.maa.org/sites/default/files/pdf/cms_upload/Square_Roots-Sullivan13884.pdf
-			if( trace + 2 * creal(csqrt(det)) < 0 ) swap = 1;
+			if( trace + 2 * creal(csqrt(det)) < EPSILON ) swap = 1;
 			break;
 		}
 
@@ -482,6 +479,15 @@ int main(int argc, char* argv[]){
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*k], &inc, &G[M*(k+1)], &inc);
+
+			// change A2 = K
+
+			ctemp = K[0];
+			K[3] = K[0];
+			K[0] = ctemp
+			ctemp = K[1];
+			K[1] = K[2];
+			K[2] = ctemp;
 		}
 
 		double complex alpha = 1, beta = 0;
