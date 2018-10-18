@@ -670,7 +670,7 @@ int main(int argc, char* argv[]){
 		d4 = cabs(f[3] - T[3]);
 		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
-		if(max1 < cabs(csqrt(d1*d1+d2*d2+d3*d3+d4*d4))) max1 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
+		if(max1 < cabs(csqrt(d1*d1+d2*d2+d3*d3+d4*d4))) max1 = cabs(csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 
 
 		//---------------------------------------------
@@ -862,7 +862,7 @@ int main(int argc, char* argv[]){
 		G[k + M*k] = gkk;
 		//printf("k = %d\n|Akk - gkk| = %lg\n", k, cabs(Akk - conj(gkk)*J[k]*gkk) );
 		err0 += cabs(Akk - conj(gkk)*J[k]*gkk);
-		if(max0 < err0) max0 = err0;
+		if(max0 < cabs(Akk - conj(gkk)*J[k]*gkk)) max0 = cabs(Akk - conj(gkk)*J[k]*gkk);
 
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
@@ -974,7 +974,7 @@ int main(int argc, char* argv[]){
 
 	// ----------------------------------------- cleaning -----------------------------------------
 
-	fclose(readG);
+	/*fclose(readG);
 	fclose(readJ);
 	fclose(writeG);
 	fclose(writeJ);
@@ -985,7 +985,7 @@ int main(int argc, char* argv[]){
 	mkl_free(Pcol);
 	mkl_free(G);
 	mkl_free(J);
-	mkl_free(f);
+	mkl_free(f);*/
 
 	printf("\n-------------------------------------------------------------------------------\n\n");
 	return(0);
