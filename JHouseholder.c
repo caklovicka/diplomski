@@ -544,15 +544,16 @@ int main(int argc, char* argv[]){
 		n = 2;
 		lwork = 4;
 		alpha = 0.5;
-		beta = 0.5;
+		beta = 0.5;*/
 
 		//E = T^2 - K
 		E[0] = T[0]*T[0] + T[1]*T[2] - K[0];
 		E[1] = T[0]*T[1] + T[1]*T[3] - K[1];
 		E[2] = T[0]*T[2] + T[2]*T[3] - K[2];
-		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; */
+		E[3] = T[1]*T[2] + T[3]*T[3] - K[3]; 
 
 		int m = 4;
+		inc = 1;
 		double sqrt_err = dznrm2(&m, E, &inc);
 		/*mkl_set_num_threads(1);
 		while(sqrt_err > sqrt_eps){
@@ -587,7 +588,7 @@ int main(int argc, char* argv[]){
 		}*/
 
 		errk += sqrt_err;
-		if(maxk < errk) maxk = errk;
+		if(maxk < sqrt_err) maxk = sqrt_errk;
 
 
 		// find F1, store it into G
@@ -644,7 +645,7 @@ int main(int argc, char* argv[]){
 		double d4 = cabs(Arr - T[3]);
 		//printf("|A2 - F*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err2 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
-		if(max2 < err2) max2 = err2;
+		if(max2 < csqrt(d1*d1+d2*d2+d3*d3+d4*d4)) max2 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 
 		// C = old G1
 		C[0] = K[k];
@@ -669,7 +670,7 @@ int main(int argc, char* argv[]){
 		d4 = cabs(f[3] - T[3]);
 		//printf("|F*JG - G*JF| = %lg\n", csqrt(d1*d1+d2*d2+d3*d3+d4*d4));
 		err1 += csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
-		if(max1 < err1) max1 = err1;
+		if(max1 < csqrt(d1*d1+d2*d2+d3*d3+d4*d4)) max1 = csqrt(d1*d1+d2*d2+d3*d3+d4*d4);
 
 
 		//---------------------------------------------
