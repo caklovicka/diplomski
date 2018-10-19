@@ -461,11 +461,13 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
+		double start1;
+
 		if( ! from_pivot_2 ){
 			pivotiranje = pivotiranje + omp_get_wtime() - pp;
 			last_pivot = 1;
 			pivot_1_count += 1;
-			double start1 = omp_get_wtime();
+			start1 = omp_get_wtime();
 		}
 
 		else Akk = (double) norm[k];

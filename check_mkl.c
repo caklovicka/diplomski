@@ -162,19 +162,21 @@ int main(int argc, char* argv[]){
 	
 	// ------------------------------------------ residual ------------------------------------------
 
-	printf("\nA (izracunata) = \n");
+	/*printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
 	
 	printf("\nPA (permutirana, izracunata) = \n");
 	printMatrix(PA, N, N);
 
 	printf("AA (prava matrica) = \n");
-	printMatrix(AA, N, N);
+	printMatrix(AA, N, N);*/
 	
 
 	double norm = 0; 
 	double max = 0;
-	int ii = -1, jj = -1;
+	double max_rel = 0;
+
+	int ii = -1, jj = -1, ir = -1, jr = -1;
 
 	#pragma omp parallel for collapse(2)
 	for(i = 0; i < N; ++i){
@@ -187,6 +189,11 @@ int main(int argc, char* argv[]){
 				ii = i;
 				jj = j;
 			} 
+			if(cabs(PA[i+N*j] - AA[i+N*j])/cabs(AA[i+N*j]) > max_rel){
+				max_rel = cabs(PA[i+N*j] - AA[i+N*j])/cabs(AA[i+N*j]);
+				ir = i;
+				jr = j;
+			} 
 			norm += cabs(PA[i+N*j] - AA[i+N*j]) * cabs(PA[i+N*j] - AA[i+N*j]);
 		}
 		}
@@ -197,6 +204,7 @@ int main(int argc, char* argv[]){
 	double norm2 = dznrm2(&NN, AA, &inc);
 
 	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
+	printf("maximum relative coordinate difference in (%d, %d): %.5e\n", ir, jr, max_rel);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
 	printf("norm(PA-AA)/norm(AA) = %.5e\n", csqrt(norm)/norm2);
 	//printf("dnrm2_(AA) = %.5e\n", norm2);
