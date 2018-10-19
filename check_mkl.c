@@ -52,20 +52,20 @@ int main(int argc, char* argv[]){
 
 	// read variables from command line
 	if (argc == 7){
-		FILE *readG = fopen(argv[1], "rb");
-		FILE *readJ = fopen(argv[2], "rb");
-		FILE *readA = fopen(argv[3], "rb");
-		FILE *readPcol = fopen(argv[4], "rb");
+		readG = fopen(argv[1], "rb");
+		readJ = fopen(argv[2], "rb");
+		readA = fopen(argv[3], "rb");
+		readPcol = fopen(argv[4], "rb");
 		M = atoi(argv[5]);
 		N = atoi(argv[6]);
 	}
 
 	else if (argc == 8)
-		FILE *readG = fopen(argv[1], "rb");
-		FILE *readJ = fopen(argv[2], "rb");
-		FILE *readA = fopen(argv[3], "rb");
-		FILE *readPcol = fopen(argv[4], "rb");
-		FILE *readV = fopen(argv[5], "rb");
+		readG = fopen(argv[1], "rb");
+		readJ = fopen(argv[2], "rb");
+		readA = fopen(argv[3], "rb");
+		readPcol = fopen(argv[4], "rb");
+		readV = fopen(argv[5], "rb");
 		M = atoi(argv[6]);
 		N = atoi(argv[7]);
 	}
