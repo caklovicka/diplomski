@@ -53,7 +53,7 @@ int main(int argc, char* argv[]){
 		int M = atoi(argv[5]);
 		int N = atoi(argv[6]);
 	}
-	else if (argc == 7){
+	else(argc == 7){
 		FILE *readG = fopen(argv[1], "rb");
 		FILE *readJ = fopen(argv[2], "rb");
 		FILE *readA = fopen(argv[3], "rb");
