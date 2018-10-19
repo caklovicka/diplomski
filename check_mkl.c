@@ -42,6 +42,13 @@ int main(int argc, char* argv[]){
 	mkl_set_dynamic(1);
 	omp_set_dynamic(1);
 
+	int M, N;
+	FILE *readG;
+	FILE *readJ;
+	FILE *readA;
+	FILE *readPcol;
+	FILE *readV;
+
 
 	// read variables from command line
 	if (argc == 7){
@@ -49,8 +56,8 @@ int main(int argc, char* argv[]){
 		FILE *readJ = fopen(argv[2], "rb");
 		FILE *readA = fopen(argv[3], "rb");
 		FILE *readPcol = fopen(argv[4], "rb");
-		int M = atoi(argv[5]);
-		int N = atoi(argv[6]);
+		M = atoi(argv[5]);
+		N = atoi(argv[6]);
 	}
 
 	else if (argc == 8)
@@ -59,8 +66,8 @@ int main(int argc, char* argv[]){
 		FILE *readA = fopen(argv[3], "rb");
 		FILE *readPcol = fopen(argv[4], "rb");
 		FILE *readV = fopen(argv[5], "rb");
-		int M = atoi(argv[6]);
-		int N = atoi(argv[7]);
+		M = atoi(argv[6]);
+		N = atoi(argv[7]);
 	}
 	else{
 		printf("not the right amount of expected variables. exiting");
