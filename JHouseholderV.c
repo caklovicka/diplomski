@@ -408,7 +408,7 @@ int main(int argc, char* argv[]){
 		double complex alpha = 1.0, beta = 0;
 		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, &T, &M);
 
-		int MM = 2*M;
+		//int MM = 2*M;
 		//zcopy(&MM, T, &inc, &G[M*k], &inc);
 
 		// now do the reductions one by one reflector in G
@@ -558,12 +558,7 @@ int main(int argc, char* argv[]){
 	printf("algorithm time = %lg s\n", seconds);
 	printf("PIVOT_1 (%d)	time = %lg s (%lg %%)\n", pivot_1_count, pivot1time, pivot1time / seconds * 100);
 	printf("PIVOT_2 (%d)	time = %lg s (%lg %%)\n", pivot_2_count, pivot2time, pivot2time / seconds * 100);
-	printf("PIVOT_2 reflektor time = %lg s (udio relativnog = %lg %%, udio apsolutnog = %lg %%)\n", redukcijatime, redukcijatime/pivot2time * 100, redukcijatime/seconds * 100);
 	printf("pivotiranje time = %lg s (%lg %%)\n", pivotiranje, pivotiranje/seconds * 100);
-	printf("prosjecna greska |A2-F*JF| = %lg, max = %lg\n", err2/pivot_2_count, max2);
-	printf("prosjecna greska |F*JG-G*JF| = %lg, max = %lg\n", err1/pivot_2_count, max1);
-	printf("prosjecna greska |T^2 - K| = %lg, max = %lg\n", errk/pivot_2_count, maxk);
-	printf("prosjecna greska |Akk - gkk| = %lg, max = %lg\n", err0/pivot_1_count, max0);
 
 
 	// ----------------------------------------- writing -----------------------------------------
