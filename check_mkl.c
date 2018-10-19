@@ -117,12 +117,14 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+	double complex *V;
+	int v;
 	if(argc == 7){
-		fscanf(readV, "%d", &v);
+		fscanf(readV, "%d", &v)
 		double complex *V = (double complex*) mkl_malloc(3*v*sizeof(double complex), 64);
 		double x, y;
 		for (j = 0; j < v; ++j){
-			fscanf(writeV, "%lg %lg %lg %lg ", &V[3*j], &V[3*j+1], x, y);
+			fscanf(readV, "%lg %lg %lg %lg ", &V[3*j], &V[3*j+1], x, y);
 			V[3*j+2] = x + I*y;
 		}
 	}
@@ -179,13 +181,13 @@ int main(int argc, char* argv[]){
 			double complex c = V[3*i+1];
 			double complex s = V[3*i+2];
 			L[0] = c;
-			L[1] = J[idx] * J[idx+1] s;
-			L[2] = - J[idx] * J[idx+1] conj(s);
+			L[1] = J[idx] * J[idx+1] * s;
+			L[2] = - J[idx] * J[idx+1] * conj(s);
 			L[3] = c;
 
 			D[0] = c;
-			D[1] = - J[idx] * J[idx+1] s;
-			D[2] = J[idx] * J[idx+1] conj(s);
+			D[1] = - J[idx] * J[idx+1] * s;
+			D[2] = J[idx] * J[idx+1] * conj(s);
 			D[3] = c;
 
 			int n = 2;
@@ -230,7 +232,6 @@ int main(int argc, char* argv[]){
 
 		#pragma omp critical
 		{
-			if()
 			if(cabs(PA[i+N*j] - AA[i+N*j]) > max){
 				max = cabs(PA[i+N*j] - AA[i+N*j]);
 				ii = i;
