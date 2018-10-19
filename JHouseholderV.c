@@ -496,8 +496,8 @@ int main(int argc, char* argv[]){
 		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
 
 		E[0] = c;
-		E[1] = s;//-J[k] * J[k+1] * s;
-		E[2] = -conj(s);//J[k] * J[k+1] * conj(s);
+		E[1] = -s;//-J[k] * J[k+1] * s;
+		E[2] = conj(s);//J[k] * J[k+1] * conj(s);
 		E[3] = c;
 
 		// multyply F with inverse of C
