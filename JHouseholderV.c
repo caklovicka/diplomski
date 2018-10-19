@@ -438,20 +438,15 @@ int main(int argc, char* argv[]){
 
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
+		printf("k = %d, back in pivot 2\n", );
 
 		// multyply F with inverse of C
 		alpha = 1.0;
 		beta = 0;
 		n = 2;
-
-		Mk = M-k;
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
+		mkl_set_num_threads(1);
 
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k], &M);
-
-		mkl_set_num_threads(1);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
