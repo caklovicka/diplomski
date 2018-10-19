@@ -441,7 +441,7 @@ int main(int argc, char* argv[]){
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
-		pivot_1_count += 1;
+		if( ! from_pivot_2 ) pivot_1_count += 1;
 		double start1 = omp_get_wtime();
 
 
