@@ -391,11 +391,11 @@ int main(int argc, char* argv[]){
 		double complex Akr = 0;
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 
-		double rt1, rt2, cs;
-		double complex sn;
+		double r1, r2, c;
+		double complex s;
 
 		mkl_set_num_threads(1);
-		zlaev2(&Akk, &Akr, &Arr, &rt1, &rt2, &cd, &sn);
+		zlaev2(&Akk, &Akr, &Arr, &r1, &r2, &c, &s);
 	
 		break;
 
