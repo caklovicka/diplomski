@@ -500,7 +500,6 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		n = 2;
 		mkl_set_num_threads(1);
-
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k], &M);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
@@ -515,7 +514,6 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
-		if( from_pivot_2 ) printf("k = %d, in pivot 1 from pivot 2\n", k);
 		if ( from_pivot_2 ) Akk = (double) norm[k];
 
 		double start1;
