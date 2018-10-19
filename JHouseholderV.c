@@ -380,6 +380,34 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
+		// do a row swap, so that J[k] = -J[k+1]
+		int idx = -1;
+		for(i = k+1; i < M, ++i){
+			if(J[k] == J[i]) continue;
+			idx = i;
+			break;
+		}
+
+		// swap rows idx <-> k+1
+		if( idx != k+1 ){
+
+			double dtemp = J[idx];
+			J[idx] = J[k+1];
+			J[k+1] = dtemp;
+
+			// update Prow
+			long int itemp = Prow[idx];
+			Prow[idx] = Prow[k+1];
+			Prow[k+1] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
+		}
+
 		// compute A2
 		int Mk = M - k;
 		int inc = 1;
@@ -436,7 +464,7 @@ int main(int argc, char* argv[]){
 		printf("k = %d, back in pivot 2\n", k);
 
 		E[0] = c;
-		E[1] = - s;
+		E[1] = -s;
 		E[2] = -conj(s);
 		E[3] = c;
 
