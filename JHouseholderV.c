@@ -394,7 +394,7 @@ int main(int argc, char* argv[]){
 		double rt1, rt2, cs;
 		double complex sn;
 
-		mkl_set_num_threads(1)
+		mkl_set_num_threads(1);
 		zlaev2(&Akk, &Akr, &Arr, &rt1, &rt2, &cd, &sn);
 	
 		break;
@@ -473,7 +473,7 @@ int main(int argc, char* argv[]){
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
 		// make the reflector vector and save it
-		alpha = -1;
+		double complex alpha = -1;
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
