@@ -175,13 +175,15 @@ int main(int argc, char* argv[]){
 	printf("Racunanje normi = %lg s\n", omp_get_wtime() - norm_time);
 
 
-	for(k = 0; k < N; ++k){
+	for(k = 0; k < N; ++k){	// MAIN LOOP
 
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
+		printf("k = %d\n", k);
+		if(k == 3) break;
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -464,7 +466,7 @@ int main(int argc, char* argv[]){
 		if (from_pivot_2 ) Akk = (double) norm[k];
 
 		double start1;
-		
+
 		if( ! from_pivot_2 ){
 			pivotiranje = pivotiranje + omp_get_wtime() - pp;
 			last_pivot = 1;
