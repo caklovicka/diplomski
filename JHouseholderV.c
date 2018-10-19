@@ -382,7 +382,7 @@ int main(int argc, char* argv[]){
 
 		// do a row swap, so that J[k] = -J[k+1]
 		int idx = -1;
-		for(i = k+1; i < M, ++i){
+		for(i = k+1; i < M; ++i){
 			if(J[k] == J[i]) continue;
 			idx = i;
 			break;
