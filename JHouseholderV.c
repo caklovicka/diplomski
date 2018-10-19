@@ -382,9 +382,11 @@ int main(int argc, char* argv[]){
 		// compute A2
 		int Mk = M - k;
 		int inc = 1;
+
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
+
 		double complex Akr = 0;
 		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
 
@@ -399,20 +401,24 @@ int main(int argc, char* argv[]){
 		C[3] = c;
 
 		// multiply G with C
-		mkl_set_num_threads(1);
+		Mk = M-k;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+
 		char nontrans = 'N';
 		int n = 2;
 		double complex alpha = 1.0, beta = 0;
 		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k], &M);
-		Mk = M-k;
+		mkl_set_num_threads(1);
 		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
 		// save C
-		V[3*v] = k;
+		/*V[3*v] = k;
 		V[3*v + 1] = c;
 		V[3*v+2] = s;
-		++v;
+		++v;*/
 
 		// E is inverse of C
 		E[0] = c;
@@ -434,14 +440,21 @@ int main(int argc, char* argv[]){
 		alpha = 1.0;
 		beta = 0;
 		n = 2;
+
+		Mk = M-k;
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k], &M);
+
+		mkl_set_num_threads(1);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
-		break;
 		goto LOOP_END;
 	
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
