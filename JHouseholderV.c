@@ -539,10 +539,10 @@ int main(int argc, char* argv[]){
 		zcopy(&Mk, &G[k+M*k], &inc, &f[k], &inc);
 		f[k] -= gkk;
 
+		if(k == 3) goto LOOP_END;
+
 		// update G
 		G[k + M*k] = gkk;
-
-		printf("k = %d ... |Akk - gkk| = %lg\n", k, cabs(Akk - conj(gkk)*J[k]*gkk) );
 
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
