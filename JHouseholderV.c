@@ -490,10 +490,6 @@ int main(int argc, char* argv[]){
 
 		END_OF_PIVOT_2: k = k-1;
 
-		printf("k = %d, back in pivot 2\n", k);
-
-		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
-
 		E[0] = c;
 		E[1] = -s;//-J[k] * J[k+1] * s;
 		E[2] = conj(s);//J[k] * J[k+1] * conj(s);
@@ -504,9 +500,6 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		n = 2;
 		mkl_set_num_threads(1);
-
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, E, &n, &beta, T, &n);
-		printMatrix(T, 2, 2);
 
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k], &M);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
