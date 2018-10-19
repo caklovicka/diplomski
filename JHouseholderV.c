@@ -182,8 +182,8 @@ int main(int argc, char* argv[]){
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
-		printf("k = %d\n", k);
 		if(k == 2) break;
+		printf("k = %d, last_pivot = %d\n", k, last_pivot);
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -434,6 +434,8 @@ int main(int argc, char* argv[]){
 		from_pivot_2 = 1;
 		repetitions = 2;
 
+		printf("zovem pivot 2\n");
+
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
 
@@ -463,7 +465,8 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
-		if (from_pivot_2 ) Akk = (double) norm[k];
+		if( from_pivot_2 ) printf("k = %d, in pivot 1 from pivot 2\n", k);
+		if ( from_pivot_2 ) Akk = (double) norm[k];
 
 		double start1;
 
