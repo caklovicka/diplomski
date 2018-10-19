@@ -398,8 +398,6 @@ int main(int argc, char* argv[]){
 		C[2] = -conj(s);
 		C[3] = c;
 
-		printMatrix(G, M, N);
-
 		// multiply G with C
 		mkl_set_num_threads_local(0);
 		char nontrans = 'N';
@@ -426,24 +424,19 @@ int main(int argc, char* argv[]){
 		E[2] = J[k] * J[k+1] * conj(s);
 		E[3] = c;
 
-		printMatrix(G, M, N);
+		norm[k] = r1;
+		norm[k+1] = r2;
 
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
 
-
-		printf("rt1 = %lg, rt2 = %lg, norm[k] = %lg\n", r1, r2, norm[k]);
-
-		
 		// multyply F with inverse of C
 		alpha = 1.0;
 		beta = 0;
+		n = 2;
 		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k+M*k], &M);
-		Mk = 2;
-		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
-		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
-
-		printMatrix(G, M, N);
+		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
+		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
 		k = k+1;
 		double end2 = omp_get_wtime();
@@ -461,6 +454,7 @@ int main(int argc, char* argv[]){
 		if( ! from_pivot_2 ) pivot_1_count += 1;
 		double start1 = omp_get_wtime();
 
+		Akk = norm[k];
 
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
