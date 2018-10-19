@@ -85,13 +85,9 @@ int main(int argc, char* argv[]){
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
 	double complex *T = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
+	//double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
-	int *ipiv = (int*) mkl_malloc(16*sizeof(int), 64);
-	double complex *work = (double complex*) mkl_malloc(6*sizeof(double complex), 64);	// temporary matrix
-	double *rwork = (double*) mkl_malloc(10*sizeof(double), 64);
-	double *s = (double*) mkl_malloc(2*sizeof(double), 64);
+	//double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 
 	// check if files are opened
 
