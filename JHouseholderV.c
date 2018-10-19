@@ -89,6 +89,7 @@ int main(int argc, char* argv[]){
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	//double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	int *ipiv = (int*) mkl_malloc(16*sizeof(int), 64);
+	double complex *work = (double complex*) mkl_malloc(6*sizeof(double complex), 64);	// temporary matrix
 
 	// check if files are opened
 
@@ -413,9 +414,10 @@ int main(int argc, char* argv[]){
 		int repetitions = 2;
 		goto PIVOT_1;
 
-		END_OF_PIVOT_2:
 
 		int info;
+		END_OF_PIVOT_2: info = 0;
+
 		mkl_set_num_threads(1);
 		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of C unstable. Proceeding.\n");
