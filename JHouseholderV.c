@@ -417,13 +417,13 @@ int main(int argc, char* argv[]){
 		V[3*v+2] = s;
 		++v;
 
-		E[0] = c;
-		E[1] = - J[k] * J[k+1] * s;
-		E[2] = J[k] * J[k+1] * conj(s);
-		E[3] = c;
+		f[0] = c;
+		f[1] = - J[k] * J[k+1] * s;
+		f[2] = J[k] * J[k+1] * conj(s);
+		f[3] = c;
 
 		// check if it is an inverse of C
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, E, &n, &beta, T, &n);
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, f, &n, &beta, T, &n);
 		printMatrix(T, 2, 2);
 		break;
 
