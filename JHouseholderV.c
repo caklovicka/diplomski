@@ -183,7 +183,7 @@ int main(int argc, char* argv[]){
 
 		from_pivot_2 = 0;
 		printf("k = %d\n", k);
-		if(k == 3) break;
+		if(k == 2) break;
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
