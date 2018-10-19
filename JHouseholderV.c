@@ -399,18 +399,14 @@ int main(int argc, char* argv[]){
 		C[3] = c;
 
 		// multiply G with C
-		mkl_set_num_threads_local(0);
+		mkl_set_num_threads(1);
 		char nontrans = 'N';
 		int n = 2;
 		double complex alpha = 1.0, beta = 0;
-		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k+M*k], &M);
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k], &M);
 		Mk = M-k;
 		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
-
-		// now do the reductions one by one reflector in G
-		from_pivot_2 = 1;
-		repetitions = 2;
 
 		// save C
 		V[3*v] = k;
@@ -427,6 +423,10 @@ int main(int argc, char* argv[]){
 		norm[k] = r1;
 		norm[k+1] = r2;
 
+		// now do the reductions one by one reflector in G
+		from_pivot_2 = 1;
+		repetitions = 2;
+
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
 
@@ -434,7 +434,7 @@ int main(int argc, char* argv[]){
 		alpha = 1.0;
 		beta = 0;
 		n = 2;
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k+M*k], &M);
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k], &M);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
