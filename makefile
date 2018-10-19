@@ -103,8 +103,8 @@ check_xeon:
 
 checkV:
 	@echo $(M) $(N)
-	icc -mkl check_mkl.c -o check_mkl.out -fopenmp -w
-	./check_mkl.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin data/V.bin $(M) $(N)
+	icc -mkl checkV.c -o checkV.out -fopenmp -w
+	./checkV.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin data/V.bin $(M) $(N)
 
 clean:
 	rm -rf data 
