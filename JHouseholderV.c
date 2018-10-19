@@ -182,6 +182,8 @@ int main(int argc, char* argv[]){
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
+		printf("k = %d\n", k);
+		if(k == 4) break;
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -453,7 +455,6 @@ int main(int argc, char* argv[]){
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
 		k = k+1;
-		break;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
 		goto LOOP_END;
