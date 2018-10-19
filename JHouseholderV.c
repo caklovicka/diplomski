@@ -405,7 +405,7 @@ int main(int argc, char* argv[]){
 		// do a row swap, so that sign(J[k]) = sign(r1)
 		int idx = -1;
 		for(i = k; i < M; ++i){
-			if(J[i] * r1 > 0) continue;
+			if(J[i] * r1 < 0) continue;
 			idx = i;
 			break;
 		}
@@ -435,7 +435,7 @@ int main(int argc, char* argv[]){
 		// do a row swap, so that sign(J[k+1]) = sign(r2)
 		idx = -1;
 		for(i = k+1; i < M; ++i){
-			if(J[i] * r2 > 0) continue;
+			if(J[i] * r2 < 0) continue;
 			idx = i;
 			break;
 		}
@@ -496,8 +496,8 @@ int main(int argc, char* argv[]){
 		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
 
 		E[0] = c;
-		E[1] = -J[k] * J[k+1] * s;
-		E[2] = J[k] * J[k+1] * conj(s);
+		E[1] = s;//-J[k] * J[k+1] * s;
+		E[2] = -conj(s);//J[k] * J[k+1] * conj(s);
 		E[3] = c;
 
 		// multyply F with inverse of C
