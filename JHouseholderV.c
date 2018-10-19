@@ -380,10 +380,60 @@ int main(int argc, char* argv[]){
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*(k+1)], &inc);
 		}
 
-		// do a row swap, so that J[k] = -J[k+1]
+		// compute A2
+		int Mk = M - k;
+		int inc = 1;
+
+		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+		if(Mk/D == 0) mkl_nthreads = 1;
+		mkl_set_num_threads(mkl_nthreads);
+
+		double complex Akr = 0;
+		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
+
+		// compute factorization of A2
+		double r1, r2, c;
+		double complex s;
+
+		mkl_set_num_threads(1);
+		zlaev2(&Akk, &Akr, &Arr, &r1, &r2, &c, &s);
+		C[0] = c;
+		C[1] = s;
+		C[2] = -conj(s);
+		C[3] = c;
+
+		// do a row swap, so that sign(J[k]) = sign(r1)
+		int idx = -1;
+		for(i = k; i < M; ++i){
+			if(J[k] * r1 < 0) continue;
+			idx = i;
+			break;
+		}
+
+		// swap rows idx <-> k
+		if( idx != k ){
+
+			double dtemp = J[idx];
+			J[idx] = J[k];
+			J[k] = dtemp;
+
+			// update Prow
+			long int itemp = Prow[idx];
+			Prow[idx] = Prow[k];
+			Prow[k] = itemp;
+
+			// swap rows in G 
+			int Nk = N - k;
+			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k + M*k], &M, &G[idx + M*k], &M);
+		}
+
+		// do a row swap, so that sign(J[k+1]) = sign(r2)
 		int idx = -1;
 		for(i = k+1; i < M; ++i){
-			if(J[k] == J[i]) continue;
+			if(J[k+1] * r2 < 0) continue;
 			idx = i;
 			break;
 		}
@@ -408,28 +458,7 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
 		}
 
-		// compute A2
-		int Mk = M - k;
-		int inc = 1;
-
-		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
-		if(Mk/D == 0) mkl_nthreads = 1;
-		mkl_set_num_threads(mkl_nthreads);
-
-		double complex Akr = 0;
-		for(i = k; i < M; ++i) Akr += conj(G[i+M*k]) * J[i] * G[i+M*(k+1)];
-
-		double r1, r2, c;
-		double complex s;
-
-		mkl_set_num_threads(1);
-		zlaev2(&Akk, &Akr, &Arr, &r1, &r2, &c, &s);
-		C[0] = c;
-		C[1] = s;
-		C[2] = -conj(s);
-		C[3] = c;
-
-		printf("r1 = %lg, r2 = %lg\n", r1, r2);
+		printf("r1 = %lg, r2 = %lg, jk = %lg, Jk+1 = %lg\n", r1, r2, J[k], J[k+1]);
 
 		// multiply G with C
 		Mk = M-k;
@@ -445,26 +474,19 @@ int main(int argc, char* argv[]){
 		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
-		// save C
-		/*V[3*v] = k;
-		V[3*v + 1] = c;
-		V[3*v+2] = s;
-		++v;*/
-
 		// E is inverse of C
 		norm[k] = r1;
 		norm[k+1] = r2;
 
-		// now do the reductions one by one reflector in G
+		// now do the reductions one by one with reflectors
 		from_pivot_2 = 1;
 		repetitions = 2;
-
-		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
-		printf("zovem pivot 2\n");
-
-
 		goto PIVOT_1;
+
+		// nothing here... ever
+
 		END_OF_PIVOT_2: k = k-1;
+		
 		printf("k = %d, back in pivot 2\n", k);
 
 		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
