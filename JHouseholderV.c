@@ -459,7 +459,9 @@ int main(int argc, char* argv[]){
 		from_pivot_2 = 1;
 		repetitions = 2;
 
+		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
 		printf("zovem pivot 2\n");
+
 
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
