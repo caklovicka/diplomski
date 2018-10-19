@@ -402,10 +402,10 @@ int main(int argc, char* argv[]){
 		char nontrans = 'N';
 		int n = 2;
 		double complex alpha = 1.0, beta = 0;
-		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, T, &M);
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, T, &M);
 
 		int M2 = 2*M;
-		zcopy(&M2, T, &inc, &G[M*k], &inc);
+		zcopy(&M2, T, &inc, &G[k+M*k], &inc);
 
 		// now do the reductions one by one reflector in G
 		from_pivot_2 = 1;
@@ -416,6 +416,16 @@ int main(int argc, char* argv[]){
 		V[3*v + 1] = c;
 		V[3*v+2] = s;
 		++v;
+
+		D[0] = c;
+		D[1] = - J[k] * J[k+1] * s;
+		D[2] = J[k] * J[k+1] * conj(s);
+		D[3] = c;
+
+		// check if it is an inverse of C
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, V, &n, D, &n, &beta, T, &n);
+		printMatrix(T, 2, 2);
+		break;
 
 		goto PIVOT_1;
 		END_OF_PIVOT_2: i -= 1;
