@@ -185,6 +185,8 @@ int main(int argc, char* argv[]){
 
 		from_pivot_2 = 0;
 
+		printf("k = %d\n", k);
+
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
@@ -357,6 +359,7 @@ int main(int argc, char* argv[]){
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
+		printf("in pivot 2, k = %d\n", k);
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
@@ -413,16 +416,12 @@ int main(int argc, char* argv[]){
 		// now do the reductions one by one reflector in G
 		from_pivot_2 = 1;
 		repetitions = 2;
-		printMatrix(C, 2, 2);
 
 		goto PIVOT_1;
-		END_OF_PIVOT_2: i++;
-
-		printMatrix(C, 2, 2);
+		END_OF_PIVOT_2: n = 2;
 
 		mkl_set_num_threads(1);
 		int info;
-		n = 2;
 		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of C unstable. Proceeding.\n");
 		int lwork = 4; 
@@ -442,6 +441,8 @@ int main(int argc, char* argv[]){
 		// uses: T, f
 
 		PIVOT_1:
+
+		if(!from_pivot_2) printf("in pivot 1, k = %d\n", k);
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
