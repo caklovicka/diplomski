@@ -398,6 +398,8 @@ int main(int argc, char* argv[]){
 		C[2] = -conj(s);
 		C[3] = c;
 
+		printMatrix(G, M, N);
+
 		// multiply G with C
 		mkl_set_num_threads_local(0);
 		char nontrans = 'N';
@@ -424,16 +426,20 @@ int main(int argc, char* argv[]){
 		E[2] = J[k] * J[k+1] * conj(s);
 		E[3] = c;
 
+		printMatrix(G, M, N);
+
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
 
 		// multyply F with inverse of C
 		alpha = 1.0;
 		beta = 0;
-		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k+M*k], &M);
-		Mk = M-k;
+		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k+M*k], &M);
+		Mk = 2;
 		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
+
+		printMatrix(G, M, N);
 
 		k = k+1;
 		double end2 = omp_get_wtime();
