@@ -428,7 +428,8 @@ int main(int argc, char* argv[]){
 		END_OF_PIVOT_2: k = k-1;
 
 		// multyply F with inverse of C
-		double complex alpha = 1.0, beta = 0;
+		alpha = 1.0;
+		beta = 0;
 		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k+M*k], &M);
 		Mk = M-k;
 		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
