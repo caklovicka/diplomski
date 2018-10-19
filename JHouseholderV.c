@@ -432,7 +432,7 @@ int main(int argc, char* argv[]){
 		END_OF_PIVOT_2: k = k-1;
 
 
-		printf("rt1 = %lg, rt2 = %lg, norm[k] = %lg\n", rt1, rt2, norm[k]);
+		printf("rt1 = %lg, rt2 = %lg, norm[k] = %lg\n", r1, r2, norm[k]);
 
 		
 		// multyply F with inverse of C
