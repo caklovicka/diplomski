@@ -559,9 +559,11 @@ int main(int argc, char* argv[]){
 		mkl_set_num_threads_local(0);
 
 		if (from_pivot_2){
-			k = k+1;
 			repetitions -= 1;
-			if (repetitions) goto PIVOT_1;
+			if (repetitions){
+				k = k+1;
+				goto PIVOT_1;
+			}
 			else goto END_OF_PIVOT_2;
 		}
 
