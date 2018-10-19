@@ -38,7 +38,7 @@ runQR_par:
 	gcc QRparallel.c -o QRparallel.out -lblas -llapack -lm -fopenmp -w
 	./QRparallel.out data/G.bin data/J.bin $(M) $(N) -w
 
-runH:
+runV:
 	@echo $(M) $(N)
 	icc JHouseholderV.c -o JHouseholderV.out -mkl -lm -fopenmp -w
 	./JHouseholderV.out data/G.bin data/J.bin $(M) $(N) -w
