@@ -202,14 +202,14 @@ int main(int argc, char* argv[]){
 	
 	// ------------------------------------------ residual ------------------------------------------
 
-	/*printf("\nA (izracunata) = \n");
+	printf("\nA (izracunata) = \n");
 	printMatrix(A, N, N);
 	
 	printf("\nPA (permutirana, izracunata) = \n");
 	printMatrix(PA, N, N);
 
 	printf("AA (prava matrica) = \n");
-	printMatrix(AA, N, N);*/
+	printMatrix(AA, N, N);
 	
 
 	double norm = 0; 
