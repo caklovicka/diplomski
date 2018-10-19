@@ -166,7 +166,7 @@ int main(int argc, char* argv[]){
 	// fix the blocks 2x2
 	
 
-	for(i = 0; i < v; ++i){
+	/*for(i = 0; i < v; ++i){
 		int idx = (int)V[3*i];
 		double complex c = V[3*i+1];
 		double complex s = V[3*i+2];
@@ -185,7 +185,7 @@ int main(int argc, char* argv[]){
 		beta = 0;
 		zgemm(&non_trans, &non_trans, &n, &n, &n, &alpha, &A[idx+idx*N], &N, D, &n, &beta, T, &n);	//T = AD
 		zgemm(&non_trans, &non_trans, &n, &n, &n, &alpha, L, &n, T, &n, &beta, &A[idx+idx*N], &N);	//A = LT
-	}
+	}*/
 	
 
 	// ------------------------------------------ apply permutation on A ----------------------------
