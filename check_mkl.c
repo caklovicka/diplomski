@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
 	printf("argc = %d\n", argc);
 
 	// read variables from command line
-	if (argc == 6){
+	/*if (argc == 6){
 		FILE *readG = fopen(argv[1], "rb");
 		FILE *readJ = fopen(argv[2], "rb");
 		FILE *readA = fopen(argv[3], "rb");
@@ -145,7 +145,7 @@ int main(int argc, char* argv[]){
 
 	//printf("computing G*JG...\n");
 
-	char trans = 'C';
+	/*char trans = 'C';
 	char non_trans = 'N';
 	double complex alpha = 1;
 	double complex beta = 0;
@@ -226,7 +226,7 @@ int main(int argc, char* argv[]){
 	printMatrix(AA, N, N);*/
 	
 
-	double norm = 0; 
+	/*double norm = 0; 
 	double max = 0;
 	int ii = -1, jj = -1;
 
@@ -266,7 +266,7 @@ int main(int argc, char* argv[]){
 	mkl_free(A);	
 	mkl_free(G);
 	mkl_free(J);
-	mkl_free(T);
+	mkl_free(T);*/
 
 
 	//printf("Finished.\n");
