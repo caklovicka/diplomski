@@ -438,6 +438,7 @@ int main(int argc, char* argv[]){
 		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
+		break;
 		goto LOOP_END;
 	
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
