@@ -461,7 +461,7 @@ int main(int argc, char* argv[]){
 		PIVOT_1:
 
 		if( from_pivot_2 ) printf("k = %d, in pivot 1 from pivot 2\n", k);
-		if ( from_pivot_2 ) Akk = (double) norm[k];
+		Akk = (double) norm[k];
 
 		double start1;
 
