@@ -429,6 +429,8 @@ int main(int argc, char* argv[]){
 		C[2] = -conj(s);
 		C[3] = c;
 
+		printf("r1 = %lg, r2 = %lg\n", r1, r1);
+
 		// multiply G with C
 		Mk = M-k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
@@ -464,8 +466,8 @@ int main(int argc, char* argv[]){
 		printf("k = %d, back in pivot 2\n", k);
 
 		E[0] = c;
-		E[1] = -s;
-		E[2] = -conj(s);
+		E[1] = -J[k] * J[k+1] * s;
+		E[2] = J[k] * J[k+1] * conj(s);
 		E[3] = c;
 
 		// multyply F with inverse of C
