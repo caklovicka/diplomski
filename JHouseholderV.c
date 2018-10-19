@@ -182,8 +182,6 @@ int main(int argc, char* argv[]){
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
-		printf("k = %d\n", k);
-		if(k == 4) break;
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -253,7 +251,6 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
-
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
@@ -359,8 +356,8 @@ int main(int argc, char* argv[]){
 
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
-		double start2 = omp_get_wtime();
 		last_pivot = 2;
+		double start2 = omp_get_wtime();
 
 		// do a column swap pivot_r <-> k+1 if needed
 
@@ -464,12 +461,14 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
-		last_pivot = 1;
-		pivotiranje = pivotiranje + omp_get_wtime() - pp;
-		if( ! from_pivot_2 ) pivot_1_count += 1;
-		double start1 = omp_get_wtime();
+		if( ! from_pivot_2 ){
+			pivotiranje = pivotiranje + omp_get_wtime() - pp;
+			last_pivot = 1;
+			pivot_1_count += 1;
+			double start1 = omp_get_wtime();
+		}
 
-		Akk = norm[k];
+		else Akk = (double) norm[k];
 
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
@@ -539,8 +538,6 @@ int main(int argc, char* argv[]){
 		zcopy(&Mk, &G[k+M*k], &inc, &f[k], &inc);
 		f[k] -= gkk;
 
-		if(k == 3) goto LOOP_END;
-
 		// update G
 		G[k + M*k] = gkk;
 
@@ -590,7 +587,7 @@ int main(int argc, char* argv[]){
 			else goto END_OF_PIVOT_2;
 		}
 
-		pivot1time += (double)(omp_get_wtime() - start1);
+		if( ! from_pivot_2 ) pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
 
 	}	// END OF MAIN LOOP
