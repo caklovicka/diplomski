@@ -403,13 +403,16 @@ int main(int argc, char* argv[]){
 
 		// multiply G with C
 		mkl_set_num_threads_local(0);
-		char trans = 'N';
+		char nontrans = 'N';
 		Mk = M - k;
 		int n = 2;
 		double complex alpha = 1.0, beta = 0;
-		zgemm(&trans, &trans, &Mk, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k+M*k], &M);
-		printMatrix(&T[k+M*k], Mk, 2);
-		printMatrix(&G[k+M*k], Mk, 2);
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, &T, &M);
+
+		int MM = 2*M;
+		zcopy(&MM, &T, &inc, &G[M*k], &inc);
+
+		// now do the reductions one by one reflector in G
 
 
 
