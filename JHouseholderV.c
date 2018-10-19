@@ -88,6 +88,7 @@ int main(int argc, char* argv[]){
 	//double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	//double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
+	int *ipiv = (int*) mkl_malloc(16*sizeof(int), 64);
 
 	// check if files are opened
 
@@ -404,27 +405,36 @@ int main(int argc, char* argv[]){
 		double complex alpha = 1.0, beta = 0;
 		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, T, &M);
 
-		//int MM = 2*M;
-		//zcopy(&MM, T, &inc, &G[M*k], &inc);
+		int M2 = 2*M;
+		zcopy(&M2, T, &inc, &G[M*k], &inc);
 
 		// now do the reductions one by one reflector in G
+		int from_pivot_2 = 1;
+		int repetitions = 2;
+		goto PIVOT_1;
 
+		END_OF_PIVOT_2:
 
+		int info;
+		mkl_set_num_threads(1);
+		zgetrf(&n, &n, C, &n, ipiv, &info);
+		if( info ) printf("LU of C unstable. Proceeding.\n");
+		int lwork = 4; 
+		zgetri(&n, C, &n, ipiv, work, &lwork, &info);
+		if( info ) printf("Inverse of C unstable. Proceeding.\n");
 
-	
-		break;
+		// multiply G with C^(-1) back
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, T, &M);
+		zcopy(&M2, T, &inc, &G[M*k], &inc);
 
-
-		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
 		goto LOOP_END;
 	
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
+		// uses: T, f
 
 		PIVOT_1:
-
-		// uses: T, f, 
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
@@ -542,6 +552,13 @@ int main(int argc, char* argv[]){
 			}
 		}
 		mkl_set_num_threads_local(0);
+
+		if (from_pivot_2){
+			k = k+1;
+			repetitions -= 1;
+			if (repetitions) goto PIVOT_1;
+			else goto END_OF_PIVOT_2;
+		}
 
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
