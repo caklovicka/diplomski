@@ -453,6 +453,7 @@ int main(int argc, char* argv[]){
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
 		k = k+1;
+		break;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
 		goto LOOP_END;
