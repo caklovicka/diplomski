@@ -519,10 +519,7 @@ int main(int argc, char* argv[]){
 
 		// update G
 		G[k + M*k] = gkk;
-		//printf("k = %d\n|Akk - gkk| = %lg\n", k, cabs(Akk - conj(gkk)*J[k]*gkk) );
-		err0 += cabs(Akk - conj(gkk)*J[k]*gkk);
-		if(max0 < err0) max0 = err0;
-
+		
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
 
