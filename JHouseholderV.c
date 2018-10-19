@@ -85,11 +85,8 @@ int main(int argc, char* argv[]){
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
 	double complex *T = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
-	//double complex *K = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	//double complex *E = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
-	int *ipiv = (int*) mkl_malloc(16*sizeof(int), 64);
-	double complex *work = (double complex*) mkl_malloc(6*sizeof(double complex), 64);	// temporary matrix
+	double complex *V = (double complex*) mkl_malloc(3*(M/2+1)*sizeof(double complex), 64);	// temporary matrix
 
 	// check if files are opened
 
@@ -161,7 +158,7 @@ int main(int argc, char* argv[]){
 	int repetitions, from_pivot_2;
 	start = omp_get_wtime();
 
-	int i, j, k, nthreads, mkl_nthreads;
+	int i, j, k, nthreads, mkl_nthreads, v = 0;
 
 	// first compute J-norms of matrix G
 
@@ -184,8 +181,6 @@ int main(int argc, char* argv[]){
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
-
-		printf("k = %d\n", k);
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -359,7 +354,6 @@ int main(int argc, char* argv[]){
 		
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
-		printf("in pivot 2, k = %d\n", k);
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
@@ -417,22 +411,14 @@ int main(int argc, char* argv[]){
 		from_pivot_2 = 1;
 		repetitions = 2;
 
+		// save C
+		V[3*v] = k;
+		V[3*v + 1] = c;
+		V[3*v+2] = s;
+		++v;
+
 		goto PIVOT_1;
-		END_OF_PIVOT_2: n = 2;
-
-		mkl_set_num_threads(1);
-		int info;
-		zgetrf(&n, &n, C, &n, ipiv, &info);
-		if( info ) printf("LU of C unstable. Proceeding.\n");
-		int lwork = 4; 
-		zgetri(&n, C, &n, ipiv, work, &lwork, &info);
-		if( info ) printf("Inverse of C unstable. Proceeding.\n");
-
-		// multiply G with C^(-1) back
-		// k is shifter fow on now!
-		nontrans = 'N';
-		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*(k-1)], &M, C, &n, &beta, T, &M);
-		zcopy(&M2, T, &inc, &G[M*(k-1)], &inc);
+		END_OF_PIVOT_2: i -= 1;
 
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
@@ -442,8 +428,6 @@ int main(int argc, char* argv[]){
 		// uses: T, f
 
 		PIVOT_1:
-
-		if(!from_pivot_2) printf("in pivot 1, k = %d\n", k);
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
@@ -590,9 +574,10 @@ int main(int argc, char* argv[]){
 	FILE *writeJ = fopen("data/reducedJ.bin", "wb");
 	FILE *writeCol = fopen("data/Pcol.bin", "wb");
 	FILE *writeRow = fopen("data/Prow.bin", "wb");
+	FILE *writeV = fopen("data/V.bin", "wb");
 
 
-	#pragma omp parallel num_threads(4)
+	#pragma omp parallel num_threads(5)
 	{
 
 		if(omp_get_thread_num() == 0){
@@ -626,6 +611,15 @@ int main(int argc, char* argv[]){
 			int j;
 			for(j = 0; j < N; ++j){
 				fprintf(writeCol, "%ld ", Pcol[j]);
+			}
+		}
+
+		if(omp_get_thread_num() == 4){
+			// write V
+			int j;
+			fprintf(writeV, "%d ", v);
+			for(j = 0; j < v; ++j){
+				fprintf(writeV, "%lg %.*g %.*g %.*g ", (double) creal(V[3*j]), DIGITS, creal(V[3*j+1]), DIGITS, DIGITS, creal(V[3*j+2]), cimag(V[3*j+2]));
 			}
 		}
 	}

@@ -43,12 +43,23 @@ int main(int argc, char* argv[]){
 	omp_set_dynamic(1);
 
 	// read variables from command line
-	FILE *readG = fopen(argv[1], "rb");
-	FILE *readJ = fopen(argv[2], "rb");
-	FILE *readA = fopen(argv[3], "rb");
-	FILE *readPcol = fopen(argv[4], "rb");
-	int M = atoi(argv[5]);
-	int N = atoi(argv[6]);
+	if (argc == 6){
+		FILE *readG = fopen(argv[1], "rb");
+		FILE *readJ = fopen(argv[2], "rb");
+		FILE *readA = fopen(argv[3], "rb");
+		FILE *readPcol = fopen(argv[4], "rb");
+		int M = atoi(argv[5]);
+		int N = atoi(argv[6]);
+	}
+	else if (argc == 7){
+		FILE *readG = fopen(argv[1], "rb");
+		FILE *readJ = fopen(argv[2], "rb");
+		FILE *readA = fopen(argv[3], "rb");
+		FILE *readPcol = fopen(argv[4], "rb");
+		FILE *readV = fopen(argv[5], "rb");
+		int M = atoi(argv[6]);
+		int N = atoi(argv[7]);
+	}
 
 
 	//printf("\n\n------------------------------------ CHECK ------------------------------------\n\n");
@@ -62,6 +73,8 @@ int main(int argc, char* argv[]){
 	double complex *T = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);	// temporary matrix
 	long int *J = (long int*)mkl_malloc(M*sizeof(long int), 64);
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
+	double complex *L = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
+	double complex *D = (double complex*) mkl_malloc(4*sizeof(double complex), 64);
 
 
 	// check if files are opened
@@ -96,11 +109,21 @@ int main(int argc, char* argv[]){
 		}
 	}
 	
-	// read AA
+	// read AA, the TRUE matrix
 	for(j = 0; j < N; ++j){
 		for( i = 0; i < N; ++i){
 			fscanf(readA, "%lg %lg ", &x, &y);
 			AA[i+N*j] = x + I*y;
+		}
+	}
+
+	if(argc == 7){
+		fscanf(readV, "%d", &v);
+		double complex *V = (double complex*) mkl_malloc(3*v*sizeof(double complex), 64);
+		double x, y;
+		for (j = 0; j < v; ++j){
+			fscanf(writeV, "%lg %lg %lg %lg ", &V[3*j], &V[3*j+1], x, y);
+			V[3*j+2] = x + I*y;
 		}
 	}
 
@@ -148,6 +171,31 @@ int main(int argc, char* argv[]){
 	zgemm(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
 
+	// fix the blocks 2x2
+	if( argc == 7){
+
+		for(i = 0; i < v; ++i){
+			int idx = (int)V[3*i];
+			double complex c = V[3*i+1];
+			double complex s = V[3*i+2];
+			L[0] = c;
+			L[1] = J[idx] * J[idx+1] s;
+			L[2] = - J[idx] * J[idx+1] conj(s);
+			L[3] = c;
+
+			D[0] = c;
+			D[1] = - J[idx] * J[idx+1] s;
+			D[2] = J[idx] * J[idx+1] conj(s);
+			D[3] = c;
+
+			int n = 2;
+			alpha = 1;
+			beta = 0;
+			zgemm(&non_trans, &non_trans, &n, &n, &n, &alpha, &A[idx+idx*N], &N, D, &n, &beta, T, &n);	//T = AD
+			zgemm(&non_trans, &non_trans, &n, &n, &n, &alpha, L, &n, T, &n, &beta, &A[idx+idx*N], &N);	//A = LT
+		}
+	}
+
 	// ------------------------------------------ apply permutation on A ----------------------------
 
 	// compute perm on the upper triangle, and use A*=A on the lower
@@ -182,6 +230,7 @@ int main(int argc, char* argv[]){
 
 		#pragma omp critical
 		{
+			if()
 			if(cabs(PA[i+N*j] - AA[i+N*j]) > max){
 				max = cabs(PA[i+N*j] - AA[i+N*j]);
 				ii = i;
