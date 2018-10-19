@@ -431,7 +431,7 @@ int main(int argc, char* argv[]){
 		}
 
 		// do a row swap, so that sign(J[k+1]) = sign(r2)
-		int idx = -1;
+		idx = -1;
 		for(i = k+1; i < M; ++i){
 			if(J[k+1] * r2 < 0) continue;
 			idx = i;
@@ -486,7 +486,7 @@ int main(int argc, char* argv[]){
 		// nothing here... ever
 
 		END_OF_PIVOT_2: k = k-1;
-		
+
 		printf("k = %d, back in pivot 2\n", k);
 
 		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
