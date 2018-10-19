@@ -114,7 +114,7 @@ int main(int argc, char* argv[]){
 
 	for (j = 0; j < v; ++j){
 		double x, y;
-		fscanf(readV, "%lg %lg %lg %lg ", &V[3*j], &V[3*j+1], x, y);
+		fscanf(readV, "%lg %lg %lg %lg ", &V[3*j], &V[3*j+1], &x, &y);
 		V[3*j+2] = x + I*y;
 	}
 
