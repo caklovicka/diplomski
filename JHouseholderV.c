@@ -87,6 +87,7 @@ int main(int argc, char* argv[]){
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 	double complex *V = (double complex*) mkl_malloc(3*(M/2+1)*sizeof(double complex), 64);	// temporary matrix
+	double complex *E = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 
 	// check if files are opened
 
@@ -402,10 +403,10 @@ int main(int argc, char* argv[]){
 		char nontrans = 'N';
 		int n = 2;
 		double complex alpha = 1.0, beta = 0;
-		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, T, &M);
-
-		int M2 = 2*M;
-		zcopy(&M2, T, &inc, &G[k+M*k], &inc);
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k+M*k], &M);
+		Mk = M-k;
+		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
+		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
 		// now do the reductions one by one reflector in G
 		from_pivot_2 = 1;
@@ -417,19 +418,23 @@ int main(int argc, char* argv[]){
 		V[3*v+2] = s;
 		++v;
 
-		f[0] = c;
-		f[1] = - J[k] * J[k+1] * s;
-		f[2] = J[k] * J[k+1] * conj(s);
-		f[3] = c;
-
-		// check if it is an inverse of C
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, C, &n, f, &n, &beta, T, &n);
-		printMatrix(T, 2, 2);
-		break;
+		// E is inverse of C
+		E[0] = c;
+		E[1] = - J[k] * J[k+1] * s;
+		E[2] = J[k] * J[k+1] * conj(s);
+		E[3] = c;
 
 		goto PIVOT_1;
-		END_OF_PIVOT_2: i -= 1;
+		END_OF_PIVOT_2: k = k-1;
 
+		// multyply F with inverse of C
+		double complex alpha = 1.0, beta = 0;
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k+M*k], &M);
+		Mk = M-k;
+		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
+		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
+
+		k = k+1;
 		double end2 = omp_get_wtime();
 		pivot2time += (double) (end2 - start2);
 		goto LOOP_END;
@@ -584,7 +589,7 @@ int main(int argc, char* argv[]){
 	FILE *writeJ = fopen("data/reducedJ.bin", "wb");
 	FILE *writeCol = fopen("data/Pcol.bin", "wb");
 	FILE *writeRow = fopen("data/Prow.bin", "wb");
-	FILE *writeV = fopen("data/V.bin", "wb");
+	//FILE *writeV = fopen("data/V.bin", "wb");
 
 
 	#pragma omp parallel num_threads(5)
@@ -624,14 +629,14 @@ int main(int argc, char* argv[]){
 			}
 		}
 
-		if(omp_get_thread_num() == 4){
+		/*if(omp_get_thread_num() == 4){
 			// write V
 			int j;
 			fprintf(writeV, "%d ", v);
 			for(j = 0; j < v; ++j){
 				fprintf(writeV, "%lg %.*g %.*g %.*g ", (double) creal(V[3*j]), DIGITS, creal(V[3*j+1]), DIGITS, DIGITS, creal(V[3*j+2]), cimag(V[3*j+2]));
 			}
-		}
+		}*/
 	}
 
 	seconds = (double)(omp_get_wtime() - start);
