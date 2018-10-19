@@ -106,8 +106,6 @@ checkV:
 	icc -mkl check_mkl.c -o check_mkl.out -fopenmp -w
 	./check_mkl.out data/reducedG.bin data/reducedJ.bin data/A.bin data/Pcol.bin data/V.bin $(M) $(N)
 
-
-
 clean:
 	rm -rf data 
 	rm -f generateG.out check.out QRreduction.out generateGparallel.out QRparallel.out QRparallel_xeon_mkl.out check_mkl.out QRparallel_experimental.out
