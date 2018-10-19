@@ -418,8 +418,8 @@ int main(int argc, char* argv[]){
 		int info;
 		END_OF_PIVOT_2: info = 0;
 
-		printf("n = %d\n", n);
 		mkl_set_num_threads(1);
+		n = 2;
 		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of C unstable. Proceeding.\n");
 		int lwork = 4; 
