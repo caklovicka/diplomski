@@ -402,15 +402,14 @@ int main(int argc, char* argv[]){
 		C[3] = c;
 
 		// multiply G with C
-		printf("C = ");
-		printMatrix(C, 2, 2);
-
-		E[0] = c*c+s*s;
-		E[1] = -conj(s)*c + c*s;
-		E[2] = -c*conj(s)+s*c;
-		E[3] = conj(s) * conj(s) + c*c;
-		printMatrix(E, 2, 2);
-
+		mkl_set_num_threads_local(0);
+		char trans = 'N';
+		Mk = M - k;
+		int n = 2;
+		double complex alpha = 1.0, beta = 0;
+		zgemm(&trans, &trans, &Mk, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k+M*k], &M);
+		printMatrix(&T[k+M*(k-1)], Mk, 4);
+		printMatrix(&G[k+M*(k-1)], Mk, 4);
 
 
 
@@ -493,7 +492,7 @@ int main(int argc, char* argv[]){
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
 		// make the reflector vector and save it
-		double complex alpha = -1;
+		alpha = -1;
 		inc = 1;
 		Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
