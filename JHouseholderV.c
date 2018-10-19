@@ -396,6 +396,18 @@ int main(int argc, char* argv[]){
 
 		mkl_set_num_threads(1);
 		zlaev2(&Akk, &Akr, &Arr, &r1, &r2, &c, &s);
+		C[0] = c;
+		C[1] = s;
+		C[2] = -conj(s);
+		C[3] = c;
+
+		// multiply G with C
+		printf("C = ");
+		printMatrix(C, 2, 2);
+
+
+
+
 	
 		break;
 
@@ -408,6 +420,8 @@ int main(int argc, char* argv[]){
 		// ----------------------------------------------PIVOT_1----------------------------------------------------
 
 		PIVOT_1:
+
+		// uses: T, f, 
 
 		last_pivot = 1;
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
