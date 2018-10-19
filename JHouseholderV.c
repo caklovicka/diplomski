@@ -436,8 +436,8 @@ int main(int argc, char* argv[]){
 		printf("k = %d, back in pivot 2\n", k);
 
 		E[0] = c;
-		E[1] = - J[k] * J[k+1] * s;
-		E[2] = J[k] * J[k+1] * conj(s);
+		E[1] = - s;
+		E[2] = -conj(s);
 		E[3] = c;
 
 		// multyply F with inverse of C
