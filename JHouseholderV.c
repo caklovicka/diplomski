@@ -465,7 +465,7 @@ int main(int argc, char* argv[]){
 		END_OF_PIVOT_2: k = k-1;
 		printf("k = %d, back in pivot 2\n", k);
 
-		printf("Jk = %d, Jk+1 = %d\n", J[k], J[k+1]);
+		printf("Jk = %lg, Jk+1 = %lg\n", J[k], J[k+1]);
 
 		E[0] = c;
 		E[1] = -J[k] * J[k+1] * s;
