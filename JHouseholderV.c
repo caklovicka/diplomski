@@ -158,8 +158,6 @@ int main(int argc, char* argv[]){
 	int pivot_1_count = 0;
 	int pivot_2_count = 0;
 	int last_pivot = -1;
-	double err1 = 0, err2 = 0, err0 = 0, errk = 0;
-	double max1 = 0, max2 = 0, max0 = 0, maxk = 0;
 	start = omp_get_wtime();
 
 	int i, j, k, nthreads, mkl_nthreads;
@@ -183,6 +181,8 @@ int main(int argc, char* argv[]){
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
+
+		int from_pivot_2 = 0;
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -410,13 +410,16 @@ int main(int argc, char* argv[]){
 		zcopy(&M2, T, &inc, &G[M*k], &inc);
 
 		// now do the reductions one by one reflector in G
-		int from_pivot_2 = 1;
+		from_pivot_2 = 1;
 		int repetitions = 2;
 		goto PIVOT_1;
 
+		printMatrix(C, 2, 2);
 
 		int info;
 		END_OF_PIVOT_2: info = 0;
+
+		printMatrix(C, 2, 2);
 
 		mkl_set_num_threads(1);
 		n = 2;
