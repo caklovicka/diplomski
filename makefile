@@ -40,6 +40,12 @@ runQR_par:
 
 runH:
 	@echo $(M) $(N)
+	icc JHouseholderV.c -o JHouseholderV.out -mkl -lm -fopenmp -w
+	./JHouseholderV.out data/G.bin data/J.bin $(M) $(N) -w
+
+
+runH:
+	@echo $(M) $(N)
 	icc JHouseholder.c -o JHouseholder.out -mkl -lm -fopenmp -w
 	./JHouseholder.out data/G.bin data/J.bin $(M) $(N) -w
 
