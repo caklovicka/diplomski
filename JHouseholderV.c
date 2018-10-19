@@ -438,7 +438,7 @@ int main(int argc, char* argv[]){
 
 		goto PIVOT_1;
 		END_OF_PIVOT_2: k = k-1;
-		printf("k = %d, back in pivot 2\n", );
+		printf("k = %d, back in pivot 2\n", k);
 
 		// multyply F with inverse of C
 		alpha = 1.0;
