@@ -403,7 +403,7 @@ int main(int argc, char* argv[]){
 		C[3] = c;
 
 		// do a row swap, so that sign(J[k]) = sign(r1)
-		int idx = -1;
+		/*int idx = -1;
 		for(i = k; i < M; ++i){
 			if(J[i] * r1 < 0) continue;
 			idx = i;
@@ -462,7 +462,7 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
 		}
 
-		printf("r1 = %lg, r2 = %lg, Jk = %lg, Jk+1 = %lg\n", r1, r2, J[k], J[k+1]);
+		printf("r1 = %lg, r2 = %lg, Jk = %lg, Jk+1 = %lg\n", r1, r2, J[k], J[k+1]);*/
 
 		// multiply G with C
 		Mk = M-k;
