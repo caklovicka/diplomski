@@ -413,16 +413,15 @@ int main(int argc, char* argv[]){
 		// now do the reductions one by one reflector in G
 		from_pivot_2 = 1;
 		repetitions = 2;
-		goto PIVOT_1;
-
 		printMatrix(C, 2, 2);
 
-		int info;
-		END_OF_PIVOT_2: info = 0;
+		goto PIVOT_1;
+		END_OF_PIVOT_2: i++;
 
 		printMatrix(C, 2, 2);
 
 		mkl_set_num_threads(1);
+		int info;
 		n = 2;
 		zgetrf(&n, &n, C, &n, ipiv, &info);
 		if( info ) printf("LU of C unstable. Proceeding.\n");
