@@ -427,6 +427,7 @@ int main(int argc, char* argv[]){
 		if( info ) printf("Inverse of C unstable. Proceeding.\n");
 
 		// multiply G with C^(-1) back
+		nontrans = 'N';
 		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, T, &M);
 		zcopy(&M2, T, &inc, &G[M*k], &inc);
 
