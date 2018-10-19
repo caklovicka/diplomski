@@ -402,10 +402,7 @@ int main(int argc, char* argv[]){
 		char nontrans = 'N';
 		int n = 2;
 		double complex alpha = 1.0, beta = 0;
-		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, &T, &M);
-
-		printMatrix(C, 2, 2);
-		printMatrix(T, M, 2);
+		zgemm(&nontrans, &nontrans, &M, &n, &n, &alpha, &G[M*k], &M, C, &n, &beta, T, &M);
 
 		//int MM = 2*M;
 		//zcopy(&MM, T, &inc, &G[M*k], &inc);
