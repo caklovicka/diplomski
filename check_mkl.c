@@ -42,6 +42,8 @@ int main(int argc, char* argv[]){
 	mkl_set_dynamic(1);
 	omp_set_dynamic(1);
 
+	printf("argc = %d\n", argc);
+
 	// read variables from command line
 	if (argc == 6){
 		FILE *readG = fopen(argv[1], "rb");
@@ -119,9 +121,10 @@ int main(int argc, char* argv[]){
 
 	double complex *V;
 	int v;
+
 	if(argc == 7){
 		fscanf(readV, "%d", &v)
-		double complex *V = (double complex*) mkl_malloc(3*v*sizeof(double complex), 64);
+		V = (double complex*) mkl_malloc(3*v*sizeof(double complex), 64);
 		double x, y;
 		for (j = 0; j < v; ++j){
 			fscanf(readV, "%lg %lg %lg %lg ", &V[3*j], &V[3*j+1], x, y);
