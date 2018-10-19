@@ -405,6 +405,12 @@ int main(int argc, char* argv[]){
 		printf("C = ");
 		printMatrix(C, 2, 2);
 
+		E[0] = c*c+s*s;
+		E[1] = -conj(s)*c + c*s;
+		E[2] = -c*conj(s)+s*c;
+		E[3] = conj(s) * conj(s) + c*c;
+		printMatrix(E, 2, 2);
+
 
 
 
