@@ -158,6 +158,7 @@ int main(int argc, char* argv[]){
 	int pivot_1_count = 0;
 	int pivot_2_count = 0;
 	int last_pivot = -1;
+	int repetitions, from_pivot_2;
 	start = omp_get_wtime();
 
 	int i, j, k, nthreads, mkl_nthreads;
@@ -182,7 +183,7 @@ int main(int argc, char* argv[]){
 
 		// ------------------------ update J-norms of columns ------------------------
 
-		int from_pivot_2 = 0;
+		from_pivot_2 = 0;
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
@@ -411,7 +412,7 @@ int main(int argc, char* argv[]){
 
 		// now do the reductions one by one reflector in G
 		from_pivot_2 = 1;
-		int repetitions = 2;
+		repetitions = 2;
 		goto PIVOT_1;
 
 		printMatrix(C, 2, 2);
@@ -519,7 +520,7 @@ int main(int argc, char* argv[]){
 
 		// update G
 		G[k + M*k] = gkk;
-		
+
 		nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
 		if ( (Mk-1)/D == 0) nthreads = 1;
 
