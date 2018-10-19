@@ -53,7 +53,8 @@ int main(int argc, char* argv[]){
 		int M = atoi(argv[5]);
 		int N = atoi(argv[6]);
 	}
-	else(argc == 7){
+
+	else{
 		FILE *readG = fopen(argv[1], "rb");
 		FILE *readJ = fopen(argv[2], "rb");
 		FILE *readA = fopen(argv[3], "rb");
@@ -123,7 +124,7 @@ int main(int argc, char* argv[]){
 	int v;
 
 	if(argc == 7){
-		fscanf(readV, "%d", &v)
+		fscanf(readV, "%d", &v);
 		V = (double complex*) mkl_malloc(3*v*sizeof(double complex), 64);
 		double x, y;
 		for (j = 0; j < v; ++j){
