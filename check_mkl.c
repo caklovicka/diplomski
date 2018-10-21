@@ -230,7 +230,7 @@ int main(int argc, char* argv[]){
 		printf("\n\n\nA = G*JG is singular.\n\n\n");
 		exit(-3);
 	}
-	else printf("\n\n\nSmallest singular value of A: %.*g, cond = %lg\n\n\n", DIGITS, s[N-1], csqrt(s[0]/s[N-1]));
+	else printf("\nSmallest singular value of A: %.*g, cond = %lg\n", DIGITS, s[N-1], csqrt(s[0]/s[N-1]));
 
 	double ss;
 	FILE *svd = fopen("data/svd.bin", "rb");
@@ -240,6 +240,7 @@ int main(int argc, char* argv[]){
 	}
 	inc = 1;
 	double norm_svd = dznrm2(&N, s, &inc);
+	printf("norm(singulars - s) = %lg\n", norm_svd);
 
 	free(s);
 	free(work);
