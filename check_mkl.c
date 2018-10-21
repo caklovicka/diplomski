@@ -254,7 +254,7 @@ int main(int argc, char* argv[]){
 			rel_err_abs = diff;
 		}
 	}
-	printf("norm_2(ss - s) = %.6e\n", csqrt(norm_svd));
+	printf("norm_2(ss - s) = %.6e\n", creal(csqrt(norm_svd)));
 	printf("max_abs_svd = %lg, and its relative error is: %lg\n", max_abs_svd, abs_svd_rel);
 	printf("max_rel_err_svd = %lg, and its apsolute error is: %lg\n", max_rel_err_svd, rel_err_abs);
 
