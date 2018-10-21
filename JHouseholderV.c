@@ -182,7 +182,7 @@ int main(int argc, char* argv[]){
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
-		if(k >= 300) break;
+		if(k >= 600) break;
 		//printf("k = %d, last_pivot = %d\n", k, last_pivot);
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
