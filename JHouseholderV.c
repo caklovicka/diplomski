@@ -514,15 +514,7 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
-		if ( from_pivot_2 ){
-			Akk = (double) norm[k];
-			//if( repetitions == 1) Akk -= conj(G[k-1+M*k]) * J[k-1] * G[k-1+M*k];
-			double akk = 0;
-			for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
-			printf("k = %d, from_pivot_2 = %d, Akk = %lg, akk = %lg, Akk - akk = %.15g\n", k, from_pivot_2, Akk, akk, Akk-akk);
-
-			printMatrix(G, M, N);
-		}
+		if ( from_pivot_2 )Akk = (double) norm[k];
 
 		double start1;
 
@@ -643,6 +635,7 @@ int main(int argc, char* argv[]){
 		if (from_pivot_2){
 			repetitions -= 1;
 			if (repetitions){
+				G[k+M*(k+1)] = 0;
 				k = k+1;
 				goto PIVOT_1;
 			}
