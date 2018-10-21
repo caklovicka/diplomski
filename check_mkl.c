@@ -145,9 +145,6 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	int info;
-	zgecon( '1', &N, G, &M, anorm, rcond, work, rwork, info )
-
 	zgemm(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
 
