@@ -145,6 +145,9 @@ int main(int argc, char* argv[]){
 		}
 	}
 
+	int info;
+	zgecon( '1', &N, G, &M, anorm, rcond, work, rwork, info )
+
 	zgemm(&trans, &non_trans, &N, &M, &M, &alpha, G, &M, JJ, &M, &beta, T, &N);	//T = G*J (NxM)
 	zgemm(&non_trans, &non_trans, &N, &N, &M, &alpha, T, &N, G, &M, &beta, A, &N);	//A = TG = G*JG (NxN)
 
@@ -170,6 +173,50 @@ int main(int argc, char* argv[]){
 
 	printf("AA (prava matrica) = \n");
 	printMatrix(AA, N, N);*/
+
+	// ---------------------------------------------------- SVD ----------------------------------------------------
+
+	double complex *AAA = (double complex*) malloc(N*N*sizeof(double complex));
+	int NN = N*N;
+	int inc = 1;
+	zcopy(&NN, PA, &inc, AAA, &inc);
+
+	char jobz = 'N';
+	double *s = (double*) malloc(N*sizeof(double));	// for singular values, they will be sorted in s as s(i) >= s(i+1)
+	int lwork = 6*N;
+	double complex *work = (double complex*) malloc(lwork*sizeof(double complex));
+	double *rwork = (double*) malloc(lwork*sizeof(double));
+	int *iwork = (int*)malloc(8*N*sizeof(int));
+
+	if(work == NULL || rwork == NULL || iwork == NULL || s == NULL){
+		printf("Cannot allocate memory.\n");
+		exit(-2);
+	}
+
+	int info;
+	zgesdd_(&jobz, &N, &N, AA, &N, s, NULL, &N, NULL, &N, work, &lwork, rwork, iwork, &info);
+
+	if(s[N-1] < EPSILON){
+		printf("\n\n\nA = G*JG is singular.\n\n\n");
+		exit(-3);
+	}
+	else printf("\n\n\nSmallest singular value of A: %.*g, cond = %lg\n\n\n", DIGITS, s[N-1], csqrt(s[0]/s[N-1]));
+
+	double ss;
+	FILE *svd = fopen("data/svd.bin", "rb");
+	for(i = 0; i < N; ++i){
+		fscanf(svd, "%lg ", &ss);
+		s[i] -= ss;
+	}
+	int incc = 1;
+	double norm_svd = dznrm2(&N, s, &incc);
+
+	free(s);
+	free(work);
+	free(rwork);
+	free(iwork);
+
+	// ---------------------------------------------------- END SVD ----------------------------------------------------
 	
 
 	double norm = 0; 
