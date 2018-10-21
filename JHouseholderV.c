@@ -437,7 +437,7 @@ int main(int argc, char* argv[]){
 		alpha = 1.0;
 		beta = 0;
 		n = 2;
-		char trans = 'H';
+		char trans = 'C';
 		mkl_set_num_threads(1);
 		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k], &M);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
