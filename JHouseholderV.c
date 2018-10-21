@@ -401,68 +401,6 @@ int main(int argc, char* argv[]){
 		C[2] = -conj(s);
 		C[3] = c;
 
-		// do a row swap, so that sign(J[k]) = sign(r1)
-		/*int idx = -1;
-		for(i = k; i < M; ++i){
-			if(J[i] * r1 < 0) continue;
-			idx = i;
-			break;
-		}
-
-		if(idx == -1) printf("\n\n\nidx = -1!\n\n\n");
-
-		// swap rows idx <-> k
-		if( idx != k ){
-
-			double dtemp = J[idx];
-			J[idx] = J[k];
-			J[k] = dtemp;
-
-			// update Prow
-			long int itemp = Prow[idx];
-			Prow[idx] = Prow[k];
-			Prow[k] = itemp;
-
-			// swap rows in G 
-			int Nk = N - k;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &G[k + M*k], &M, &G[idx + M*k], &M);
-		}
-
-		// do a row swap, so that sign(J[k+1]) = sign(r2)
-		idx = -1;
-		for(i = k+1; i < M; ++i){
-			if(J[i] * r2 < 0) continue;
-			idx = i;
-			break;
-		}
-
-		if(idx == -1) printf("\n\n\nidx = -1!\n\n\n");
-
-		// swap rows idx <-> k+1
-		if( idx != k+1 ){
-
-			double dtemp = J[idx];
-			J[idx] = J[k+1];
-			J[k+1] = dtemp;
-
-			// update Prow
-			long int itemp = Prow[idx];
-			Prow[idx] = Prow[k+1];
-			Prow[k+1] = itemp;
-
-			// swap rows in G 
-			int Nk = N - k;
-			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &G[k+1 + M*k], &M, &G[idx + M*k], &M);
-		}
-
-		printf("r1 = %lg, r2 = %lg, Jk = %lg, Jk+1 = %lg\n", r1, r2, J[k], J[k+1]);*/
-
 		// multiply G with C
 		Mk = M-k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
@@ -499,8 +437,9 @@ int main(int argc, char* argv[]){
 		alpha = 1.0;
 		beta = 0;
 		n = 2;
+		char trans = 'H';
 		mkl_set_num_threads(1);
-		zgemm(&nontrans, &nontrans, &n, &n, &n, &alpha, &G[k+M*k], &M, E, &n, &beta, &T[k], &M);
+		zgemm(&nontrans, &trans, &n, &n, &n, &alpha, &G[k+M*k], &M, C, &n, &beta, &T[k], &M);
 		zcopy(&n, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&n, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
