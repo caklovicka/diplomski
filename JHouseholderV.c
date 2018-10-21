@@ -514,14 +514,13 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
-		double akk = 0;
-		for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
-
 		if ( from_pivot_2 ){
 			Akk = (double) norm[k];
 			if( repetitions == 1) Akk -= conj(G[k-1+M*k]) * J[k-1] * G[k-1+M*k];
 		}
 
+		double akk = 0;
+		for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
 		printf("Akk = %lg, akk = %lg\n", Akk, akk);
 
 		double start1;
