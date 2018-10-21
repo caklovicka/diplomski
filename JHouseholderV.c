@@ -521,7 +521,7 @@ int main(int argc, char* argv[]){
 
 		double akk = 0;
 		for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
-		printf("Akk = %lg, akk = %lg\n", Akk, akk);
+		printf("Akk = %lg, akk = %lg, Akk - akk = %.15g\n", Akk, akk, Akk-akk);
 
 		double start1;
 
