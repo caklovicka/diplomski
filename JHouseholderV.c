@@ -86,8 +86,6 @@ int main(int argc, char* argv[]){
 	double complex *T = (double complex*) mkl_malloc(2*M*sizeof(double complex), 64);	// temporary matrix
 	double complex *norm = (double complex*) mkl_malloc(N*sizeof(double complex), 64);	// for quadrates of J-norms of columns
 	double complex *C = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
-	double complex *V = (double complex*) mkl_malloc(3*(M/2+1)*sizeof(double complex), 64);	// temporary matrix
-	double complex *E = (double complex*) mkl_malloc(4*sizeof(double complex), 64);	// temporary matrix
 
 	// check if files are opened
 
@@ -252,6 +250,7 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
+		goto PIVOT_1;
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
