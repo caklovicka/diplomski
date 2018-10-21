@@ -253,7 +253,7 @@ int main(int argc, char* argv[]){
 		if( diff/creal(csqrt(ss)) > max_rel_err_svd ){
 			max_rel_err_svd = diff/creal(csqrt(ss));
 			rel_err_abs = diff;
-			sr = csqrt(ss)
+			sr = csqrt(ss);
 		}
 	}
 	printf("norm_2(ss - s) = %.6e\n", creal(csqrt(norm_svd)));
