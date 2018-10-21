@@ -240,7 +240,7 @@ int main(int argc, char* argv[]){
 	for(i = 0; i < N; ++i){
 		fscanf(svd, "%lg ", &ss);
 		norm_svd += (csqrt(s[i]) - csqrt(ss)) * (csqrt(s[i]) - csqrt(ss));
-		if( creal(cabs(csqrt(s[i]) - csqrt(ss))) > max_abs_svd) max_abs_svd = creal(cabs(csqrt(s[i]) - csqrt(ss)));
+		if( creal(cabs(csqrt(s[i]) - csqrt(ss))) > max_abs_svd) printf("%lg\n", creal(cabs(csqrt(s[i]) - csqrt(ss)))); //max_abs_svd = creal(cabs(csqrt(s[i]) - csqrt(ss)));
 		if( creal(cabs(csqrt(s[i]) - csqrt(ss)))/creal(csqrt(ss)) > max_rel_err_svd ) max_rel_err_svd = creal(cabs(csqrt(s[i]) - csqrt(ss)))/creal(csqrt(ss));
 	}
 	printf("norm_2(ss - s) = %.6e, max_abs_svd = %.6e, max_rel_err_svd = %.6e\n", csqrt(norm_svd), max_abs_svd, max_rel_err_svd);
