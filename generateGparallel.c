@@ -195,7 +195,7 @@ int main(int argc, char* argv[]){
 	else printf("\n\n\nSmallest singular value of A: %.*g, cond = %lg\n\n\n", DIGITS, s[N-1], csqrt(s[0]/s[N-1]));
 
 	FILE *svd = fopen("data/svd.bin", "wb");
-	for(i = 0; i < N; ++i) fprintf(svd, "%.15g ", s[i]);
+	for(i = 0; i < N; ++i) fprintf(svd, "%.*g ", DIGITS, s[i]);
 
 	free(s);
 	free(work);
