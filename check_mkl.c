@@ -202,7 +202,7 @@ int main(int argc, char* argv[]){
 	int inc = 1;
 	double norm2 = dznrm2(&NN, AA, &inc);
 
-	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
+	printf("\n\nmaximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
 	printf("maximum relative coordinate difference in (%d, %d): %.5e\n", ir, jr, max_rel);
 	printf("norm(PA-AA): %.5e\n", csqrt(norm));
 	printf("norm(PA-AA)/norm(AA) = %.5e\n", csqrt(norm)/norm2);
@@ -237,6 +237,7 @@ int main(int argc, char* argv[]){
 	for(i = 0; i < N; ++i){
 		fscanf(svd, "%lg ", &ss);
 		s[i] -= ss;
+		printf("s[i] = %lg\n", s[i]);
 	}
 	inc = 1;
 	double norm_svd = dznrm2(&N, s, &inc);
