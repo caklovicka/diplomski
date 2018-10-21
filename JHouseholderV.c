@@ -182,6 +182,7 @@ int main(int argc, char* argv[]){
 		// ------------------------ update J-norms of columns ------------------------
 
 		from_pivot_2 = 0;
+		if(k >= 300) break;
 		//printf("k = %d, last_pivot = %d\n", k, last_pivot);
 
 		nthreads =(N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
@@ -252,7 +253,6 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
-		goto PIVOT_1;
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
