@@ -168,7 +168,7 @@ int main(int argc, char* argv[]){
 
 	// ---------------------------------------------------- SVD ----------------------------------------------------
 
-	/*
+	
 
 	char jobz = 'N';
 	double *s = (double*) malloc(N*sizeof(double));	// for singular values, they will be sorted in s as s(i) >= s(i+1)
@@ -190,14 +190,14 @@ int main(int argc, char* argv[]){
 		printf("A = G*JG is singular.\n");
 		exit(-3);
 	}
-	else printf("Smallest singular value of A: %.*g\n", DIGITS, s[N-1]);
+	else printf("Smallest singular value of A: %.*g, cond = %lg\n", DIGITS, s[N-1], s[0]/s[N-1]);
 
 	free(s);
 	free(work);
 	free(rwork);
 	free(iwork);
 	
-	*/
+	
 
 	// ------------------------------------- write A G J in files ---------------------------------------------- 
 
