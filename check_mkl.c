@@ -243,8 +243,8 @@ int main(int argc, char* argv[]){
 		}
 	}
 
-	int NN = N*N;
-	int inc = 1;
+	NN = N*N;
+	inc = 1;
 	double norm2 = dznrm2(&NN, AA, &inc);
 
 	printf("maximum coordinate difference in (%d, %d): %.5e\n", ii, jj, max);
