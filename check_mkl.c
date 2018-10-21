@@ -234,12 +234,16 @@ int main(int argc, char* argv[]){
 
 	double ss, norm_svd = 0;
 	FILE *svd = fopen("data/svd.bin", "rb");
+	double max_abs_svd = 0;
+	double max_rel_err_svd = 0;
 	for(i = 0; i < N; ++i){
 		fscanf(svd, "%lg ", &ss);
 		norm_svd += (csqrt(s[i]) - csqrt(ss)) * (csqrt(s[i]) - csqrt(ss));
+		if( cabs(csqrt(s[i]) - csqrt(ss)) > max_abs_svd) max_abs_svd = cabs(csqrt(s[i]) - csqrt(ss));
+		if( cabs(csqrt(s[i]) - csqrt(ss))/csqrt(ss) > max_rel_err_svd ) max_rel_err_svd = cabs(csqrt(s[i]) - csqrt(ss))/csqrt(ss);
 	}
 	inc = 1;
-	printf("norm_2(ss - s) = %lg\n", csqrt(norm_svd));
+	printf("norm_2(ss - s) = %lg, max_abs_svd = %lg, max_rel_err_svd = %lg\n", csqrt(norm_svd), max_abs_svd, max_rel_err_svd);
 
 	free(s);
 	free(work);
