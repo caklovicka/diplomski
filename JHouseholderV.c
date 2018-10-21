@@ -514,7 +514,10 @@ int main(int argc, char* argv[]){
 
 		PIVOT_1:
 
-		if ( from_pivot_2 ) Akk = (double) norm[k];
+		if ( from_pivot_2 ){
+			Akk = (double) norm[k];
+			if( repetitions == 1) Akk -= conj(G[k-1+M*k]) * J[k-1] * G[k-1+M*k];
+		}
 
 		double start1;
 
@@ -524,8 +527,6 @@ int main(int argc, char* argv[]){
 			pivot_1_count += 1;
 			start1 = omp_get_wtime();
 		}
-
-		else Akk = (double) norm[k];
 
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
