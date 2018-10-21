@@ -519,7 +519,9 @@ int main(int argc, char* argv[]){
 			//if( repetitions == 1) Akk -= conj(G[k-1+M*k]) * J[k-1] * G[k-1+M*k];
 			double akk = 0;
 			for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
-			printf("Akk = %lg, akk = %lg, Akk - akk = %.15g\n", Akk, akk, Akk-akk);
+			printf("k = %d, from_pivot_2 = %d, Akk = %lg, akk = %lg, Akk - akk = %.15g\n", k, from_pivot_2, Akk, akk, Akk-akk);
+
+			printMatrix(G, M, N);
 		}
 
 		double start1;
