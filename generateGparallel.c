@@ -192,7 +192,7 @@ int main(int argc, char* argv[]){
 		printf("\n\n\nA = G*JG is singular.\n\n\n");
 		exit(-3);
 	}
-	else printf("\n\n\nSmallest singular value of A: %.*g, cond = %lg\n\n\n", DIGITS, s[N-1], s[0]/s[N-1]);
+	else printf("\n\n\nSmallest singular value of A: %.*g, cond = %lg\n\n\n", DIGITS, s[N-1], csqrt(s[0]/s[N-1]));
 
 	free(s);
 	free(work);
