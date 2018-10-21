@@ -168,7 +168,10 @@ int main(int argc, char* argv[]){
 
 	// ---------------------------------------------------- SVD ----------------------------------------------------
 
-	
+	double complex *AA = (double complex*) malloc(N*N*sizeof(double complex));
+	int NN = N*N;
+	int inc = 1;
+	zcopy(&NN, A, &inc, AA, &inc);
 
 	char jobz = 'N';
 	double *s = (double*) malloc(N*sizeof(double));	// for singular values, they will be sorted in s as s(i) >= s(i+1)
@@ -183,14 +186,13 @@ int main(int argc, char* argv[]){
 	}
 
 	int info;
-	zgesdd_(&jobz, &N, &N, A, &N, s, NULL, &N, NULL, &N, work, &lwork, rwork, iwork, &info);
-
+	zgesdd_(&jobz, &N, &N, AA, &N, s, NULL, &N, NULL, &N, work, &lwork, rwork, iwork, &info);
 
 	if(s[N-1] < EPSILON){
-		printf("A = G*JG is singular.\n");
+		printf("\n\n\nA = G*JG is singular.\n\n\n");
 		exit(-3);
 	}
-	else printf("Smallest singular value of A: %.*g, cond = %lg\n", DIGITS, s[N-1], s[0]/s[N-1]);
+	else printf("\n\n\nSmallest singular value of A: %.*g, cond = %lg\n\n\n", DIGITS, s[N-1], s[0]/s[N-1]);
 
 	free(s);
 	free(work);
