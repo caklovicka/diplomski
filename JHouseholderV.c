@@ -252,6 +252,7 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
+		goto PIVOT_1;
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
@@ -415,25 +416,21 @@ int main(int argc, char* argv[]){
 		zcopy(&Mk, &T[k], &inc, &G[k+M*k], &inc);
 		zcopy(&Mk, &T[k+M], &inc, &G[k+M*(k+1)], &inc);
 
-		// E is inverse of C
 		norm[k] = r1;
 		norm[k+1] = r2;
 
 		// now do the reductions one by one with reflectors
 		from_pivot_2 = 1;
 		repetitions = 2;
+
 		goto PIVOT_1;
 
 		// nothing here... ever
 
 		END_OF_PIVOT_2: k = k-1;
 
-		E[0] = c;
-		E[1] = -s;//-J[k] * J[k+1] * s;
-		E[2] = conj(s);//J[k] * J[k+1] * conj(s);
-		E[3] = c;
-
 		// multyply F with inverse of C
+		// C^H is inverse of C
 		alpha = 1.0;
 		beta = 0;
 		n = 2;
