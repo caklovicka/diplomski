@@ -517,11 +517,10 @@ int main(int argc, char* argv[]){
 		if ( from_pivot_2 ){
 			Akk = (double) norm[k];
 			//if( repetitions == 1) Akk -= conj(G[k-1+M*k]) * J[k-1] * G[k-1+M*k];
+			double akk = 0;
+			for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
+			printf("Akk = %lg, akk = %lg, Akk - akk = %.15g\n", Akk, akk, Akk-akk);
 		}
-
-		double akk = 0;
-		for(i = k; i < M; ++i) akk += conj(G[i+M*k]) * J[i] * G[i+M*k];
-		printf("Akk = %lg, akk = %lg, Akk - akk = %.15g\n", Akk, akk, Akk-akk);
 
 		double start1;
 
