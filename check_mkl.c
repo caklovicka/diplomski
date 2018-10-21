@@ -232,16 +232,14 @@ int main(int argc, char* argv[]){
 	}
 	else printf("\nSmallest singular value of A: %.*g, cond = %lg\n", DIGITS, s[N-1], csqrt(s[0]/s[N-1]));
 
-	double ss;
+	double ss, norm_svd = 0;
 	FILE *svd = fopen("data/svd.bin", "rb");
 	for(i = 0; i < N; ++i){
 		fscanf(svd, "%lg ", &ss);
-		s[i] -= ss;
-		printf("s[i] = %lg\n", s[i]);
+		norm_svd += (csqrt(s[i]) - csqrt(ss)) * (csqrt(s[i]) - csqrt(ss));
 	}
 	inc = 1;
-	double norm_svd = dznrm2(&N, s, &inc);
-	printf("norm(singulars - s) = %lg\n", norm_svd);
+	printf("norm_2(ss - s) = %lg\n", csqrt(norm_svd));
 
 	free(s);
 	free(work);
