@@ -230,20 +230,33 @@ int main(int argc, char* argv[]){
 		printf("\n\n\nA = G*JG is singular.\n\n\n");
 		exit(-3);
 	}
-	else printf("\nSmallest singular value of A: %.5e, cond = %lg\n", s[N-1], csqrt(s[0]/s[N-1]));
+	else printf("\nSmallest singular value of A: %lg, cond = %lg\n", s[N-1], csqrt(s[0]/s[N-1]));
 
 	double ss, norm_svd = 0;
 	FILE *svd = fopen("data/svd.bin", "rb");
-	double max_abs_svd = 0;
-	double max_rel_err_svd = 0;
+	double max_abs_svd = 0, abs_svd_rel;
+	double max_rel_err_svd = 0, rel_err_abs;
+	double diff;
 
 	for(i = 0; i < N; ++i){
+
 		fscanf(svd, "%lg ", &ss);
-		norm_svd += (csqrt(s[i]) - csqrt(ss)) * (csqrt(s[i]) - csqrt(ss));
-		if( creal(cabs(csqrt(s[i]) - csqrt(ss))) > max_abs_svd) printf("%lg\n", creal(cabs(csqrt(s[i]) - csqrt(ss)))); //max_abs_svd = creal(cabs(csqrt(s[i]) - csqrt(ss)));
-		if( creal(cabs(csqrt(s[i]) - csqrt(ss)))/creal(csqrt(ss)) > max_rel_err_svd ) max_rel_err_svd = creal(cabs(csqrt(s[i]) - csqrt(ss)))/creal(csqrt(ss));
+		diff = creal(csqrt(s[i]) - csqrt(ss));
+
+		norm_svd += diff * diff;
+		if( diff > max_abs_svd){
+			max_abs_svd = diff;
+			abs_svd_rel = diff/creal(csqrt(ss));
+		}
+
+		if( diff/creal(csqrt(ss)) > max_rel_err_svd ){
+			max_rel_err_svd = diff/creal(csqrt(ss));
+			rel_err_abs = diff;
+		}
 	}
-	printf("norm_2(ss - s) = %.6e, max_abs_svd = %.6e, max_rel_err_svd = %.6e\n", csqrt(norm_svd), max_abs_svd, max_rel_err_svd);
+	printf("norm_2(ss - s) = %.6e\n", csqrt(norm_svd));
+	printf("max_abs_svd = %lg, and its relative error is: %lg\n", max_abs_svd, abs_svd_rel);
+	printf("max_rel_err_svd = %lg, and its apsolute error is: %lg\n", max_rel_err_svd, rel_err_abs);
 
 	free(s);
 	free(work);
