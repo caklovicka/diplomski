@@ -1329,6 +1329,8 @@ int main(int argc, char* argv[]){
 
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
+		
+	}	// END OF MAIN LOOP
 
 		/*PIVOT_1:
 
