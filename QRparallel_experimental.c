@@ -1217,8 +1217,7 @@ int main(int argc, char* argv[]){
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		last_pivot = 1;
 		pivot_1_count += 1;
-		start1 = omp_get_wtime();
-		double start1;
+		double start1 = omp_get_wtime();
 		
 
 		// check the condition sign(Akk) = Jk
@@ -1279,9 +1278,9 @@ int main(int argc, char* argv[]){
 		double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
 		// make the reflector vector and save it
-		alpha = -1;
-		inc = 1;
-		Mk = M - k;
+		double complex alpha = -1;
+		int inc = 1;
+		int Mk = M - k;
 		mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
 		if(Mk/D == 0) mkl_nthreads = 1;
 		mkl_set_num_threads(mkl_nthreads);
