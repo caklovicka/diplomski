@@ -260,7 +260,6 @@ int main(int argc, char* argv[]){
 							// will be used for column swap k+1 <-> pivot_r when PIVOT_2 begins
 
 		double Akk = (double) norm[k];
-		goto PIVOT_1;
 		if(k == N-1) goto PIVOT_1;
 
 		// ------------------------ find pivot_lambda ------------------------
@@ -1329,7 +1328,7 @@ int main(int argc, char* argv[]){
 
 		pivot1time += (double)(omp_get_wtime() - start1);
 		LOOP_END: continue;
-		
+
 	}	// END OF MAIN LOOP
 
 		/*PIVOT_1:
