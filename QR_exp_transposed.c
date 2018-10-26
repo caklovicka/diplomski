@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
-	double complex *Gt = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);  // transposed matrix G, so that the operations are faster
+	//double complex *tempf = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector tempf, fisrt column after Householder transform
 
 
 	// check if files are opened
@@ -293,7 +293,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);	//return global value
 
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
@@ -324,7 +323,6 @@ int main(int argc, char* argv[]){
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
-		mkl_set_num_threads_local(0);	//return global value
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
@@ -398,7 +396,7 @@ int main(int argc, char* argv[]){
 		}
 
 
-		// do row swap if needed, so thath Gkk != 0
+		// do row swap if needed, so that Gkk != 0
 
 		if(first_non_zero_idx != k){
 
@@ -417,348 +415,257 @@ int main(int argc, char* argv[]){
 			zswap(&Nk, &G[k + M*k], &M, &G[first_non_zero_idx + M*k], &M);
 		}
 
-
-		int np = 0;	// number of 1 in J[k:M, k:M]
-		int nn = 0;	// number of -1 in J[k:M, k:M]
-
-		// update the signum arrays
-		if( J[k] < 0 ) n[nn++] = k;
-		else p[np++] = k;
-
-
-		// find the first i so that Ji = -Jk and G(i, k) != 0
-		// then swap rows k+1 <-> i
-
-		first_non_zero_idx = -1;	// first non zero element in the -Jk class
-
-		// [SEQUENTIAL]
-		for(i = k+1; i < M; ++i){
-
-			if(J[k] == J[i] || cabs(G[i+M*k]) < EPSILON ) continue;
-
-			first_non_zero_idx = i;
-			if(i == k+1) break; 	// no swapping needed, everythinig already in the right position
-
-
-			// else, swap rows i <-> k+1
-
-			long int itemp = Prow[i];
-			Prow[i] = Prow[k+1];
-			Prow[k+1] = itemp;
-
-			double dtemp = J[i];
-			J[i] = J[k+1];
-			J[k+1] = dtemp;
-
-			int Nk = N-k;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &G[k+1 + M*k], &M, &G[i + M*k], &M);
-			break;
-		}
-
-		// update the signum arrays
-		if( J[k+1] < 0) n[nn++] = k+1;
-		else p[np++] = k+1;
-
-		// fill and count the signums (not necessary to be ordered)
-
-		#pragma omp parallel for num_threads(nthreads)
-		for(i = k+2; i < M; ++i){
-
-			if(cabs(G[i+M*k]) < EPSILON) continue;
-
-			else if(J[i] < 0){
-				#pragma omp critical
-				n[nn++] = i;
-			}
-
-			else{
-				#pragma omp critical
-				p[np++] = i;
-			}
-		}
-
-
-		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
-		// do the sam thing with n array (at the same time)
-
-		double rr = omp_get_wtime();
-		#pragma omp parallel num_threads(2)
-		{
-
-			// first thread kills positives
-			if(omp_get_thread_num() == 0){
-				int offset;
-				for(offset = 1; offset < np; offset *= 2){
-
-					int nthreads_loc = np/(2*offset);
-					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
-
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
-
-					#pragma omp parallel for num_threads( nthreads_loc )
-					for(i = 0; i < np - offset; i += 2*offset){
-
-						mkl_set_num_threads_local(mkl_nthreads);
-
-						// G[p[i], k] destroys G[p[i+offset], k]
-						// first if kth column isnt real, make it real
-
-						double c;
-						double complex s;
-						double complex eliminator = G[p[i] + M*k];
-						double complex eliminated = G[p[i + offset] + M*k];
-						zrotg(&eliminator, &eliminated, &c, &s);
-
-						// apply the rotation
-						int Nk = N-k;
-						zrot(&Nk, &G[p[i] + M*k], &M, &G[p[i + offset] + M*k], &M, &c, &s);
-						G[p[i + offset] + M*k] = 0;
-					}
-				}
-			}
-
-			// second thread kills negatives
-			else{
-				int offset;
-				for(offset = 1; offset < nn; offset *= 2){
-
-					int nthreads_loc = nn/(2*offset);
-					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
-
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/D == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
-
-					#pragma omp parallel for num_threads( nthreads_loc )
-					for(i = 0; i < nn - offset; i += 2*offset){
-
-						mkl_set_num_threads_local(mkl_nthreads);
-
-						// G[n[i], k] destroys G[n[i+offset], k]
-						// make them real
-
-						double c;
-						double complex s;
-						double complex eliminator = G[n[i] + M*k];
-						double complex eliminated = G[n[i + offset] + M*k];
-						zrotg(&eliminator, &eliminated, &c, &s);
-
-						// apply the rotation
-						int Nk = N-k;
-						zrot(&Nk, &G[n[i] + M*k], &M, &G[n[i + offset] + M*k], &M, &c, &s);
-						G[n[i + offset] + M*k] = 0;
-					}
-				}
-			}
-		}
-		mkl_set_num_threads_local(0);	//return global value
-
-		rr = omp_get_wtime() - rr;
-
-
-		int kth_nonzeros = 2;
-		if(np == 0 || nn == 0) kth_nonzeros = 1;	// just one of them is 0. at this point one od them is nonzero
-													// if not, the program would exit with -4 (before this point)
-													// then A is maybe singular?
-
-		// do the same thing on a SECOND COLUMN
-		// wee need to know if the kth column has 0 or 1 or 2 nonzeros elements
-		// that determines in which case we are... (A1), (A2), (A3), (B1) or (B2)
-
-
-		// making the (k+1)th column real
-
-		first_non_zero_idx = -1;	// index of the first non zero element in column k+1
-									// will be filled with the first nonzero index, or stay -1
-
-		//[SEQUENTIAL]
-		for(i = k + kth_nonzeros; i < M; ++i){
-            if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
-			first_non_zero_idx = i;
-			break;
-		}
-
-
-		if(first_non_zero_idx == -1){	// we have the needed form alredy, continue to other columns
-			k = k + 1;
-			goto LOOP_END;
-		}
-
-		int kkth_nonzeros = 1;	// number of nonzero elements in the (k+1)st column, but those below kth_nonzeros
-								// this value is at least one, because we didnt exit in the previous if
-
-
-		// do row swap if needed, so thath G(k+kth_nonzeros, k+1) != 0
-		// if first_non_zero_idx == k + kth_nonzeros, then that's fine, nothing to swap
-
-		if(first_non_zero_idx != k + kth_nonzeros){
-
-			long int itemp = Prow[first_non_zero_idx];
-			Prow[first_non_zero_idx] = Prow[k + kth_nonzeros];
-			Prow[k + kth_nonzeros] = itemp;
-
-			double dtemp = J[first_non_zero_idx];
-			J[first_non_zero_idx] = J[k + kth_nonzeros];
-			J[k + kth_nonzeros] = dtemp;
-
-			int Nk = N - k - 1;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &G[k + kth_nonzeros + M*(k+1)], &M, &G[first_non_zero_idx + M*(k+1)], &M);
-		}
-
-
-		// update the signum arrays needed for reduction
-
-		nn = 0;
-		np = 0;
-
-		if(J[k + kth_nonzeros] < 0) n[nn++] = k + kth_nonzeros;
-		else p[np++] = k + kth_nonzeros;
-
-
-		// find the first non zero element in the -J(k + kth_nonzeros) class
-
 		first_non_zero_idx = -1;
 
-		// [SEQUENTIAL]
-		for(i = k + kth_nonzeros + 1; i < M; ++i){
+		// [SEQUENTIAL] find the first non zero element in the kth column of class -J[k]
+		for(i = k+1; i < M; ++i){
 
-			if(J[k + kth_nonzeros] == J[i] || cabs(G[i+M*(k+1)]) < EPSILON ) continue;
-
+			if(cabs(G[i+M*k]) < EPSILON && J[k] == J[k+1]) continue;
 			first_non_zero_idx = i;
-			if(i == k + kth_nonzeros + 1) break; 	// no swapping needed, everythinig already in the right position
-
-
-			// else, swap rows i <-> k + kth_nonzeros + 1
-
-			long int itemp = Prow[i];
-			Prow[i] = Prow[k + kth_nonzeros + 1];
-			Prow[k + kth_nonzeros + 1] = itemp;
-
-			double dtemp = J[i];
-			J[i] = J[k + kth_nonzeros + 1];
-			J[k + kth_nonzeros + 1] = dtemp;
-
-			int Nk = N-k-1;
-			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
-			if(Nk/D == 0) mkl_nthreads = 1;
-			mkl_set_num_threads(mkl_nthreads);
-			zswap(&Nk, &G[k + kth_nonzeros + 1 + M*(k+1)], &M, &G[i + M*(k+1)], &M);
 			break;
 		}
 
+		// do row swap if needed, so that Gk,k+1 != 0
 
-		// update the kkth_nonzeros
-		if(first_non_zero_idx != -1) kkth_nonzeros = 2;
+		if(first_non_zero_idx != k+1){
+
+			long int itemp = Prow[first_non_zero_idx];
+			Prow[first_non_zero_idx] = Prow[k];
+			Prow[k] = itemp;
+
+			double dtemp = J[first_non_zero_idx];
+			J[first_non_zero_idx] = J[k];
+			J[k] = dtemp;
+
+			int Nk = N - k;
+			int mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+			if(Nk/D == 0) mkl_nthreads = 1;
+			mkl_set_num_threads(mkl_nthreads);
+			zswap(&Nk, &G[k + M*k], &M, &G[first_non_zero_idx + M*k], &M);
+		}
+
+		if (first_non_zero_idx != -1) kth_nonzeros = 2;
+		else kth_nonzeros = 1;
 
 
-		// update the signum arrays needed for reduction
-		if(J[k + kth_nonzeros + 1] < 0) n[nn++] = k + kth_nonzeros + 1;
-		else p[np++] = k + kth_nonzeros + 1;
+		// make those rows real
 
+		int mkl_nthreads = (N-k)/D > (mkl_get_max_threads()/kth_nonzeros) ? (N-k)/D : (mkl_get_max_threads()/kth_nonzeros);
+		if((N-k)/D == 0 ) mkl_nthreads = 1;
 
-		// fill and count the signums (not necessary to be ordered)
-		#pragma omp parallel for num_threads(nthreads)
-		for(i = k + kth_nonzeros + 2; i < M; ++i){
+		#pragma omp parallel for num_threads( kth_nonzeros )
+		for(i = k; i < k + kth_nonzeros; ++i){
 
-			if(cabs(G[i+M*(k+1)]) < EPSILON) continue;
+		    mkl_set_num_threads_local(mkl_nthreads);
 
-			else if(J[i] < 0){
-				#pragma omp critical
-				n[nn++] = i;
-			}
-
-			else{
-				#pragma omp critical
-				p[np++] = i;
-			}
+		    double complex scal = conj(G[i + M*k]) / cabs(G[i + M*k]);
+            G[i + M*k] = cabs(G[i + M*k]);
+            int Nk = N - k - 1;
+            zscal(&Nk, &scal, &G[i + M*(k+1)], &M);
 		}
 
 
-		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
-		// do the sam thing with n array (at the same time)
+		// ------------ do Householder with kth_nonzeros elements in f -----------------
 
-		double rrr = omp_get_wtime();
-		#pragma omp parallel num_threads(2)
-		{
+		if(kth_nonzeros == 1){
 
-			// first thread kills positives
-			if(omp_get_thread_num() == 0){
-				int offset;
-				for(offset = 1; offset < np; offset *= 2){
+            // compute reflector constant H_sigma
+            // compute vector f, where g*Jg = f*Jf must hold
+            // that's why we need fk that looks like Hg = H_sigma*f = H_sigma*(sqrt(|sumk|), 0, ..., 0)
 
-					int nthreads_loc = np/(2*offset);
-					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
+            double complex gkk;
+            if(cabs(G[k+M*k]) >= EPSILON) gkk = -G[k+M*k] * csqrt(cabs(Akk)) / cabs(G[k+M*k]);
+            else gkk = csqrt(cabs(Akk));
 
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
+            // save the J norm of the vector
+            double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
 
-					#pragma omp parallel for num_threads( nthreads_loc )
-					for(i = 0; i < np - offset; i += 2*offset){
+            // make the reflector vector and save it
+            double complex alpha = -1;
+            int inc = 1;
+            int Mk = M - k;
+            mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+            if(Mk/D == 0) mkl_nthreads = 1;
+            mkl_set_num_threads(mkl_nthreads);
 
-						// G[p[i], k+1] destroys G[p[i+offset], k+1]
+            zcopy(&Mk, &G[k+M*k], &inc, &f[k], &inc);
+            f[k] -= gkk;
 
-						mkl_set_num_threads_local(mkl_nthreads);
+            // update G
+            G[k + M*k] = gkk;
 
-						double c;
-						double complex s;
-						double complex eliminator = G[p[i] + M*(k+1)];
-						double complex eliminated = G[p[i + offset] + M*(k+1)];
-						zrotg(&eliminator, &eliminated, &c, &s);
+            nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
+            if ( (Mk-1)/D == 0) nthreads = 1;
 
-						// apply the rotation
-						int Nk = N - k - 1;
-						zrot(&Nk, &G[p[i] + M*(k+1)], &M, &G[p[i + offset] + M*(k+1)], &M, &c, &s);
-						G[p[i + offset] + M*(k+1)] = 0;
-					}
-				}
-			}
+            T[k] = J[k] * f[k];
+            #pragma omp parallel for num_threads(nthreads)
+            for(i = k+1; i < M; ++i){
+                G[i + M*k] = 0;
+                T[i] = J[i] * f[i];
+            }
 
-			// second thread kills negatives
-			else{
-				int offset;
-				for(offset = 1; offset < nn; offset *= 2){
+            // apply the rotation on the rest of the matrix
+            nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
+            if ((N-k-1)/D == 0) nthreads = 1;
 
-					int nthreads_loc = nn/(2*offset);
-					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2) nthreads_loc = (omp_get_max_threads()-2)/2;
+            mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+            if (Mk/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
 
-					int mkl_nthreads = (N-k)/N > mkl_get_max_threads()/(2*nthreads_loc) ? (N-k)/N : mkl_get_max_threads()/(2*nthreads_loc);
-					if((N-k)/N == 0 || mkl_nthreads <= 0) mkl_nthreads = 1;
+            #pragma omp parallel num_threads( nthreads )
+            {
+                mkl_set_num_threads_local(1);
 
-					#pragma omp parallel for num_threads( nthreads_loc )
-					for(i = 0; i < nn - offset; i += 2*offset){
+                #pragma omp for nowait
+                for(j = k+1; j < N; ++j){
 
-						// G[n[i], k+1] destroys G[n[i+offset], k+1]
+                    // T = Jf
+                    // alpha = f*Jg
+                    int Mk = M - k;
+                    int inc = 1;
+                    double complex alpha;
+                    zdotc(&alpha, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+                    alpha = - 2 * alpha / fJf;
+                    // G[k + M*j] = alpha * f[k] + G[k + M*k]
+                    zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);
+                }
+            }
 
-						mkl_set_num_threads_local(mkl_nthreads);
-
-						double c;
-						double complex s;
-						double complex eliminator = G[n[i] + M*(k+1)];
-						double complex eliminated = G[n[i + offset] + M*(k+1)];
-						zrotg(&eliminator, &eliminated, &c, &s);
-
-						// apply the rotation
-						int Nk = N - k - 1;
-						zrot(&Nk, &G[n[i] + M*(k+1)], &M, &G[n[i + offset] + M*(k+1)], &M, &c, &s);
-						G[n[i + offset] + M*(k+1)] = 0;
-					}
-				}
-			}
 		}
-		mkl_set_num_threads_local(0);
 
-		rrr = omp_get_wtime() - rrr;
-		redukcijatime = redukcijatime + rrr + rr;
+		else{
+
+		    // compute reflector constant H_sigma
+            // compute vector f, where g*Jg = f*Jf must hold
+            // that's why we need fk that looks like Hg = H_sigma*f = H_sigma*(sqrt(|sum1|), sqrt(|sum2|), 0, ..., 0)
+            // sum1 - sum2 = g*Jg, sum1 is of positives, sum2 of negatives
+
+            double sum1 = 0;
+
+            for(i = k; i < M; ++i){
+                if(J[i] > 0) sum1 += conj(G[i+M*k]) * G[i+M*k];
+            }
+
+            double sum2 = cabs(norm[k] - sum1);
+
+            if( J[k] < 0 ){
+
+                for(i = k+1; i < M; ++i) if(J[i] > 0) break;
+
+                J[k] = 1.0;
+                J[i] = -1.0;
+
+                // update Prow
+                long int itemp = Prow[i];
+                Prow[i] = Prow[k];
+                Prow[k] = itemp;
+
+                // swap rows in G
+                int Nk = N - k;
+                mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+                if(Nk/D == 0) mkl_nthreads = 1;
+                mkl_set_num_threads(mkl_nthreads);
+                zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
+            }
+
+            if( J[k+1] > 0 ){
+
+                for(i = k+1; i < M; ++i) if(J[i] < 0) break;
+
+                J[k] = 1.0;
+                J[i] = -1.0;
+
+                // update Prow
+                long int itemp = Prow[i];
+                Prow[i] = Prow[k];
+                Prow[k] = itemp;
+
+                // swap rows in G
+                int Nk = N - k;
+                mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
+                if(Nk/D == 0) mkl_nthreads = 1;
+                mkl_set_num_threads(mkl_nthreads);
+                zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
+            }
+
+            double complex g1, g2;
+            if(cabs(G[k+M*k]) >= EPSILON) g1 = -G[k+M*k] * csqrt(sum1) / cabs(G[k+M*k]);
+            else g1 = csqrt(sum1);
+
+            if(cabs(G[k+M*k]) >= EPSILON) g2 = -G[k+M*k] * csqrt(sum2) / cabs(G[k+M*k]);
+            else g2 = csqrt(sum2);
+
+            // save the J norm of the vector
+            double fJf = Akk + J[k] * (cabs(Akk) + 2 * csqrt(cabs(Akk)) * cabs(G[k+M*k]));
+
+            // make the reflector vector and save it
+            double complex alpha = -1;
+            int inc = 1;
+            int Mk = M - k;
+            mkl_nthreads = Mk/D > mkl_get_max_threads() ? Mk/D : mkl_get_max_threads();
+            if(Mk/D == 0) mkl_nthreads = 1;
+            mkl_set_num_threads(mkl_nthreads);
+
+            zcopy(&Mk, &G[k+M*k], &inc, &f[k], &inc);
+            f[k] -= gkk;
+
+            // update G
+            G[k + M*k] = gkk;
+
+            nthreads = (Mk-1)/D > omp_get_max_threads() ? (Mk-1)/D : omp_get_max_threads();
+            if ( (Mk-1)/D == 0) nthreads = 1;
+
+            T[k] = J[k] * f[k];
+            #pragma omp parallel for num_threads(nthreads)
+            for(i = k+1; i < M; ++i){
+                G[i + M*k] = 0;
+                T[i] = J[i] * f[i];
+            }
+
+            // apply the rotation on the rest of the matrix
+            nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
+            if ((N-k-1)/D == 0) nthreads = 1;
+
+            mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+            if (Mk/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
+
+            #pragma omp parallel num_threads( nthreads )
+            {
+                mkl_set_num_threads_local(1);
+
+                #pragma omp for nowait
+                for(j = k+1; j < N; ++j){
+
+                    // T = Jf
+                    // alpha = f*Jg
+                    int Mk = M - k;
+                    int inc = 1;
+                    double complex alpha;
+                    zdotc(&alpha, &Mk, &T[k], &inc, &G[k+M*j], &inc);
+                    alpha = - 2 * alpha / fJf;
+                    // G[k + M*j] = alpha * f[k] + G[k + M*k]
+                    zaxpy(&Mk, &alpha, &f[k], &inc, &G[k + M*j], &inc);
+                }
+            }
+
+		}
+
+		}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 		// -------- check forms od 2x2 pivot ---------
@@ -812,7 +719,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);
 
 		// handle the (A1) form
 
@@ -859,7 +765,6 @@ int main(int argc, char* argv[]){
 					mkl_set_num_threads_local(mkl_nthreads);
 					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);
 				}
-				mkl_set_num_threads_local(0);
 
 				// do plane rotations with kth row
 
@@ -959,7 +864,6 @@ int main(int argc, char* argv[]){
 				mkl_set_num_threads_local(mkl_nthreads);
 				zcopy(&Nk, &T[i], &n_, &G[k + i + M*k], &M);
 			}
-			mkl_set_num_threads_local(0);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -1025,7 +929,6 @@ int main(int argc, char* argv[]){
 					mkl_set_num_threads_local(mkl_nthreads);
 					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);
 				}
-				mkl_set_num_threads_local(0);
 
 				// do a plane rotation, eliminate row k+2 with row idx
 
@@ -1101,7 +1004,6 @@ int main(int argc, char* argv[]){
 				mkl_set_num_threads_local(mkl_nthreads);
 				zcopy(&Nk, &T[i], &n_, &G[k + i + M*(k+1)], &M);
 			}
-			mkl_set_num_threads_local(0);
 
 
 			// put zeros explicitly in the right places
@@ -1222,7 +1124,7 @@ int main(int argc, char* argv[]){
 
 		#pragma omp parallel num_threads( nthreads )
 		{
-			mkl_set_num_threads_local(mkl_nthreads);
+			mkl_set_num_threads_local(1);
 
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){

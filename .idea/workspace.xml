@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="05b57ac8-aaea-4387-9c2d-c69a012ce08b" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/QR_exp_transposed.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JHouseholderV.c" beforeDir="false" afterPath="$PROJECT_DIR$/JHouseholderV.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QR_exp_transposed.c" beforeDir="false" afterPath="$PROJECT_DIR$/QR_exp_transposed.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/QRparallel_experimental.c" beforeDir="false" afterPath="$PROJECT_DIR$/QRparallel_experimental.c" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -21,22 +22,22 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
         <counts>
-          <entry key="c" value="3" />
+          <entry key="c" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.open">
         <counts>
-          <entry key="C++" value="3" />
+          <entry key="C++" value="4" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="c" value="541" />
+          <entry key="c" value="1339" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="C++" value="541" />
+          <entry key="C++" value="1339" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -47,17 +48,26 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/QR_exp_transposed.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="93" column="145" selection-start-line="93" selection-start-column="145" selection-end-line="93" selection-end-column="145" />
+            <state relative-caret-position="828">
+              <caret line="586" column="61" lean-forward="true" selection-start-line="586" selection-start-column="61" selection-end-line="586" selection-end-column="61" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/JHouseholderV.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="615">
+              <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="506">
-              <caret line="680" column="32" selection-start-line="680" selection-start-column="32" selection-end-line="680" selection-end-column="32" />
+            <state relative-caret-position="236">
+              <caret line="765" lean-forward="true" selection-start-line="765" selection-end-line="765" />
             </state>
           </provider>
         </entry>
@@ -68,6 +78,7 @@
     <findStrings>
       <find>REDUCTION</find>
       <find>mkl_set_num_threads_local(0</find>
+      <find>scal</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -76,8 +87,9 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/QR_exp_transposed.c" />
         <option value="$PROJECT_DIR$/QRparallel_experimental.c" />
+        <option value="$PROJECT_DIR$/QR_exp_transposed.c" />
+        <option value="$PROJECT_DIR$/JHouseholderV.c" />
       </list>
     </option>
   </component>
@@ -160,17 +172,24 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/QR_exp_transposed.c">
+    <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="93" column="145" selection-start-line="93" selection-start-column="145" selection-end-line="93" selection-end-column="145" />
+        <state relative-caret-position="236">
+          <caret line="765" lean-forward="true" selection-start-line="765" selection-end-line="765" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
+    <entry file="file://$PROJECT_DIR$/QR_exp_transposed.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="506">
-          <caret line="680" column="32" selection-start-line="680" selection-start-column="32" selection-end-line="680" selection-end-column="32" />
+        <state relative-caret-position="828">
+          <caret line="586" column="61" lean-forward="true" selection-start-line="586" selection-start-column="61" selection-end-line="586" selection-end-column="61" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/JHouseholderV.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="615">
+          <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
         </state>
       </provider>
     </entry>

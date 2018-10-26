@@ -175,6 +175,8 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){	// MAIN LOOP
 
+	    if(k >= 1500) break;
+
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
