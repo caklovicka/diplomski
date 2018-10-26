@@ -1222,7 +1222,7 @@ int main(int argc, char* argv[]){
 
 		#pragma omp parallel num_threads( nthreads )
 		{
-			mkl_set_num_threads_local(mkl_nthreads);
+			mkl_set_num_threads_local(1);
 
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){
