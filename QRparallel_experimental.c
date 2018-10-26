@@ -679,7 +679,6 @@ int main(int argc, char* argv[]){
 		// do the sam thing with n array (at the same time)
 
         rp = 1.0 * np/(np + nn);
-        printf("%lg\n", rp);
 
 		double rrr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)

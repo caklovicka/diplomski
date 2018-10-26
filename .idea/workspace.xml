@@ -56,8 +56,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="746">
-              <caret line="501" lean-forward="true" selection-start-line="501" selection-end-line="501" />
+            <state relative-caret-position="506">
+              <caret line="680" column="32" selection-start-line="680" selection-start-column="32" selection-end-line="680" selection-end-column="32" />
             </state>
           </provider>
         </entry>
@@ -169,8 +169,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="746">
-          <caret line="501" lean-forward="true" selection-start-line="501" selection-end-line="501" />
+        <state relative-caret-position="506">
+          <caret line="680" column="32" selection-start-line="680" selection-start-column="32" selection-end-line="680" selection-end-column="32" />
         </state>
       </provider>
     </entry>
