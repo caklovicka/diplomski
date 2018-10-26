@@ -691,7 +691,7 @@ int main(int argc, char* argv[]){
 
 					int nthreads_loc = np/(2*offset);
 					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > ((int) ((omp_get_max_threads()-2)*rp) ) nthreads_loc = (int) ((omp_get_max_threads()-2)*rp);
+					else if ( nthreads_loc > ((int) ((omp_get_max_threads()-2)*rp) ) ) nthreads_loc = (int) ((omp_get_max_threads()-2)*rp);
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
@@ -719,7 +719,7 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < nn; offset *= 2){
 
-					int nthreads_loc = nn/(2*offset*DD);
+					int nthreads_loc = nn/(2*offset);
 					if(nthreads_loc == 0) nthreads_loc = 1;
 					else if ( nthreads_loc > (int) ((omp_get_max_threads()-2)*(1-rp))) nthreads_loc = (int) ((omp_get_max_threads()-2)*(1-rp));
 
