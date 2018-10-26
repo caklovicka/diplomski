@@ -31,12 +31,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="c" value="389" />
+          <entry key="c" value="507" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="C++" value="389" />
+          <entry key="C++" value="507" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -56,8 +56,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="15">
-              <caret line="487" column="18" selection-start-line="487" selection-start-column="18" selection-end-line="487" selection-end-column="18" />
+            <state relative-caret-position="170">
+              <caret line="693" column="57" lean-forward="true" selection-start-line="693" selection-start-column="57" selection-end-line="693" selection-end-column="57" />
             </state>
           </provider>
         </entry>
@@ -67,6 +67,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>REDUCTION</find>
+      <find>mkl_set_num_threads_local(0</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -168,8 +169,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="487" column="18" selection-start-line="487" selection-start-column="18" selection-end-line="487" selection-end-column="18" />
+        <state relative-caret-position="170">
+          <caret line="693" column="57" lean-forward="true" selection-start-line="693" selection-start-column="57" selection-end-line="693" selection-end-column="57" />
         </state>
       </provider>
     </entry>

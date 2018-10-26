@@ -293,7 +293,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);	//return global value
 
 		if(cabs(Akk) >= ALPHA * pivot_lambda) goto PIVOT_1;
 
@@ -324,7 +323,6 @@ int main(int argc, char* argv[]){
 
 			if(pivot_sigma < cabs(Air)) pivot_sigma = cabs(Air);
 		}
-		mkl_set_num_threads_local(0);	//return global value
 
 		if(cabs(Akk) * pivot_sigma >= ALPHA * pivot_lambda * pivot_lambda) goto PIVOT_1;
 
@@ -485,7 +483,7 @@ int main(int argc, char* argv[]){
 		// do the sam thing with n array (at the same time)
 
 		// no. of row pairs for reduction
-		int DD = 1;
+		double rp = 1.0 * np / (N-k);
 
 		double rr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)
@@ -495,9 +493,9 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < np; offset *= 2){
 
-					int nthreads_loc = np/(2*offset*DD);
+					int nthreads_loc = np/(2*offset);
 					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
+					else if ( nthreads_loc > (int) ((omp_get_max_threads()-2)*rp) ) nthreads_loc = (int) (int) ((omp_get_max_threads()-2)*rp);
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
@@ -505,7 +503,7 @@ int main(int argc, char* argv[]){
 						mkl_set_num_threads_local(1);
 
 						// G[p[i], k] destroys G[p[i+offset], k]
-						// first if kth column isnt real, make it real
+						// first if kth column isn't real, make it real
 
 						double c;
 						double complex s;
@@ -526,9 +524,9 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < nn; offset *= 2){
 
-					int nthreads_loc = nn/(2*offset*DD);
+					int nthreads_loc = nn/(2*offset);
 					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
+					else if ( nthreads_loc > (int) ((omp_get_max_threads()-2)*(1-rp)) ) nthreads_loc = (int) ((omp_get_max_threads()-2)*(1-rp)) ;
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < nn - offset; i += 2*offset){
@@ -552,7 +550,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);	//return global value
 
 		rr = omp_get_wtime() - rr;
 
@@ -681,6 +678,8 @@ int main(int argc, char* argv[]){
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
+        rp = 1.0 * np/(N-k-2);
+
 		double rrr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)
 		{
@@ -690,9 +689,9 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < np; offset *= 2){
 
-					int nthreads_loc = np/(2*offset*DD);
+					int nthreads_loc = np/(2*offset);
 					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2 ) nthreads_loc = (omp_get_max_threads()-2)/2;
+					else if ( nthreads_loc > ((int) ((omp_get_max_threads()-2)*rp) ) nthreads_loc = (int) ((omp_get_max_threads()-2)*rp);
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
@@ -722,7 +721,7 @@ int main(int argc, char* argv[]){
 
 					int nthreads_loc = nn/(2*offset*DD);
 					if(nthreads_loc == 0) nthreads_loc = 1;
-					else if ( nthreads_loc > (omp_get_max_threads()-2)/2) nthreads_loc = (omp_get_max_threads()-2)/2;
+					else if ( nthreads_loc > (int) ((omp_get_max_threads()-2)*(1-rp))) nthreads_loc = (int) ((omp_get_max_threads()-2)*(1-rp));
 
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < nn - offset; i += 2*offset){
@@ -745,7 +744,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);
 
 		rrr = omp_get_wtime() - rrr;
 		redukcijatime = redukcijatime + rrr + rr;
@@ -802,7 +800,6 @@ int main(int argc, char* argv[]){
 				}
 			}
 		}
-		mkl_set_num_threads_local(0);
 
 		// handle the (A1) form
 
@@ -849,7 +846,6 @@ int main(int argc, char* argv[]){
 					mkl_set_num_threads_local(mkl_nthreads);
 					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);	
 				}
-				mkl_set_num_threads_local(0);
 
 				// do plane rotations with kth row
 
@@ -949,7 +945,6 @@ int main(int argc, char* argv[]){
 				mkl_set_num_threads_local(mkl_nthreads);
 				zcopy(&Nk, &T[i], &n_, &G[k + i + M*k], &M);
 			}
-			mkl_set_num_threads_local(0);
 
 			// put zeros explicitly in the right places
 			G[k+2+M*k] = 0;
@@ -1015,7 +1010,6 @@ int main(int argc, char* argv[]){
 					mkl_set_num_threads_local(mkl_nthreads);
 					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);	
 				}
-				mkl_set_num_threads_local(0);
 
 				// do a plane rotation, eliminate row k+2 with row idx
 
@@ -1091,7 +1085,6 @@ int main(int argc, char* argv[]){
 				mkl_set_num_threads_local(mkl_nthreads);
 				zcopy(&Nk, &T[i], &n_, &G[k + i + M*(k+1)], &M);
 			}
-			mkl_set_num_threads_local(0);
 
 
 			// put zeros explicitly in the right places
