@@ -91,7 +91,7 @@ int main(int argc, char* argv[]){
 	long int *Prow = (long int*) mkl_malloc(M*sizeof(long int), 64);	// for row permutation
 	long int *Pcol = (long int*) mkl_malloc(N*sizeof(long int), 64);	// for column permutation
 	double complex *f = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector f
-	//double complex *tempf = (double complex*) mkl_malloc(M*sizeof(double complex), 64);	// vector tempf, fisrt column after Householder transform
+	double complex *Gt = (double complex*) mkl_malloc(M*N*sizeof(double complex), 64);  // transposed matrix G, so that the operations are faster
 
 
 	// check if files are opened
@@ -123,7 +123,7 @@ int main(int argc, char* argv[]){
 		}
 
 		if(omp_get_thread_num() == 1){
-			// read matrix G 
+			// read matrix G
 			int i, j;
 			for(j = 0; j < N; ++j ){
 				for(i = 0; i < M; ++i ){
@@ -209,7 +209,7 @@ int main(int argc, char* argv[]){
 						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) > eps )
 							norm[j] -= denomi;
 
-						// else compute the norm again 
+						// else compute the norm again
 						else{
 							norm[j] = 0;
 							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
@@ -221,12 +221,12 @@ int main(int argc, char* argv[]){
 
 						double denomi = conj(G[k-1+M*j]) * J[k-1] * G[k-1+M*j] + conj(G[k-2+M*j]) * J[k-2] * G[k-2+M*j];
 						double frac = cabs(norm[j]) / cabs(denomi);
-						
+
 						// not a case of catastrophic cancellation
 						if( creal(norm[j]) * denomi < 0 || cabs(frac - 1) > eps)
 							norm[j] -= denomi;
 
-						// else compute the norm again 
+						// else compute the norm again
 						else{
 							norm[j] = 0;
 							for(i = k; i < M; ++i) norm[j] += conj(G[i+M*j]) * J[i] * G[i+M*j];
@@ -252,7 +252,7 @@ int main(int argc, char* argv[]){
 
 
 		// ------------------------ start the pivoting strategy ------------------------
-		
+
 		double pp = omp_get_wtime();
 		double pivot_lambda = 0;
 		double pivot_sigma = 0;
@@ -285,7 +285,7 @@ int main(int argc, char* argv[]){
 				if(mkl_nthreads == 0) mkl_nthreads = 1;
 				mkl_set_num_threads_local( mkl_nthreads );
 				zdotc(&Aik, &Mk, &G[k+M*i], &inc, &f[k], &inc); //Aik = gi* J gk, but on a submatrix G[k:M, k:N]
-				
+
 				#pragma omp critical
 				if(pivot_lambda < cabs(Aik)){
 					pivot_lambda = cabs(Aik);
@@ -309,7 +309,7 @@ int main(int argc, char* argv[]){
 		nthreads = (N-k)/D > omp_get_max_threads() ? (N-k)/D : omp_get_max_threads();
 		if ((N-k)/D == 0) nthreads = 1;
 
-		#pragma omp parallel for reduction(max:pivot_sigma) num_threads( nthreads ) 
+		#pragma omp parallel for reduction(max:pivot_sigma) num_threads( nthreads )
 		for(i = k; i < N; ++i){
 
 			if(i == pivot_r) continue;
@@ -332,7 +332,7 @@ int main(int argc, char* argv[]){
 		double Arr = (double) norm[pivot_r];
 
 		if(cabs(Arr) >= ALPHA * pivot_sigma){
-			// gr is the pivot column 
+			// gr is the pivot column
 			// swap columns k <-> r
 			// then do PIVOT_1 with Householder
 
@@ -346,7 +346,7 @@ int main(int argc, char* argv[]){
 
 
 			int inc = 1;
-			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads(); 
+			int mkl_nthreads = M/D > mkl_get_max_threads() ? M/D : mkl_get_max_threads();
 			if(M/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&M, &G[M*pivot_r], &inc, &G[M*k], &inc);
@@ -355,14 +355,14 @@ int main(int argc, char* argv[]){
 			goto PIVOT_1;
 		}
 
-		
+
 		// ----------------------------------------------PIVOT_2-----------------------------------------------------
 
 		pivotiranje = pivotiranje + omp_get_wtime() - pp;
 		pivot_2_count += 1;
 		double start2 = omp_get_wtime();
 		last_pivot = 2;
-		
+
 		// do a column swap pivot_r <-> k+1 if needed
 
 		if(pivot_r != k+1){
@@ -400,7 +400,7 @@ int main(int argc, char* argv[]){
 
 		// do row swap if needed, so thath Gkk != 0
 
-		if(first_non_zero_idx != k){ 
+		if(first_non_zero_idx != k){
 
 			long int itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k];
@@ -418,7 +418,7 @@ int main(int argc, char* argv[]){
 		}
 
 
-		int np = 0;	// number of 1 in J[k:M, k:M] 
+		int np = 0;	// number of 1 in J[k:M, k:M]
 		int nn = 0;	// number of -1 in J[k:M, k:M]
 
 		// update the signum arrays
@@ -463,7 +463,7 @@ int main(int argc, char* argv[]){
 		else p[np++] = k+1;
 
 		// fill and count the signums (not necessary to be ordered)
-	
+
 		#pragma omp parallel for num_threads(nthreads)
 		for(i = k+2; i < M; ++i){
 
@@ -591,12 +591,12 @@ int main(int argc, char* argv[]){
 
 		int kkth_nonzeros = 1;	// number of nonzero elements in the (k+1)st column, but those below kth_nonzeros
 								// this value is at least one, because we didnt exit in the previous if
- 
+
 
 		// do row swap if needed, so thath G(k+kth_nonzeros, k+1) != 0
 		// if first_non_zero_idx == k + kth_nonzeros, then that's fine, nothing to swap
 
-		if(first_non_zero_idx != k + kth_nonzeros){ 
+		if(first_non_zero_idx != k + kth_nonzeros){
 
 			long int itemp = Prow[first_non_zero_idx];
 			Prow[first_non_zero_idx] = Prow[k + kth_nonzeros];
@@ -857,7 +857,7 @@ int main(int argc, char* argv[]){
 					int Nk = N - k - 1;
 
 					mkl_set_num_threads_local(mkl_nthreads);
-					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);	
+					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);
 				}
 				mkl_set_num_threads_local(0);
 
@@ -894,7 +894,7 @@ int main(int argc, char* argv[]){
 				// apply the rotation
 				Nk = N-k;
 				zrot(&Nk, &G[k+1+M*k], &M, &G[idx+M*k], &M, &c, &s);
-				G[idx+M*k] = 0;	
+				G[idx+M*k] = 0;
 			}
 
 
@@ -1023,7 +1023,7 @@ int main(int argc, char* argv[]){
 					int Nk = N - k - 1;
 
 					mkl_set_num_threads_local(mkl_nthreads);
-					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);	
+					zscal(&Nk, &scal, &G[i+M*(k+1)], &M);
 				}
 				mkl_set_num_threads_local(0);
 
@@ -1032,7 +1032,7 @@ int main(int argc, char* argv[]){
 				int idx = k; 	// idx is the row that will eliminate row k+2
 				if(J[idx] != J[k+2]) idx = k+1;
 
-				// generate plane rotation		
+				// generate plane rotation
 				double c;
 				double complex s;
 				double complex eliminator = G[idx+M*k];
@@ -1041,8 +1041,8 @@ int main(int argc, char* argv[]){
 
 				// apply the rotation
 				mkl_nthreads = (N-k)/D > mkl_get_max_threads() ? (N-k)/D : mkl_get_max_threads();
-				if((N-k)/D == 0) mkl_nthreads = 1;	
-				mkl_set_num_threads(mkl_nthreads);	
+				if((N-k)/D == 0) mkl_nthreads = 1;
+				mkl_set_num_threads(mkl_nthreads);
 				int Nk = N-k;
 				zrot(&Nk, &G[idx+M*k], &M, &G[k+2+M*k], &M, &c, &s);
 				G[k+2+M*k] = 0;
@@ -1121,7 +1121,7 @@ int main(int argc, char* argv[]){
 		printf("\n\n\nUPS, SOMETHING WENT WRONG... STOPPING...Is A maybe singular?\n\n\n");
 		exit(-4);
 
-	
+
 		// ----------------------------------------------PIVOT_1-----------------------------------------------------
 
 		PIVOT_1:
@@ -1130,7 +1130,7 @@ int main(int argc, char* argv[]){
 		last_pivot = 1;
 		pivot_1_count += 1;
 		double start1 = omp_get_wtime();
-		
+
 
 		// check the condition sign(Akk) = Jk
 		// if not, do row swap and diagonal swap in J
@@ -1148,7 +1148,7 @@ int main(int argc, char* argv[]){
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 
-			// swap rows in G 
+			// swap rows in G
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
@@ -1169,14 +1169,14 @@ int main(int argc, char* argv[]){
 			Prow[i] = Prow[k];
 			Prow[k] = itemp;
 
-			// swap rows in G 
+			// swap rows in G
 			int Nk = N - k;
 			mkl_nthreads = Nk/D > mkl_get_max_threads() ? Nk/D : mkl_get_max_threads();
 			if(Nk/D == 0) mkl_nthreads = 1;
 			mkl_set_num_threads(mkl_nthreads);
 			zswap(&Nk, &G[k + M*k], &M, &G[i + M*k], &M);
 		}
-		
+
 
 		// compute reflector constant H_sigma
 		// compute vector f, where g*Jg = f*Jf must hold
@@ -1222,7 +1222,7 @@ int main(int argc, char* argv[]){
 
 		#pragma omp parallel num_threads( nthreads )
 		{
-			mkl_set_num_threads_local(1);
+			mkl_set_num_threads_local(mkl_nthreads);
 
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){
@@ -1255,7 +1255,7 @@ int main(int argc, char* argv[]){
 
 
 
-	// -------------------------------- writing -------------------------------- 	
+	// -------------------------------- writing --------------------------------
 
 	start = omp_get_wtime();
 
@@ -1316,7 +1316,7 @@ int main(int argc, char* argv[]){
 	fclose(writeJ);
 	fclose(writeCol);
 	fclose(writeRow);
-	
+
 	mkl_free(Prow);
 	mkl_free(Pcol);
 	mkl_free(G);
