@@ -483,7 +483,7 @@ int main(int argc, char* argv[]){
 		// do the sam thing with n array (at the same time)
 
 		// no. of row pairs for reduction
-		double rp = 1.0 * np / (N-k);
+		double rp = 1.0 * np/(np + nn);
 
 		double rr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)
@@ -678,7 +678,7 @@ int main(int argc, char* argv[]){
 		// [REDUCTION] do plane rotations with Gkk on all elements with signum Jk with reduction with the p array
 		// do the sam thing with n array (at the same time)
 
-        rp = 1.0 * np/(N-k-2);
+        rp = 1.0 * np/(np + nn);
         printf("%lg\n", rp);
 
 		double rrr = omp_get_wtime();
