@@ -492,7 +492,7 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < np; offset *= 2){
 
-				    int nthreads_loc = np/D > (omp_get_max_threads()-2)/2 ) ? np/D : (omp_get_max_threads()-2)/2 );
+				    int nthreads_loc = np/D > (omp_get_max_threads()-2)/2  ? np/D : (omp_get_max_threads()-2)/2 ;
 				    if( np/D == 0 ) nthreads_loc = 1;
 
 					/*int nthreads_loc = np/(2*offset);
@@ -530,7 +530,7 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < nn; offset *= 2){
 
-                    int nthreads_loc = nn/D > (omp_get_max_threads()-2)/2 ) ? nn/D : (omp_get_max_threads()-2)/2 );
+                    int nthreads_loc = nn/D > (omp_get_max_threads()-2)/2 ? nn/D : (omp_get_max_threads()-2)/2 ;
 				    if( nn/D == 0 ) nthreads_loc = 1;
 
 					/*int nthreads_loc = nn/(2*offset);
@@ -701,7 +701,7 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < np; offset *= 2){
 
-				    int nthreads_loc = np/D > (omp_get_max_threads()-2)/2 ) ? np/D : (omp_get_max_threads()-2)/2 );
+				    int nthreads_loc = np/D > (omp_get_max_threads()-2)/2 ? np/D : (omp_get_max_threads()-2)/2 ;
 				    if( np/D == 0 ) nthreads_loc = 1;
 
 					/*int nthreads_loc = np/(2*offset);
@@ -738,7 +738,7 @@ int main(int argc, char* argv[]){
 				int offset;
 				for(offset = 1; offset < nn; offset *= 2){
 
-				    int nthreads_loc = nn/D > (omp_get_max_threads()-2)/2 ) ? nn/D : (omp_get_max_threads()-2)/2 );
+				    int nthreads_loc = nn/D > (omp_get_max_threads()-2)/2 ? nn/D : (omp_get_max_threads()-2)/2 ;
 				    if( nn/D == 0 ) nthreads_loc = 1;
 
 					/*int nthreads_loc = nn/(2*offset);
