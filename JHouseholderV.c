@@ -175,8 +175,6 @@ int main(int argc, char* argv[]){
 
 	for(k = 0; k < N; ++k){	// MAIN LOOP
 
-	    if(k >= 1500) break;
-
 		// ------------------------ choosing a pivoting strategy (partial pivoting) -------------------------------
 
 		// ------------------------ update J-norms of columns ------------------------
@@ -545,12 +543,13 @@ int main(int argc, char* argv[]){
 		nthreads = (N-k-1)/D > omp_get_max_threads() ? (N-k-1)/D : omp_get_max_threads();
 		if ((N-k-1)/D == 0) nthreads = 1;
 
-		mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
+		/*mkl_nthreads = Mk/D > mkl_get_max_threads()/nthreads ? Mk/D : mkl_get_max_threads()/nthreads;
 		if (Mk/D == 0 || mkl_get_max_threads()/nthreads == 0) mkl_nthreads = 1;
+        */
 
 		#pragma omp parallel num_threads( nthreads )
 		{
-			mkl_set_num_threads_local(mkl_nthreads);
+			mkl_set_num_threads_local(1);
 
 			#pragma omp for nowait
 			for(j = k+1; j < N; ++j){

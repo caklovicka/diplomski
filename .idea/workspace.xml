@@ -32,12 +32,12 @@
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="c" value="1339" />
+          <entry key="c" value="1347" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="C++" value="1339" />
+          <entry key="C++" value="1347" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.vcs.git.usages" />
@@ -57,8 +57,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/JHouseholderV.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="615">
-              <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
+            <state relative-caret-position="505">
+              <caret line="548" lean-forward="true" selection-start-line="548" selection-end-line="548" />
             </state>
           </provider>
         </entry>
@@ -66,8 +66,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="236">
-              <caret line="765" lean-forward="true" selection-start-line="765" selection-end-line="765" />
+            <state relative-caret-position="-5308">
+              <caret line="827" column="47" lean-forward="true" selection-start-line="827" selection-start-column="47" selection-end-line="827" selection-end-column="47" />
             </state>
           </provider>
         </entry>
@@ -172,13 +172,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="236">
-          <caret line="765" lean-forward="true" selection-start-line="765" selection-end-line="765" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/QR_exp_transposed.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="828">
@@ -186,10 +179,17 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/QRparallel_experimental.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-5308">
+          <caret line="827" column="47" lean-forward="true" selection-start-line="827" selection-start-column="47" selection-end-line="827" selection-end-column="47" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/JHouseholderV.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="615">
-          <caret line="188" lean-forward="true" selection-start-line="188" selection-end-line="188" />
+        <state relative-caret-position="505">
+          <caret line="548" lean-forward="true" selection-start-line="548" selection-end-line="548" />
         </state>
       </provider>
     </entry>
