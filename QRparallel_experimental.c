@@ -503,7 +503,7 @@ int main(int argc, char* argv[]){
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < np - offset; i += 2*offset){
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						// G[p[i], k] destroys G[p[i+offset], k]
 						// first if kth column isnt real, make it real
@@ -537,7 +537,7 @@ int main(int argc, char* argv[]){
 					#pragma omp parallel for num_threads( nthreads_loc )
 					for(i = 0; i < nn - offset; i += 2*offset){
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						// G[n[i], k] destroys G[n[i+offset], k]
 						// make them real
@@ -706,7 +706,7 @@ int main(int argc, char* argv[]){
 
 						// G[p[i], k+1] destroys G[p[i+offset], k+1]
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						double c;
 						double complex s;
@@ -739,7 +739,7 @@ int main(int argc, char* argv[]){
 
 						// G[n[i], k+1] destroys G[n[i+offset], k+1]
 
-						mkl_set_num_threads_local(mkl_nthreads);
+						mkl_set_num_threads_local(1);
 
 						double c;
 						double complex s;
