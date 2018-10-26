@@ -485,7 +485,7 @@ int main(int argc, char* argv[]){
 		// do the sam thing with n array (at the same time)
 
 		// no. of row pairs for reduction
-		int DD = 4;
+		int DD = 1;
 
 		double rr = omp_get_wtime();
 		#pragma omp parallel num_threads(2)
